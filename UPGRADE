@@ -1,5 +1,5 @@
 Upgrading checklist for Echolot
-$Id: UPGRADE,v 1.1 2002/12/18 18:35:53 weasel Exp $
+$Id: UPGRADE,v 1.2 2003/01/14 06:27:41 weasel Exp $
 
 - Download the latest .tar.gz from <URL:http://www.palfrader.org/echolot/>.
 - Verify the signature.
@@ -12,6 +12,9 @@ $Id: UPGRADE,v 1.1 2002/12/18 18:35:53 weasel Exp $
 - Start the new pingd and verify it's working properly.
 - Congratulations.
 
+
+Notes for upgrades from a version earlier than 2.0.9
+ - The Log::Dispatch perl module is now required.
 
 Notes for upgrades from a version earlier than 2.0.6
  - If you have specified thesaurusindexfile and/or indexfilebasename in your

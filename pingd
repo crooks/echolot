@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.87 2003/01/14 05:25:34 weasel Exp $
+# $Id: pingd,v 1.88 2003/01/14 06:27:41 weasel Exp $
 #
 
 =pod
@@ -310,6 +310,7 @@ sub setSigHandlers() {
 			open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
 			open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
 		};
+		Echolot::Log::reopen();
 	};
 	$SIG{'INT'} = sub {
 		Echolot::Log::info("Got SIGINT. scheduling exit");
@@ -485,7 +486,7 @@ sub daemon_run($) {
 	Echolot::Globals::get()->{'storage'}->finish();
 
 	unlink (Echolot::Config::get()->{'pidfile'}) or
-		cluck ("Cannot unlink pidfile ".Echolot::Config::get()->{'pidfile'});
+		Echolot::Log::warn ("Cannot unlink pidfile ".Echolot::Config::get()->{'pidfile'}.".");
 };
 
 sub send_sig($) {

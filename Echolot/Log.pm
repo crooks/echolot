@@ -1,7 +1,7 @@
 package Echolot::Log;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Log.pm,v 1.1 2003/01/14 05:26:14 weasel Exp $
+# $Id: Log.pm,v 1.2 2003/01/14 06:27:41 weasel Exp $
 #
 
 =pod
@@ -37,10 +37,8 @@ sub header_log(%) {
 	return $logstring;
 };
 
-sub init(%) {
-	my (%args) = @_;
-
-	$LOG = Log::Dispatch->new( callbacks => \&header_log );
+sub reopen() {
+	$LOG->remove( 'file1' );
 	$LOG->add( Log::Dispatch::File->new(
 		name       => 'file1',
 		min_level  => 'debug',
@@ -49,9 +47,12 @@ sub init(%) {
 	));
 };
 
-#sub log() {
-#	return $LOG;
-#};
+sub init(%) {
+	my (%args) = @_;
+
+	$LOG = Log::Dispatch->new( callbacks => \&header_log );
+	reopen();
+};
 
 sub debug($) {
 	$LOG->debug(@_);

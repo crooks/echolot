@@ -1,4 +1,4 @@
-$Id: README,v 1.37 2002/12/18 19:22:24 weasel Exp $
+$Id: README,v 1.38 2003/01/14 06:27:41 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -43,6 +43,8 @@ o HTML::Template
 o GnuPG::Interface (0.33 or higher required)
 o Data::Dumper (should be part of perl-base)
 o Digest::MD5 (included in perl 5.8 or higher)
+o Log::Dispatch and
+  Log::Dispatch::File (tested with 1.79 and 2.01)
 
 INITIAL SETUP
 -------------
@@ -63,6 +65,16 @@ o If the required perl modules above are not yet installed on your
 
   If this command reports errors, please verify that you are using perl
   5.8 or higher and are connected to the Internet.
+
+  [Note: if you operating system already has packages with the required
+   libraries than those generally are preferred since they integrate better with
+   your system.
+
+   On Debian for instance the following command can be used to get
+   everything that is required:
+      # apt-get install liblog-dispatch-perl libgnupg-interface-perl
+                libhtml-template-perl
+  ]
 
 o Create a new user named »pinger« (You can use a different user name if
   you so desire. The remainder of this document assumes that Echolot has
