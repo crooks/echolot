@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.4 2002/06/13 15:27:45 weasel Exp $
+# $Id: Conf.pm,v 1.5 2002/06/13 16:46:11 weasel Exp $
 #
 
 =pod
@@ -20,6 +20,8 @@ remailer-conf and remailer-key replies.
 use strict;
 use warnings;
 use Carp qw{cluck};
+use GnuPG::Interface;
+use IO::Handle;
 
 
 sub send_requests() {
@@ -103,16 +105,9 @@ sub remailer_conf($$$) {
 	return 1;
 };
 
-sub remailer_key($$$) {
-	my ($conf, $token, $time) = @_;
+sub parse_mix_key($$$) {
+	my ($reply, $time, $remailer) = @_;
 
-	my ($id) = $token =~ /^key\.(\d+)$/;
-	(defined $id) or
-		cluck ("Returned token '$token' has no id at all"),
-		return 0;
-
-	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
-	cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
 # -----Begin Mix Key-----
 # 7f6d997678b19ccac110f6e669143126
 # 258
@@ -129,8 +124,8 @@ sub remailer_key($$$) {
 
 	my %mixmasters;
 	# rot26 rot26@mix.uucico.de 7f6d997678b19ccac110f6e669143126 2.9b33 MC
-	my @mix_confs = ($conf =~ /^[a-z0-9]+ \s+ \S+\@\S+ \s+ [0-9a-f]{32} (?:\s+ \S+ \s+ \S+)?/xmg);
-	my @mix_keys = ($conf =~ /^-----Begin \s Mix \s Key-----\r?\n
+	my @mix_confs = ($reply =~ /^[a-z0-9]+ \s+ \S+\@\S+ \s+ [0-9a-f]{32} (?:\s+ \S+ \s+ \S+)?/xmg);
+	my @mix_keys = ($reply =~ /^-----Begin \s Mix \s Key-----\r?\n
 	                          [0-9a-f]{32}\r?\n
 							  \d+\r?\n
 							  (?:[a-zA-Z0-9+\/]*\r?\n)+
@@ -166,7 +161,7 @@ sub remailer_key($$$) {
 		if ($remailer->{'address'} ne $remailer_address) {
 			# Address mismatch -> Ignore reply and add $remailer_address to prospective addresses
 			cluck("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
-		Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-key', $remailer_address);
+			Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-key', $remailer_address);
 		} else {
 			Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
 			Echolot::Globals::get()->{'storage'}->set_key(
@@ -181,6 +176,116 @@ sub remailer_key($$$) {
 				$time);
 		}
 	};
+
+	return 1;
+};
+
+sub parse_cpunk_key($$$) {
+	my ($reply, $time, $remailer) = @_;
+
+	my $GnuPG = new GnuPG::Interface;
+	$GnuPG->options->meta_interactive( 0 );
+	my %cypherpunk;
+
+	my @pgp_keys = ($reply =~ /^-----BEGIN \s PGP \s PUBLIC \s KEY \s BLOCK-----\r?\n
+	                          (?:.+\r?\n)+
+							  \r?\n
+							  (?:[a-zA-Z0-9+\/=]*\r?\n)+
+							  -----END \s PGP \s PUBLIC \s KEY \s BLOCK-----$/xmg );
+	for my $key (@pgp_keys) {
+		my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
+			= ( IO::Handle->new(),
+				IO::Handle->new(),
+				IO::Handle->new(),
+				IO::Handle->new(),
+			);
+		my $handles = GnuPG::Handles->new (
+			stdin      => $stdin_fh,
+			stdout     => $stdout_fh,
+			stderr     => $stderr_fh,
+			status     => $status_fh
+			);
+
+		my $pid = $GnuPG->wrap_call(
+			commands     => [qw{--with-colons}],
+			command_args => [qw{--no-options --no-default-keyring --fast-list-mode}],
+			handles      => $handles );
+		print $stdin_fh $key;
+		close($stdin_fh);
+
+		my $stdout = join '', <$stdout_fh>; close($stdout_fh);
+		my $stderr = join '', <$stderr_fh>; close($stderr_fh);
+		my $status = join '', <$status_fh>; close($status_fh);
+
+		($stderr eq '') or 
+			cluck("GnuPG returnd something in stderr: '$stderr' when checking key '$key'; skipping\n"),
+			next;
+		($status eq '') or 
+			cluck("GnuPG returnd something in status '$status' when checking key '$key': So what?\n");
+		
+		my @included_keys = $stdout =~ /^pub:.*$/mg;
+		(scalar @included_keys >= 2) &&
+			cluck ("Cannot handle more than one key per block correctlye yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'});
+		for my $included_key (@included_keys) {
+			my ($type, $keyid, $uid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):[^:]+::::([^:]+):/;
+			(defined $uid) or
+				cluck ("Unexpected format of '$included_key' by ".$remailer->{'address'}."; Skipping"),
+				next;
+			my ($address) = $uid =~ /<(.*?)>/;
+			$cypherpunk{$keyid} = {
+				address => $address,
+				type => $type,
+				key => $key       # FIXME handle more than one key per block correctly
+			};
+		};
+	};
+
+	for my $keyid (keys %cypherpunk) {
+		my $remailer_address = $cypherpunk{$keyid}->{'address'};
+
+		if ($remailer->{'address'} ne $remailer_address) {
+			# Address mismatch -> Ignore reply and add $remailer_address to prospective addresses
+			cluck("Remailer address mismatch $remailer->{'address'} vs $remailer_address id key $keyid. Adding latter to prospective remailers.");
+			Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-key', $remailer_address);
+		} else {
+			Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
+			# 1 .. RSA
+			# 17 .. DSA
+			if ($cypherpunk{$keyid}->{'type'} == 1 || $cypherpunk{$keyid}->{'type'} == 17 ) {
+				Echolot::Globals::get()->{'storage'}->set_key(
+					(($cypherpunk{$keyid}->{'type'} == 1) ? 'cpunk-rsa' :
+					 (($cypherpunk{$keyid}->{'type'} == 17) ? 'cpunk-dsa' :
+					  'ERROR')),
+					$keyid, # as nick
+					$cypherpunk{$keyid}->{'address'},
+					$cypherpunk{$keyid}->{'key'},
+					$keyid,
+					'N/A',
+					'N/A',
+					'N/A',
+					$time);
+			} else {
+				cluck("$keyid from $remailer_address has algoid ".$cypherpunk{$keyid}->{'type'}.". Cannot handle those.");
+			};
+		}
+	};
+
+	return 1;
+};
+
+sub remailer_key($$$) {
+	my ($reply, $token, $time) = @_;
+
+	my ($id) = $token =~ /^key\.(\d+)$/;
+	(defined $id) or
+		cluck ("Returned token '$token' has no id at all"),
+		return 0;
+
+	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
+	cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
+
+	parse_mix_key($reply, $time, $remailer);
+	parse_cpunk_key($reply, $time, $remailer);
 
 	return 1;
 };
