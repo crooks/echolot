@@ -1,6 +1,7 @@
 Changes in version 2.0beta33 - 2002-08-23
 	* Scheduler fixes (inserted jobs for one time processing got requeued
 	  over and over again according to their interval).
+	* Give a short summary about current stats on index page.
 
 Changes in version 2.0beta32 - 2002-08-23
 	* Fix a major bug introduced in 2.0beta31 that resulted in no
