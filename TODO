@@ -1,7 +1,4 @@
-$Id: TODO,v 1.41 2002/09/17 04:13:53 weasel Exp $
-
-for 2.0:
- test for another week or so
+$Id: TODO,v 1.42 2002/12/13 06:54:23 weasel Exp $
 
 can be done later, nice if for 2.0:
  check for mixmaster binary on startup
