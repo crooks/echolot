@@ -1,3 +1,6 @@
+Changes in version 2.0rc3
+	* Write SENDMAIL to mix.cfg
+
 Changes in version 2.0rc2 - 2002-09-08
 	* Reopen stdin to /dev/null instead of closing it to avoid
 	  perl 5.8 warnings.

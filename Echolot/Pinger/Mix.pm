@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.8 2002/08/19 19:02:19 weasel Exp $
+# $Id: Mix.pm,v 1.9 2002/09/10 20:03:20 weasel Exp $
 #
 
 =pod
@@ -51,6 +51,7 @@ sub ping($$$$) {
 	my $mixcfg = Echolot::Config::get()->{'mixhome'}.'/mix.cfg';
 	my $address = Echolot::Config::get()->{'my_localpart'} . '@' .
 	              Echolot::Config::get()->{'my_domain'};
+	my $sendmail = Echolot::Config::get()->{'sendmail'};
 	open (F, ">$mixcfg") or
 		cluck("Cannot open $mixcfg for writing: $!"),
 		return 0;
@@ -59,6 +60,7 @@ sub ping($$$$) {
 	print (F "ADDRESS         $address\n");
 	print (F "PUBRING         pubring.mix\n");
 	print (F "TYPE2LIST       type2.list\n");
+	print (F "SENDMAIL        $sendmail -f $address -t\n");
 	close (F) or
 		cluck("Cannot close $mixcfg: $!"),
 		return 0;
