@@ -12,6 +12,7 @@ Changes in
 	  should just call pingd directly.  Also wait for pingd to really
 	  shut down in stop and restart.
 	* Regularily clean up the temp directory.
+	* Send out pings every two hours by default.
 
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.

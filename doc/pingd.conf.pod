@@ -313,7 +313,7 @@ B<ping_every_nth_time> seconds).  It is done this way in order to avoid
 spikes.
 
 	Default: 'pinger_interval'     => 5*60, # send out pings every 5 minutes
-	         'ping_every_nth_time' => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
+	         'ping_every_nth_time' => 24,   # send out pings to the same remailer every 24 calls, i.e. every 2 hours
 	Example: 'pinger_interval'     => 60,    # send out pings every minute
 	         'ping_every_nth_time' => 60,    # send out pings to the same remailer every 60 calls, i.e. every hour
 

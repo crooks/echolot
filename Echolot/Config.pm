@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.63 2003/06/06 10:36:23 weasel Exp $
+# $Id: Config.pm,v 1.64 2003/06/06 10:41:20 weasel Exp $
 #
 
 =pod
@@ -101,7 +101,7 @@ sub init($) {
 		metadata_backup_count       => 32, # keep 32 rotations of metadata
 
 		pinger_interval             => 5*60, # send out pings every 5 minutes
-		ping_every_nth_time         => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
+		ping_every_nth_time         => 24,   # send out pings to the same remailer every 24 calls, i.e. every 2 hours
 
 		chainpinger_interval        => 5*60, # send out pings every 5 minutes
 		chainping_every_nth_time    => 2016,  # send out pings to the same chain every 2016 calls, i.e. week
