@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.49 2003/02/18 06:38:09 weasel Exp $
+# $Id: Stats.pm,v 1.50 2003/02/19 15:15:19 weasel Exp $
 #
 
 =pod
@@ -657,7 +657,7 @@ sub build_lists() {
 	};
 	if (Echolot::Config::get()->{'combined_list'}) {
 		build_clist( $clist, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', 'clist');
-		build_clist( $pubclist, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', 'clist');
+		build_clist( $pubclist, $broken1, $privbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', 'clist');
 	};
 
 	$stats{'unique_addresses'} = scalar keys %addresses;
