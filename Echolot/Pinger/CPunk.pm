@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.16 2003/02/21 05:58:36 weasel Exp $
+# $Id: CPunk.pm,v 1.17 2003/02/21 12:10:17 weasel Exp $
 #
 
 =pod
@@ -79,7 +79,7 @@ sub encrypt_to($$$$) {
 
 
 
-	#$msg =~ s/\r?\n/\r\n/g;
+	$msg =~ s/\r?\n/\r\n/g;
 
 
 
@@ -172,7 +172,7 @@ sub encrypt_to($$$$) {
 			return undef);
 
 	$result =~ s,^Version: .*$,Version: N/A,m;
-	$result =~ s/\r?\n/\r\n/g;
+	#$result =~ s/\r?\n/\r\n/g;
 	return $result;
 };
 
@@ -186,12 +186,12 @@ sub ping($$$$$) {
 		if ($with_from) {
 			my $address = Echolot::Config::get()->{'my_localpart'} . '@' .
 			              Echolot::Config::get()->{'my_domain'};
-			$header = "##\r\nFrom: Echolot Pinger <$address>\r\n\r\n";
+			$header = "##\nFrom: Echolot Pinger <$address>\n\n";
 			$with_from = 0;
 		};
-		$msg = "::\r\n".
-			"Anon-To: $to\r\n".
-			"\r\n".
+		$msg = "::\n".
+			"Anon-To: $to\n".
+			"\n".
 			$header.
 			$msg;
 
@@ -200,9 +200,9 @@ sub ping($$$$$) {
 			(defined $encrypted) or 
 				Echolot::Log::debug("Encrypted is undefined."),
 				return undef;
-			$msg = "::\r\n".
-				"Encrypted: PGP\r\n".
-				"\r\n".
+			$msg = "::\n".
+				"Encrypted: PGP\n".
+				"\n".
 				$encrypted;
 		};
 		$to = $hop->{'address'};
