@@ -1,4 +1,4 @@
-$Id: README,v 1.28 2002/08/14 23:56:27 weasel Exp $
+$Id: README,v 1.29 2002/08/17 18:20:58 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -50,7 +50,7 @@ o Create a new unix user named »pinger« (You can actually use any name
 o Make sure you have the perl libraries mentioned above and GnuPG
   installed properly.
 
-o Copy all Echolot files and directories to ~pinger/Echolot
+o Copy all Echolot files and directories to ~pinger/echolot
 
 o Copy/Rename the pingd.conf.sample file to pingd.conf.
 
