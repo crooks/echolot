@@ -1,4 +1,4 @@
-Changes in version       -           
+Changes in version 2.1.7 - 2004-11-15
 	* debian: Add disable and enable to allowed commands in init
 	  script
 	* debian: Create echolot user group in proper gid space.
