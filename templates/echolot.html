@@ -1,0 +1,81 @@
+<html>
+<head>
+	<title>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</title>
+</head>
+<body>
+<h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
+
+<p>
+This pinger automatically collects and generates remail reliability statistics
+for both Type I (Cypherpunkt) and Type II (Mixmaster) remamailers. It also
+offers current keyrings <TMPL_IF NAME="thesaurus">and each remailer's reply to <code>remailer-xxx</code>
+queries </TMPL_IF>for your convenience.
+
+<h2>Available Stats</h2>
+<table border=1>
+<tr>
+<TMPL_IF NAME="seperate_rlist">
+  <th colspan=4>Cypherpunk (Type I)</th>
+<TMPL_ELSE>
+  <th>Cypherpunk (Type I)</th> 
+</TMPL_IF>
+  <th>Mixmaster (Type II)</th>
+<TMPL_IF NAME="combined_list">
+	<th>Combined</th>
+</TMPL_IF>
+</tr>
+<tr>
+  <td><a href="rlist.html">v1</a></td>
+<TMPL_IF NAME="seperate_rlist">
+  <td><a href="rlist-rsa.html">(rsa)</a></td>
+  <td><a href="rlist-dsa.html">(dsa)</a></td>
+  <td><a href="rlist-clear.html">(cleartext)</a></td>
+</TMPL_IF>
+  <td><a href="mlist.html">v1</a></td>
+<TMPL_IF NAME="combined_list">
+	<td rowspan=2><a href="clist.html">V2</a></td>
+</TMPL_IF>
+</tr>
+<tr>
+  <td><a href="rlist2.html">v2</a></td>
+<TMPL_IF NAME="seperate_rlist">
+  <td><a href="rlist2-rsa.html">(rsa)</a></td>
+  <td><a href="rlist2-dsa.html">(dsa)</a></td>
+  <td><a href="rlist2-clear.html">(cleartext)</a></td>
+</TMPL_IF>
+  <td><a href="mlist2.html">v2</a></td>
+</tr>
+</table>
+
+
+<h2>Available Keyrings</h2>
+<table border=1>
+	<tr>
+		<th>Cypherpunk (Type I)</th> 
+		<th>Mixmaster (Type II)</th>
+	</tr>
+	<tr>
+		<td><a href="pgp-rsa.asc">RSA only</a></td>
+		<td><a href="pubring.mix"><code>pubring.mix</code></a></td>
+	</tr>
+	<tr>
+		<td><a href="pgp-all.asc">RSA and DSA</a></td>
+		<td><a href="type2.list"><code>type2.list</code></a></td>
+	</tr>
+</table>
+
+<TMPL_IF NAME="thesaurus">
+<h2>Thesaurus</h2>
+
+Find the Thesaurus index in <a href="thesaurus/">thesaurus/</a>.
+</TMPL_IF>
+
+<hr>
+Created by <a href="http://www.palfrader.org/echolot/">Echolot <TMPL_VAR
+NAME="version"></a> at <TMPL_VAR NAME="CURRENT_TIMESTAMP"> (individual pages
+may be newer).
+</body>
+
+<!-- vim:set ts=2: -->
+<!-- vim:set shiftwidth=2: -->
+</html>
