@@ -1,7 +1,6 @@
 # vim:set syntax=perl:
 
 $CONFIG = {
-            'homedir'          => '/home/pinger/echolot',
             'sitename'         => 'unconfigured',
 
             'my_localpart'     => 'pinger',

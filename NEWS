@@ -1,3 +1,7 @@
+Changes in version 2.0beta21 - 2002-08-05
+	* Using a sane basedir by default. You no longer need to specify
+	  it in pingd.conf.
+
 Changes in version 2.0beta20 - 2002-08-02
 	* Added pingctl wrapper to tools.
 	* echolot --help now gives a brief list of commands.

@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.51 2002/08/02 02:20:47 weasel Exp $
+# $Id: pingd,v 1.52 2002/08/05 17:30:09 weasel Exp $
 #
 
 =pod
@@ -153,19 +153,24 @@ Dumps the current configuration to standard output.
 
 =over
 
-=item --verbose
+=item B<--basedir>
+
+The home directory to which everything else is relative to. See the BASE
+DIRECTORY section below.
+
+=item B<--verbose>
 
 Verbose mode. Causes B<pingd> to print debugging messages about its progress.
 
-=item --help
+=item B<--help>
 
 Print a short help and exit sucessfully.
 
-=item --version
+=item B<--version>
 
 Print version number and exit sucessfully.
 
-=item --nohup
+=item B<--nohup>
 
 Usefull only with the B<add>, B<set>, B<setremailercaps>,
 B<deleteremailercaps>, B<getkeyconf>, B<buildstats>, B<buildkeys>,
@@ -176,19 +181,32 @@ commands after adding the command to the task list.
 
 Per default such a signal is sent.
 
-=item --process
+=item B<--process>
 
 Usefull only with the B<start> command.
 
 Read and process the commands file on startup.
 
-=item --detach
+=item B<--detach>
 
 Usefull only with the B<start> command.
 
 Tell B<pingd> to detach.
 
 =back
+
+=head1 BASE DIRECTORY
+
+The home directory to which everything else is relative to.
+
+Basedir defaults to whatever directory the B<pingd> binary is located. It can
+get overridden by the B<ECHOLOT_HOME> environment variable which in turn is
+weaker than the B<--basedir> setting.
+
+This directory is then used to locate the configuration file B<pingd.conf> (see
+FILES below).
+
+The B<homedir> setting in B<pingd.conf> finally sets the base directory.
 
 =head1 FILES
 
@@ -198,7 +216,7 @@ The configuration file is searched in those places in that order:
 
 =item the file pointed to by the B<ECHOLOT_CONF> environment variable
 
-=item `pwd`/pingd.conf
+=item <basedir>/pingd.conf
 
 =item $HOME/echolot/pingd.conf
 
@@ -207,6 +225,16 @@ The configuration file is searched in those places in that order:
 =item $HOME/.pingd.conf
 
 =item /etc/pingd.conf
+
+=back
+
+=head1 ENVIRONMENT
+
+=over
+
+=item ECHOLOT_CONF echolot config file (see section FILES)
+
+=item ECHOLOT_HOME echolot base directory (see section BASE DIRECTORY)
 
 =back
 
@@ -233,10 +261,11 @@ Please report them at E<lt>URL:http://savannah.gnu.org/bugs/?group=echolotE<gt>
 =cut
 
 use strict;
+use FindBin qw{ $Bin };
+use lib ( $Bin, "$Bin/lib" );
 use Getopt::Long;
 use English;
 use Carp;
-use lib qw{ . lib };
 use Echolot::Config;
 use Echolot::Globals;
 use Echolot::Storage::File;
@@ -251,7 +280,7 @@ use Echolot::Thesaurus;
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0beta20';
+my $VERSION = '2.0beta21';
 
 
 my $redirected_stdio = 0;
@@ -499,15 +528,18 @@ sub hup_if_wanted($) {
 
 
 
-my $params;
+my $params = { basedir => $Bin };
+$params->{'basedir'} = $ENV{'ECHOLOT_HOME'} if (defined $ENV{'ECHOLOT_HOME'});
+
 Getopt::Long::config('bundling');
 if (!GetOptions (
-	'help'    =>  \$params->{'help'},
-	'version' =>  \$params->{'version'},
-	'verbose' =>  \$params->{'verbose'},
-	'nohup'   =>  \$params->{'nohup'},
-	'detach'  =>  \$params->{'detach'},
-	'process' =>  \$params->{'process'},
+	'help'     =>  \$params->{'help'},
+	'version'  =>  \$params->{'version'},
+	'verbose+' =>  \$params->{'verbose'},
+	'nohup'    =>  \$params->{'nohup'},
+	'detach'   =>  \$params->{'detach'},
+	'process'  =>  \$params->{'process'},
+	'basedir'  =>  \$params->{'basedir'},
 	)) {
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
 };

@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.32 2002/07/23 00:30:11 weasel Exp $
+# $Id: Config.pm,v 1.33 2002/08/05 17:30:09 weasel Exp $
 #
 
 =pod
@@ -23,7 +23,7 @@ The configuration file is searched in those places in that order:
 
 =item the file pointed to by the B<ECHOLOT_CONF> environment variable
 
-=item `pwd`/pingd.conf
+=item <basedir>/pingd.conf
 
 =item $HOME/echolot/pingd.conf
 
@@ -43,17 +43,19 @@ use English;
 
 my $CONFIG;
 
-my @CONFIG_FILES = 
-	( $ENV{'ECHOLOT_CONF'},
-	  'pingd.conf',
-	  $ENV{'HOME'}.'/echolot/pingd.conf',
-	  $ENV{'HOME'}.'/pingd.conf',
-	  $ENV{'HOME'}.'/.pingd.conf',
-	  '/etc/pingd.conf' );
-	  
 sub init($) {
 	my ($params) = @_;
+	
+	die ("Basedir is not defined\n") unless defined $params->{'basedir'};
 
+	my @CONFIG_FILES = 
+		( $ENV{'ECHOLOT_CONF'},
+		  $params->{'basedir'}.'/pingd.conf',
+		  $ENV{'HOME'}.'/echolot/pingd.conf',
+		  $ENV{'HOME'}.'/pingd.conf',
+		  $ENV{'HOME'}.'/.pingd.conf',
+		  '/etc/pingd.conf' );
+	  
 	my $DEFAULT;
 	$DEFAULT = {
 		# System Specific Options
@@ -176,6 +178,7 @@ sub init($) {
 	for my $filename ( @CONFIG_FILES ) {
 		if ( defined $filename && -e $filename ) {
 			$configfile = $filename;
+			print "Using config file $configfile\n" if ($params->{'verbose'});
 			last;
 		};
 	};
@@ -194,11 +197,12 @@ sub init($) {
 			confess("Evaling config code from '$configfile' returned error: $EVAL_ERROR");
 	}
 	
+
 	for my $key (keys %$DEFAULT) {
 		$CONFIG->{$key} = $DEFAULT->{$key} unless defined $CONFIG->{$key};
 	};
-
-	$CONFIG->{'verbose'} = 1 if ($params->{'verbose'});
+	$CONFIG->{'basedir'} = $params->{'basedir'} unless (defined $CONFIG->{'verbose'});
+	$CONFIG->{'verbose'} = $params->{'verbose'} if ($params->{'verbose'});
 
 	for my $key (keys %$CONFIG) {
 		warn ("Config option $key is not defined\n") unless defined $CONFIG->{$key};

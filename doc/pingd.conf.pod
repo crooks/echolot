@@ -18,15 +18,6 @@ values in the $CONFIG hash.
 
 =over
 
-=item B<homedir>
-
-The base directory of the echolot installation. All other filenames and
-directorynames are local to this directory. B<pingd> changes into this
-directory upon startup.
-
-	Default: none
-	Example: 'homedir' => '/home/pinger/echolot',
-
 =item B<sitename>
 
 A short name for your site/pinger. Is used in the statistics produced.
@@ -340,6 +331,15 @@ After which time to expire files in the thesaurus directory.
 =head2 DIRECTORIES AND FILES
 
 =over
+
+=item B<homedir>
+
+The base directory of the echolot installation. All other filenames and
+directorynames are local to this directory. B<pingd> changes into this
+directory upon startup.
+
+	Default: The directory in which pingd is.
+	Example: 'homedir' => '/home/pinger/echolot',
 
 =item B<mailindir>
 
