@@ -630,7 +630,7 @@ File to write logs to.  This file is reopened on SIGHUP.
 =item B<loglevel>
 
 Minimum severity of messages to include in log file. Possible values are
-B<debug>, B<info>, B<notice>, B<warning>, B<error>, B<critical>, B<alert>, and
+B<trace>, B<debug>, B<info>, B<notice>, B<warning>, B<error>, B<critical>, B<alert>, and
 B<emergency>.
 
 	Default: 'loglevel' => 'info',

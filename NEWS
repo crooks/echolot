@@ -11,6 +11,7 @@ Changes in version       - 2004
 	* gpg interaction cleanup, move a lot of duplicated code to
 	  Echolot::Tools.
 	* Filter out mixmaster outputs to stderr that are no problem.
+	* There's a TRACE loglevel now, which is even more noisy than DEBUG.
 
 Changes in version 2.1.3 - 2004-04-20
 	* Improvements to pingd.conf(5) by Colin.

@@ -279,14 +279,14 @@ sub make_gpg_fds() {
 sub readwrite_gpg($$$$$) {
 	my ($in, $inputfd, $stdoutfd, $stderrfd, $statusfd) = @_;
 
-	Echolot::Log::debug("Entering readwrite_gpg.");
+	Echolot::Log::trace("Entering readwrite_gpg.");
 
 	local $INPUT_RECORD_SEPARATOR = undef;
 	my $sout = IO::Select->new();
 	my $sin = IO::Select->new();
 	my $offset = 0;
 
-	Echolot::Log::debug("input is $inputfd; output is $stdoutfd; err is $stderrfd; status is ".(defined $statusfd ? $statusfd : 'undef').".");
+	Echolot::Log::trace("input is $inputfd; output is $stdoutfd; err is $stderrfd; status is ".(defined $statusfd ? $statusfd : 'undef').".");
 
 	$inputfd->blocking(0);
 	$stdoutfd->blocking(0);
@@ -301,15 +301,15 @@ sub readwrite_gpg($$$$$) {
 
 	my ($readyr, $readyw, $written);
 	while ($sout->count() > 0) {
-		Echolot::Log::debug("select waiting for ".($sout->count())." fds.");
+		Echolot::Log::trace("select waiting for ".($sout->count())." fds.");
 		($readyr, $readyw, undef) = IO::Select::select($sout, $sin, undef, 42);
-		Echolot::Log::debug("ready: write: ".(scalar @$readyw)."; read: ".(scalar @$readyr));
+		Echolot::Log::trace("ready: write: ".(scalar @$readyw)."; read: ".(scalar @$readyr));
 		for my $wfd (@$readyw) {
-			Echolot::Log::debug("writing to $wfd.");
+			Echolot::Log::trace("writing to $wfd.");
 			$written = $wfd->syswrite($in, length($in) - $offset, $offset);
 			$offset += $written;
 			if ($offset == length($in)) {
-				Echolot::Log::debug("writing to $wfd done.");
+				Echolot::Log::trace("writing to $wfd done.");
 				close $wfd;
 				$sin->remove($wfd);
 				$sin = undef;
@@ -320,12 +320,12 @@ sub readwrite_gpg($$$$$) {
 
 		for my $rfd (@$readyr) {
 			if ($rfd->eof) {
-				Echolot::Log::debug("reading from $rfd done.");
+				Echolot::Log::trace("reading from $rfd done.");
 				$sout->remove($rfd);
 				close($rfd);
 				next;
 			}
-			Echolot::Log::debug("reading from $rfd.");
+			Echolot::Log::trace("reading from $rfd.");
 			if ($rfd == $stdoutfd) {
 				$stdout .= <$rfd>;
 				next;
@@ -340,7 +340,7 @@ sub readwrite_gpg($$$$$) {
 			}
 		}
 	}
-	Echolot::Log::debug("readwrite_gpg done.");
+	Echolot::Log::trace("readwrite_gpg done.");
 	return ($stdout, $stderr, $status);
 };
 

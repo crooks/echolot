@@ -19,6 +19,7 @@ use Carp qw{};
 #use Time::HiRes qw( gettimeofday );
 
 my %LOGLEVELS = qw{
+	trace		8
 	debug		7
 	info		6
 	notice		5
@@ -88,6 +89,9 @@ sub log_message($$) {
 	$LOGFH->flush();
 };
 
+sub trace($) {
+	log_message('trace', $_[0]);
+};
 sub debug($) {
 	log_message('debug', $_[0]);
 };

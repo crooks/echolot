@@ -8,15 +8,8 @@ Legend:
         D Deferred
         X Abandoned
 
- - remove the verbose debug output in readwrite_gpg.
-   (maybe a trace loglevel)
-
  - updated information with from lines
  - don't send that many messages with From Headers
- - supress mixmaster output:
-   Warning: The message has a From: line.
-   Chain: rebleep
- - have a timeout on GPG calls
  - optionally log messages wich raise problems
  - close and open files instead of keeping all the files open
  - make 'not a remailer' check not that strict
@@ -39,3 +32,4 @@ can be done later:
  X have different stats philosophies (pessimist, optimist..)
  X get rid of dependency on mix
  X get rid of dependency on gnupg
+ X have a timeout on GPG calls (nonblocking IO should solve the problem)
