@@ -1,5 +1,12 @@
+echolot (000.2.0beta28-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 13 Aug 2002 07:58:31 +0200
+
 echolot (000.2.0beta27-1) unstable; urgency=low
 
+  * New upstream version
   * Set the mixmaster binary path.
   * Use --quiet when starting echolot.
 
