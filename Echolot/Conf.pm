@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.10 2002/07/03 11:08:21 weasel Exp $
+# $Id: Conf.pm,v 1.11 2002/07/03 12:09:03 weasel Exp $
 #
 
 =pod
@@ -42,8 +42,8 @@ sub send_requests() {
 	Echolot::Globals::get()->{'storage'}->enable_commit();
 };
 
-sub remailer_conf($$$) {
-	my ($conf, $token, $time) = @_;
+sub remailer_conf($$$;$) {
+	my ($conf, $token, $time, $dontexpire) = @_;
 
 	my ($id) = $token =~ /^conf\.(\d+)$/;
 	(defined $id) or
@@ -68,7 +68,7 @@ sub remailer_conf($$$) {
 		Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-conf', $remailer_address);
 	} else {
 		Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
-		Echolot::Globals::get()->{'storage'}->set_caps($remailer_type, $remailer_caps, $remailer_nick, $remailer_address, $time);
+		Echolot::Globals::get()->{'storage'}->set_caps($remailer_type, $remailer_caps, $remailer_nick, $remailer_address, $time, $dontexpire);
 
 		# if remailer is cpunk and not pgponly
 		if (($remailer_caps =~ /\bcpunk\b/) && !($remailer_caps =~ /\bpgponly\b/)) {
@@ -145,7 +145,7 @@ sub set_caps_manually($$) {
 	my $token = 'conf.'.$id;
 
 	my $conf = "Remailer-Type: set-manually\n$caps";
-	remailer_conf($conf, $token, time + 10 * 365 * 24 * 60 * 60); # FIXME: Y2036
+	remailer_conf($conf, $token, time, 1);
 
 	return 1;
 };

@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.25 2002/07/03 11:08:21 weasel Exp $
+# $Id: File.pm,v 1.26 2002/07/03 12:09:03 weasel Exp $
 #
 
 =pod
@@ -647,8 +647,8 @@ sub restore_ttl($$) {
 	return 1;
 };
 
-sub set_caps($$$$$$) {
-	my ($self, $type, $caps, $nick, $address, $timestamp) = @_;
+sub set_caps($$$$$$;$) {
+	my ($self, $type, $caps, $nick, $address, $timestamp, $dont_expire) = @_;
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 		$self->{'METADATA'}->{'remailers'}->{$address} =
 			{
@@ -687,6 +687,11 @@ sub set_caps($$$$$$) {
 			$conf->{'type'} = $type;
 		};
 	};
+
+	if (defined $dont_expire) {
+		$self->{'METADATA'}->{'remailers'}->{$address}->{'conf'}->{'dont_expire'} = $dont_expire;
+	};
+	
 	$self->commit();
 	
 	return 1;
@@ -878,7 +883,8 @@ sub expire($) {
 
 		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}
 			if (defined $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'} &&
-			   ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'last_update'} < $expire_conf));
+			   ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'last_update'} < $expire_conf) &&
+			   ! ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'dont_expire'}));
 
 		$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'status'} = 'expired'
 			unless ( defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}) ||
