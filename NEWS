@@ -2,7 +2,8 @@ Changes in version 2.1.5 - 2004-06-22
 	* Fix use of an illegal filedescriptor when we know of a remailer,
 	  but do not have keys for it yet/anymore.
 	* Check if syswrite's return value is defined
-	  (also is: do not write to gpg forever, once it has died).
+	  (also is: do not write to gpg forever, once it has died or
+	  closed its stdin).
 	* Tell Mixmaster to create no dummies.  It has no remailer keys
 	  and reliability information anyway.
 	* Increase the number of remailers that need to list an address
