@@ -316,9 +316,11 @@ sub check_binaries() {
 				unless -x $path;
 		} else {
 			my $found = 0;
-			for my $pathelem (split /:/, $ENV{'PATH'}) {
-				$found = $pathelem, last
-					if -e $pathelem.'/'.$path;
+			if (defined $ENV{'PATH'}) {
+				for my $pathelem (split /:/, $ENV{'PATH'}) {
+					$found = $pathelem, last
+						if -e $pathelem.'/'.$path;
+				};
 			};
 			if ($found) {
 				Echolot::Log::warn ("$bin binary $found/$path is not executeable")

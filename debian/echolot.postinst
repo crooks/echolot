@@ -34,6 +34,7 @@ if [ "$1" = "configure" ] && [ -e /usr/share/debconf/confmodule ]; then
 	 if dpkg --compare-versions "$2" lt "2.1.7" ; then
 		. /usr/share/debconf/confmodule
 		db_purge
+		db_stop
 	fi
 fi
 
