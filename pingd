@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.103 2003/04/29 20:34:40 weasel Exp $
+# $Id: pingd,v 1.104 2003/06/06 09:44:01 weasel Exp $
 #
 
 =pod
@@ -687,7 +687,7 @@ if ($params->{'help'}) {
 	print ("  buildthesaurus     ... build thesaurus immediatly\n");
 	print ("  buildfromlines     ... build fromlines immediatly\n");
 	print ("  summary            ... print status summary to log\n");
-	print ("  dumpconf   dump configuration\n");
+	print ("  dumpconf           ... dump configuration\n");
     exit 0;
 };
 if ($params->{'version'}) {
