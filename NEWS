@@ -2,7 +2,8 @@ Changes in
 	* Fix 0/false in Fetch/Ping/Show in summary report.
 	* fork() for calling mixmaster, so we can exec() it
 	  rather can using open("| ...") which ivokes a shell.
-	* Catch SIGPIPE
+	* Catch SIGPIPE.
+	* Document thesaurusindexfile.
 
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.

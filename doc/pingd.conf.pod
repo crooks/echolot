@@ -489,12 +489,18 @@ The Thesaurus index file.
 
 	Default: 'thesaurusindexfile' => 'results/thesaurus/index',
 
+=item B<fromlinesindexfile>
+
+The Thesaurus index file.
+
+	Default: 'fromlinesindexfile' => 'results/from',
+
 =item B<private_resultdir>
 
 The directory where private stats and keyrings are put (Remailers that have
 show set to false are shown here too).
 
-	Default: 'private_resultdir' => 'results',
+	Default: 'private_resultdir' => 'results.private',
 
 =item B<indexfilebasename>
 
