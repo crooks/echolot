@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.5 2002/07/22 02:18:30 weasel Exp $
+# $Id: Mix.pm,v 1.6 2002/08/13 05:58:10 weasel Exp $
 #
 
 =pod
@@ -34,7 +34,7 @@ sub ping($$$$) {
 		print (F $keys->{$keyid}->{'key'},"\n\n");
 	};
 	close (F) or
-		cluck("Cannot close $keyring"),
+		cluck("Cannot close $keyring: $!"),
 		return 0;
 
 	my $type2list = Echolot::Config::get()->{'mixhome'}.'/type2.list';
@@ -45,8 +45,20 @@ sub ping($$$$) {
 		print (F $keys->{$keyid}->{'summary'}, "\n");
 	};
 	close (F) or
-		cluck("Cannot close $type2list"),
+		cluck("Cannot close $type2list: $!"),
 		return 0;
+	
+	my $mixcfg = Echolot::Config::get()->{'mixhome'}.'/mix.cfg';
+	unless ( -e $mixcfg ) {
+		open (F, ">$mixcfg") or
+			cluck("Cannot open $mixcfg for writing: $!"),
+			return 0;
+		print (F "PUBRING         pubring.mix\n");
+		print (F "TYPE2LIST       type2.list\n");
+		close (F) or
+			cluck("Cannot close $mixcfg: $!"),
+			return 0;
+	};
 	
 	$ENV{'MIXPATH'} = Echolot::Config::get()->{'mixhome'};
 	open(MIX, "|".Echolot::Config::get()->{'mixmaster'}." -m -S -l $chaincomma") or
