@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.46 2003/02/16 14:40:43 weasel Exp $
+# $Id: Stats.pm,v 1.47 2003/02/16 14:42:41 weasel Exp $
 #
 
 =pod
@@ -572,14 +572,20 @@ sub build_lists() {
 	my $broken1 = read_file( Echolot::Config::get()->{'broken1'}, 1);
 	my $broken2 = read_file( Echolot::Config::get()->{'broken2'}, 1);
 	my $sameop = read_file( Echolot::Config::get()->{'sameop'}, 1);
-
+	my $privbroken1;
+	my $privbroken2;
 
 	my $mixrems = build_rems(['mix']);
 	my $cpunkrems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
+
 	if (Echolot::Config::get()->{'do_chainpings'}) {
 		$privbroken1 = find_broken_chains('cpunk', $cpunkrems, $broken1);
 		$privbroken2 = find_broken_chains('mix', $mixrems, $broken2);
+	} else {
+		$privbroken1 = $broken1;
+		$privbroken2 = $broken2;
 	};
+
 	if (Echolot::Config::get()->{'show_chainpings'}) {
 		$broken1 = $privbroken1;
 		$broken2 = $privbroken2;
