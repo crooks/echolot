@@ -1,7 +1,6 @@
-$Id: TODO,v 1.31 2002/07/15 20:19:40 weasel Exp $
+$Id: TODO,v 1.32 2002/07/16 00:13:27 weasel Exp $
 
 for 2.0:
- document configuration options
 
 can be done later, nice if for 2.0:
  getkeyconf command could take option:  address [address ...]
