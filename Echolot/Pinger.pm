@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.23 2003/02/14 04:56:16 weasel Exp $
+# $Id: Pinger.pm,v 1.24 2003/02/14 04:57:45 weasel Exp $
 #
 
 =pod
@@ -22,7 +22,7 @@ use Echolot::Log;
 use Echolot::Pinger::Mix;
 use Echolot::Pinger::CPunk;
 
-sub do_mix_ping($$$$$$) {
+sub do_mix_ping($$$$$) {
 	my ($address, $type, $keyid, $to, $body) = @_;
 
 	($type eq 'mix') or
@@ -40,13 +40,13 @@ sub do_mix_ping($$$$$$) {
 	return 1;
 };
 
-sub do_cpunk_ping($$$$$$) {
+sub do_cpunk_ping($$$$$) {
 	my ($address, $type, $keyid, $to, $body) = @_;
 
 	my $keyhash = {};
 	if ($type ne 'cpunk-clear') {
 		my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
-		$keyhash->{$keyid} => \%key;
+		$keyhash->{$keyid} = \%key;
 	};
 	Echolot::Pinger::CPunk::ping(
 		$body,
