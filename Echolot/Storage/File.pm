@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.41 2002/09/21 03:24:41 weasel Exp $
+# $Id: File.pm,v 1.42 2002/11/11 02:24:58 weasel Exp $
 #
 
 =pod
@@ -688,6 +688,9 @@ sub restore_ttl($$) {
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
 		cluck ("$address does not exist in Metadata address list"),
 		return 0;
+	defined ($self->{'METADATA'}->{'addresses'}->{$address}->{'status'}) or
+		cluck ("$address does exist in Metadata address list but does not have status defined"),
+		return 0;
 	warn("Remailer $address is alive and active again\n")
 		unless ($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'active');
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} = Echolot::Config::get()->{'addresses_default_ttl'};
@@ -725,6 +728,9 @@ sub set_caps($$$$$$;$) {
 				status => 'active'
 			};
 	} else {
+		defined ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'}) or
+			cluck ("$address does exist in Metadata remailer list but does not have status defined"),
+			return 0;
 		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
 			if ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired');
 	};
