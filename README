@@ -19,7 +19,14 @@ Please see the file named "LICENSE".
 
 REQUIREMENTS
 ------------
-FIXME
+	in general:
+		Digest::MD5
+	for type1 pings
+		GnuPG
+		GnuPG::Interface
+	for type2 pings
+		a mixmaster installation - this requirement will be changed
+FIXME what else
 
 
 SETUP
