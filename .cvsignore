@@ -4,7 +4,8 @@ mail-errors
 results
 results.private
 tmp
-gnupg
+gnupghome
+mixhome
 output
 pingd.pid
 commands.txt
