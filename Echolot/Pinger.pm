@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.26 2003/02/17 14:44:15 weasel Exp $
+# $Id: Pinger.pm,v 1.27 2003/02/20 14:05:38 weasel Exp $
 #
 
 =pod
@@ -138,6 +138,8 @@ sub receive($$$$) {
 	my $now = time();
 
 	my $body;
+	my $bot = 0;
+	my $top = 0;
 	# < 2.0beta34 didn't encrypt pings.
 	if ($msg =~ /^-----BEGIN PGP MESSAGE-----/m) {
 		# work around borken middleman remailers that have a problem with some
@@ -145,6 +147,10 @@ sub receive($$$$) {
 		# remailers..
 		# they add an empty line between each usefull line
 		$msg =~ s/(\r?\n)\r?\n/$1/g if ($msg =~ /^-----BEGIN PGP MESSAGE-----\r?\n\r?\n/m);
+
+		$top = $msg =~ m/^\S.*-----BEGIN PGP MESSAGE-----/s ? 1 : 0;
+		$bot = $msg =~ m/^-----END PGP MESSAGE-----.*\S/s ? 1 : 0;
+
 		$body = Echolot::Tools::crypt_symmetrically($msg, 'decrypt');
 	};
 	$body = $msg unless defined $body;
@@ -177,7 +183,7 @@ sub receive($$$$) {
 	if (defined $with_from) { # <= 2.0.10 didn't have with_from
 		my ($from) = $header =~ /From: (.*)/i;
 		$from = 'undefined' unless defined $from;
-		Echolot::Globals::get()->{'storage'}->register_fromline($addr, $type, $with_from, $from);
+		Echolot::Globals::get()->{'storage'}->register_fromline($addr, $type, $with_from, $from, $top, $bot);
 	};
 
 	return 1;

@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.53 2003/02/18 06:38:10 weasel Exp $
+# $Id: File.pm,v 1.54 2003/02/20 14:05:38 weasel Exp $
 #
 
 =pod
@@ -1739,18 +1739,21 @@ sub delete_remailercaps($$) {
 };
 
 
-=item $storage->B<register_fromline>( I<$address>, I<$with_from>, I<$from> )
+=item $storage->B<register_fromline>( I<$address>, I<$with_from>, I<$from>, $I<disclaimer_top>, $I<disclaimer_bot> )
 
 Register that the remailer I<$address> returned the From header
 line I<$from>.  If I<$with_from> is 1 we had tried to supply our own
 From, otherwise not.
 
+$I<disclaimer_top> and $I<disclaimer_bot> are boolean variables indicating
+presence or absense of any disclaimer.
+
 Returns 1, undef on error.
 
 =cut
 
-sub register_fromline($$$$) {
-	my ($self, $address, $type, $with_from, $from) = @_;
+sub register_fromline($$$$$$$) {
+	my ($self, $address, $type, $with_from, $from, $top, $bot) = @_;
 
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
 		Echolot::Log::cluck ("$address does not exist in Metadata address list."),
@@ -1765,11 +1768,13 @@ sub register_fromline($$$$) {
 		Echolot::Log::cluck ("with_from has evil value $with_from in register_fromline."),
 		return undef;
 
-	Echolot::Log::debug("registering fromline $address, $type, $with_from, $from.");
+	Echolot::Log::debug("registering fromline $address, $type, $with_from, $from, $top, $bot.");
 
 	$self->{'METADATA'}->{'fromlines'}->{$address}->{$type}->{$with_from} = {
 		last_update => time(),
-		from => $from
+		from => $from,
+		disclaim_top => $top,
+		disclaim_bot => $bot,
 	};
 	$self->commit();
 
@@ -1806,8 +1811,10 @@ sub get_fromline($$$$) {
 		Echolot::Log::cluck ("from is undefined with $addr $type $user_supplied."),
 		return undef;
 
-	return { last_update => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'last_update'},
-	         from        => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'from'} };
+	return { last_update  => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'last_update'},
+	         from         => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'from'},
+		 disclaim_top => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'disclaim_top'},
+		 disclaim_bot => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'disclaim_bot'} };
 }
 
 
