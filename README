@@ -1,4 +1,4 @@
-$Id: README,v 1.36 2002/12/13 06:49:09 weasel Exp $
+$Id: README,v 1.37 2002/12/18 19:22:24 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -261,7 +261,7 @@ o Echolot additionally produces .meta files by default. These files
   you are using Apache as your web sever, you can load the mod_cern_meta
   Apache module and set MetaFiles to "on". Please ensure that Apache's
   MetaSuffix matches your meta_extension setting (".meta" by default)
-  and that MetaDir is set to "."] See your web server's documentation
+  and that MetaDir is set to ".". See your web server's documentation
   for more information on meta files.
 
 
