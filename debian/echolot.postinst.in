@@ -5,12 +5,16 @@
 . /usr/share/debconf/confmodule
 
 # Make sure the echolot user exists
-getent group echolot >/dev/null 2>&1 || (
-	echo Adding echolot group
-	addgroup echolot )
-getent passwd echolot >/dev/null 2>&1 || (
-	echo Adding echolot user
-	adduser --system --shell /bin/bash --home /var/lib/echolot --ingroup echolot --gecos "Echolot Pinger" echolot )
+adduser --quiet \
+	--quiet \
+	--system \
+	--disabled-password \
+	--shell /bin/bash \
+	--home /var/lib/echolot \
+	--no-create-home \
+	--group \
+	--gecos "Echolot Pinger" \
+	echolot
 
 # Give the echolot user write permissions to /var/log/echolot/echolot.log
 touch /var/log/echolot/echolot.log
