@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.19 2002/07/13 20:42:51 weasel Exp $
+# $Id: Stats.pm,v 1.20 2002/07/16 00:53:33 weasel Exp $
 #
 
 =pod
@@ -282,6 +282,7 @@ sub write_file($$;$) {
 	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
 	$template->param ( seperate_rlist => Echolot::Config::get()->{'seperate_rlists'} );
 	$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
+	$template->param ( version => Echolot::Globals::get()->{'version'} );
 
 	$filename = $filebasename.'.html';
 	open(F, '>'.$filename) or

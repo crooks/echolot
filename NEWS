@@ -1,9 +1,12 @@
+Changes in version 
+	* Have echolot version in stats HTML pages
+
 Changes in version 2.0beta14 - 2002-07-16
 	* Added commands buildstats buildkeys and buildthesaurus
 	* Added legend to templates (Orange)
 	* Thesaurus building failed when an id did not return a
-	  valid remailer. A check was there bug it was wrong.
-	* Have pingd.conf.5 manpage documenting all options.
+	  valid remailer. A check was there bug it was wrong
+	* Have pingd.conf.5 manpage documenting all options
 
 Changes in version 2.0beta13 - 2002-07-13
 	* Have correct title tags and some layout changes in the HTML templates

@@ -1,7 +1,7 @@
 package Echolot::Globals;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Globals.pm,v 1.2 2002/06/20 04:27:37 weasel Exp $
+# $Id: Globals.pm,v 1.3 2002/07/16 00:53:33 weasel Exp $
 #
 
 =pod
@@ -20,12 +20,15 @@ use Carp;
 
 my $GLOBALS;
 
-sub init {
+sub init(%) {
+	my (%args) = @_;
+
 	my $hostname = `hostname`;
 	$hostname =~ /^([a-zA-Z0-9_-]*)$/;
 	$hostname = $1 || 'unknown';
 	$GLOBALS->{'hostname'} = $hostname;
 	$GLOBALS->{'internalcounter'} = 1;
+	$GLOBALS->{'version'} = $args{'version'};
 };
 
 sub initStorage {
