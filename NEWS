@@ -1,3 +1,9 @@
+Changes in version 2.0 beta4 - 2002-07-10
+	* Minor documentation fixes
+	* Added --process switch
+	* Die if metadata or conf data cannot be parsed
+	* Build manpage into extra file
+
 Changes in version 2.0 beta3 - 2002-07-10
 	* Fixed a small bug with writing the metadata so that it could not be
 	  parsed again
