@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.3 2002/06/10 06:25:04 weasel Exp $
+# $Id: File.pm,v 1.4 2002/06/11 10:01:55 weasel Exp $
 #
 
 =pod
@@ -53,8 +53,6 @@ $ENV{'PATH'} = '/bin:/usr/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 my $METADATA_VERSION = 1;
-
-my $INTERNAL_COUNT = 1;
 
 sub new {
 	my ($class, %params) = @_;
@@ -111,6 +109,8 @@ sub finish($) {
 	$self->metadata_write();
 	$self->metadata_close();
 };
+
+
 
 
 sub metadata_open($) {
@@ -209,157 +209,203 @@ sub metadata_write($) {
 };
 
 
+
+
+
+sub pingdata_open_one($$$$) {
+	my ($self, $remailer_addr, $type, $key) = @_;
+	
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
+		cluck ("$remailer_addr does not exist in Metadata"),
+		return 0;
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}) or
+		cluck ("$remailer_addr has no keys in Metadata"),
+		return 0;
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}) or
+		cluck ("$remailer_addr type $type does not exist in Metadata"),
+		return 0;
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}) or
+		cluck ("$remailer_addr type $type key $key does not exist in Metadata"),
+		return 0;
+	
+
+	my $basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key};
+	defined($basename) or
+		$basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key} = $remailer_addr.'.'.$key.'.'.time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++,
+		$self->commit();
+
+	my $filename = $self->{'datadir'} .'/'. $basename;
+
+	for my $direction ('out', 'done') {
+		my $fh = new IO::Handle;
+		if ( -e $filename.'.'.$direction ) {
+			open($fh, '+<' . $filename.'.'.$direction) or 
+				cluck("Cannot open $filename.$direction for reading: $!"),
+				return 0;
+			$self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction} = $fh;
+		} else {
+			open($fh, '+>' . $filename.'.'.$direction) or 
+				cluck("Cannot open $filename.$direction for reading: $!"),
+				return 0;
+			$self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction} = $fh;
+		};
+		flock($fh, LOCK_EX) or
+			cluck("Cannot get exclusive lock on $remailer_addr $type $key $direction pings: $!"),
+			return 0;
+	};
+
+	return 1;
+};
+
 sub pingdata_open($) {
 	my ($self) = @_;
 
-	for my $remailer_name ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
-		for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_name}->{'keys'}} ) {
-			my $basename = $self->{'METADATA'}->{'remailers'}->{$remailer_name}->{'stats'}->{$key};
-			defined($basename) or
-				$basename = $self->{'METADATA'}->{'remailers'}->{$remailer_name}->{'stats'}->{$key} = $remailer_name.'.'.$key.'.'.time.'.'.$PROCESS_ID.'_'.$INTERNAL_COUNT++,
-				$self->commit();
-
-			my $filename = $self->{'datadir'} .'/'. $basename;
-		
-			for my $type ('out', 'done') {
-				my $fh = new IO::Handle;
-				if ( -e $filename.'.'.$type ) {
-					open($fh, '+<' . $filename.'.'.$type) or 
-						cluck("Cannot open $filename.$type for reading: $!"),
-						return 0;
-					$self->{'PING_FHS'}->{$remailer_name}->{$key}->{$type} = $fh;
-				} else {
-					open($fh, '+>' . $filename.'.'.$type) or 
-						cluck("Cannot open $filename.$type for reading: $!"),
-						return 0;
-					$self->{'PING_FHS'}->{$remailer_name}->{$key}->{$type} = $fh;
-				};
-				flock($fh, LOCK_EX) or
-					cluck("Cannot get exclusive lock on $remailer_name $type pings: $!"),
-					return 0;
+	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
+		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{$type}->{'keys'}} ) {
+				$self->pingdata_open_one($remailer_addr, $type, $key);
 			};
 		};
 	};
 	return 1;
 };
 
-sub get_pings($$$$) {
-	my ($self, $remailer_name, $key, $type) = @_;
+sub get_ping_fh($$$$$) {
+	my ($self, $remailer_addr, $type, $key, $direction) = @_;
 
-	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_name}) or
-		cluck ("$remailer_name does not exist in Metadata"),
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
+		cluck ("$remailer_addr does not exist in Metadata"),
 		return 0;
 	
 	my @pings;
-	my $fh = $self->{'PING_FHS'}->{$remailer_name}->{$key}->{$type};
+	my $fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
 
 	defined ($fh) or
-		cluck ("$remailer_name; key=$key has no assigned filehandle for $type pings"),
-		return 0;
+		$self->pingdata_open_one($remailer_addr, $type, $key),
+		$fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
+		defined ($fh) or
+			cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings"),
+			return 0;
 
-	seek($fh, 0, SEEK_SET) or
-		cluck("Cannot seek to start of $remailer_name $type pings: $!"),
-		return 0;
-
-	if ($type eq 'out') {
-		@pings = map {chomp; $_; } <$fh>;
-	} elsif ($type eq 'done') {
-		@pings = map {chomp; my @arr = split (/\s+/, $_, 2); \@arr; } <$fh>;
-	} else {
-		confess("What the hell am I doing here? $remailer_name; $key; $type"),
-		return 0;
-	};
-	return \@pings;
+	return $fh;
 };
 
 sub pingdata_close() {
 	my ($self) = @_;
 
-	for my $remailer_name ( keys %{$self->{'PING_FHS'}} ) {
-		for my $key ( keys %{$self->{'PING_FHS'}->{$remailer_name}} ) {
-			for my $type ('out', 'done') {
+	for my $remailer_addr ( keys %{$self->{'PING_FHS'}} ) {
+		for my $type ( keys %{$self->{'PING_FHS'}->{$remailer_addr}} ) {
+			for my $key ( keys %{$self->{'PING_FHS'}->{$remailer_addr}->{$type}} ) {
+				for my $direction ( keys %{$self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}} ) {
 
-				my $fh = $self->{'PING_FHS'}->{$remailer_name}->{$key}->{$type};
-				flock($fh, LOCK_UN) or
-					cluck("Error when releasing lock on $remailer_name $type pings: $!"),
-					return 0;
-				close ($self->{'PING_FHS'}->{$remailer_name}->{$key}->{$type}) or
-						cluck("Error when closing $remailer_name $type pings: $!"),
+					my $fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
+					flock($fh, LOCK_UN) or
+						cluck("Error when releasing lock on $remailer_addr type $type key $key direction $direction pings: $!"),
 						return 0;
+					close ($fh) or
+							cluck("Error when closing $remailer_addr type $type key $key direction $direction pings: $!"),
+							return 0;
+				};
 			};
 		};
 	};
 	return 1;
 };
+
+sub get_pings($$$$$) {
+	my ($self, $remailer_addr, $type, $key, $direction) = @_;
+
+	my @pings;
+
+	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, $direction) or
+		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings"),
+		return 0;
+
+	seek($fh, 0, SEEK_SET) or
+		cluck("Cannot seek to start of $remailer_addr type $type key $key direction $direction pings: $!"),
+		return 0;
+
+	if ($direction eq 'out') {
+		@pings = map {chomp; $_; } <$fh>;
+	} elsif ($direction eq 'done') {
+		@pings = map {chomp; my @arr = split (/\s+/, $_, 2); \@arr; } <$fh>;
+	} else {
+		confess("What the hell am I doing here? $remailer_addr; $type; $key; $direction"),
+		return 0;
+	};
+	return \@pings;
+};
+
 
 
 
 
 
 sub register_pingout($$$$) {
-	my ($self, $remailer_name, $key, $sent_time) = @_;
+	my ($self, $remailer_addr, $type, $key, $sent_time) = @_;
 	
-	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_name}) or
-		cluck ("$remailer_name does not exist in Metadata"),
+	#require Data::Dumper;
+	#print Data::Dumper->Dump( [ $self->{'PING_FHS'} ] );
+
+	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
+		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings"),
 		return 0;
 
-	my $fh = $self->{'PING_FHS'}->{$remailer_name}->{$key}->{'out'};
-	defined ($fh) or
-		cluck ("$remailer_name; key=$key has no assigned filehandle for outgoing pings"),
-		return 0;
 	seek($fh, 0, SEEK_END) or
-		cluck("Cannot seek to end of $remailer_name out pings: $!"),
+		cluck("Cannot seek to end of $remailer_addr out pings: $!"),
 		return 0;
 	print($fh $sent_time."\n") or
-		cluck("Error when writing to $remailer_name out pings: $!"),
+		cluck("Error when writing to $remailer_addr out pings: $!"),
 		return 0;
 
 	return 1;
 };
 
 sub register_pingdone($$$$$) {
-	my ($self, $remailer_name, $key, $sent_time, $latency) = @_;
+	my ($self, $remailer_addr, $type, $key, $sent_time, $latency) = @_;
 	
-	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_name}) or
-		cluck ("$remailer_name does not exist in Metadata"),
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
+		cluck ("$remailer_addr does not exist in Metadata"),
 		return 0;
 
-	my $outpings = $self->get_pings($remailer_name, $key, 'out');
+	my $outpings = $self->get_pings($remailer_addr, $type, $key, 'out');
 	my $origlen = scalar (@$outpings);
 	@$outpings = grep { $_ != $sent_time } @$outpings;
 	($origlen == scalar (@$outpings)) and
-		warn("No ping outstanding for $remailer_name, $key, $sent_time\n"),
+		warn("No ping outstanding for $remailer_addr, $key, $sent_time\n"),
 		return 1;
 	
 	# write ping to done
-	my $fh = $self->{'PING_FHS'}->{$remailer_name}->{$key}->{'done'};
-	defined ($fh) or
-		cluck ("$remailer_name; key=$key has no assigned filehandle for done pings"),
+	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'done') or
+		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for done pings"),
 		return 0;
 	seek($fh, 0, SEEK_END) or
-		cluck("Cannot seek to end of $remailer_name out pings: $!"),
+		cluck("Cannot seek to end of $remailer_addr out pings: $!"),
 		return 0;
 	print($fh $sent_time." ".$latency."\n") or
-		cluck("Error when writing to $remailer_name out pings: $!"),
+		cluck("Error when writing to $remailer_addr out pings: $!"),
 		return 0;
 	
 	# rewrite outstanding pings
-	$fh = $self->{'PING_FHS'}->{$remailer_name}->{$key}->{'out'};
-	defined ($fh) or
-		cluck ("$remailer_name; key=$key has no assigned filehandle for out pings"),
+	$fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
+		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings"),
 		return 0;
 	seek($fh, 0, SEEK_SET) or
-		cluck("Cannot seek to start of outgoing pings file for remailer $remailer_name; key=$key: $!"),
+		cluck("Cannot seek to start of outgoing pings file for remailer $remailer_addr; key=$key: $!"),
 		return 0;
 	truncate($fh, 0) or
-		cluck("Cannot truncate outgoing pings file for remailer $remailer_name; key=$key file to zero length: $!"),
+		cluck("Cannot truncate outgoing pings file for remailer $remailer_addr; key=$key file to zero length: $!"),
 		return 0;
 	print($fh (join "\n", @$outpings),"\n") or
-		cluck("Error when writing to outgoing pings file for remailer $remailer_name; key=$key file: $!"),
+		cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
 		return 0;
 	
 	return 1;
 };
+
+
+
+
 
 sub add_prospective_address($$$$) {
 	my ($self, $addr, $reason, $additional) = @_;
@@ -482,6 +528,7 @@ sub set_key($$$$$$$$$) {
 			{
 				key => $key,
 				summary => $summary,
+				nick => $nick,
 				last_update => $timestamp
 			};
 	} else {
@@ -491,6 +538,10 @@ sub set_key($$$$$$$$$) {
 			return 1;
 		};
 		$keyref->{'last_update'} = $timestamp;
+		if ($keyref->{'nick'} ne $nick) {
+			warn ("$nick has a new key nick string '$nick' old: '".$keyref->{'nick'}."'\n");
+			$keyref->{'nick'} = $nick;
+		};
 		if ($keyref->{'summary'} ne $summary) {
 			warn ("$nick has a new key summary string '$summary' old: '".$keyref->{'summary'}."'\n");
 			$keyref->{'summary'} = $summary;
@@ -509,6 +560,64 @@ sub get_secret($) {
 	my ($self) = @_;
 
 	return $self->{'METADATA'}->{'secret'};
+};
+
+sub get_remailers($) {
+	my ($self) = @_;
+
+	my @remailers = keys %{$self->{'METADATA'}->{'remailers'}};
+	return @remailers;
+};
+
+sub get_types($$) {
+	my ($self, $remailer) = @_;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
+		cluck ("$remailer does not exist in Metadata remailer list"),
+		return 0;
+
+	return () unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'};
+	my @types = keys %{$self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}};
+	return @types;
+};
+
+sub get_keys($$) {
+	my ($self, $remailer, $type) = @_;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
+		cluck ("$remailer does not exist in Metadata remailer list"),
+		return 0;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}) or
+		cluck ("$remailer does not have type '$type' in Metadata remailer list"),
+		return 0;
+
+	my @keys = keys %{$self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}};
+	return @keys;
+};
+
+sub get_key($$$$) {
+	my ($self, $remailer, $type, $key) = @_;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
+		cluck ("$remailer does not exist in Metadata remailer list"),
+		return 0;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}) or
+		cluck ("$remailer does not have type '$type' in Metadata remailer list"),
+		return 0;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}) or
+		cluck ("$remailer does not have key '$key' in type '$type' in Metadata remailer list"),
+		return 0;
+
+	my %result = (
+		summary => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'summary'},
+		key => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'key'},
+		nick => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'nick'}
+	);
+
+	return %result;
 };
 
 =back
