@@ -6,6 +6,8 @@ Changes in version       - 2004
 	* Do not accept expired or future mixmaster keys.
 	* Print summary on notice level, not info, if it was requested
 	  manually.
+	* Remove get_remailers since get_addresses does almost the same.
+	* Make sure we do not create empty key hashes in metadata.
 
 Changes in version 2.1.3 - 2004-04-20
 	* Improvements to pingd.conf(5) by Colin.

@@ -24,7 +24,6 @@ sub print_summary(;$) {
 	my ($manual) = @_;
 
 	my @addresses = sort { $a->{'address'} cmp $b->{'address'} } Echolot::Globals::get()->{'storage'}->get_addresses();
-	my %remailers = map { $_->{'address'} => $_ } Echolot::Globals::get()->{'storage'}->get_remailers();
 	my $report = "*** Status summary ***\n";
 
 	for my $remailer (@addresses) {
@@ -36,11 +35,8 @@ sub print_summary(;$) {
 			($remailer->{'showit'} ? '1' : '0') .
 			"; TTL: $remailer->{'ttl'}\n";
 		$report .= "  Resurection TTL: $remailer->{'resurrection_ttl'}\n" if (defined $remailer->{'resurrection_ttl'} && ($remailer->{'status'} eq 'ttl timeout'));
-		if (defined $remailers{$addr}) {
-			$report .= "  $remailers{$addr}->{'status'}\n";
-			for my $type (Echolot::Globals::get()->{'storage'}->get_types($addr)) {
-				$report .= "  Type: $type: ".join(', ', Echolot::Globals::get()->{'storage'}->get_keys($addr, $type))."\n";
-			};
+		for my $type (Echolot::Globals::get()->{'storage'}->get_types($addr)) {
+			$report .= "  Type: $type: ".join(', ', Echolot::Globals::get()->{'storage'}->get_keys($addr, $type))."\n";
 		};
 	};
 	if (defined $manual) {

@@ -128,7 +128,7 @@ sub send_pings($;$$) {
 	my $this_call_id_ic = $timemod_ic % $send_every_n_calls_ic;
 	my $session_id_ic = int ($scheduled_for / ($call_intervall * $send_every_n_calls_ic));
 
-	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
+	my @remailers = Echolot::Globals::get()->{'storage'}->get_addresses();
 	for my $chaintype (keys %{Echolot::Config::get()->{'which_chainpings'}}) {
 
 		my @thisrems;

@@ -104,7 +104,7 @@ sub send_pings($;$) {
 	my $this_call_id = $timemod % $send_every_n_calls;
 	my $session_id = int ($scheduled_for / ($call_intervall * $send_every_n_calls));
 
-	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
+	my @remailers = Echolot::Globals::get()->{'storage'}->get_addresses();
 	for my $remailer (@remailers) {
 		next unless $remailer->{'pingit'};
 		my $address = $remailer->{'address'};

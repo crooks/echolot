@@ -457,7 +457,7 @@ sub build_rems($) {
 	my ($types) = @_;
 
 	my %rems;
-	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
 		my $addr = $remailer->{'address'};
 		my $has_type = 0;
 		for my $type (@$types) {
@@ -788,7 +788,7 @@ sub build_mixring() {
 		return 0;
 
 	my $data;
-	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
 		my $addr = $remailer->{'address'};
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, 'mix');
 
@@ -839,7 +839,7 @@ sub build_mixring() {
 sub build_pgpring_type($$$$) {
 	my ($type, $GnuPG, $keyring, $keyids) = @_;
 	
-	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
 		my $addr = $remailer->{'address'};
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, $type);
 

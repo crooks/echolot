@@ -395,7 +395,7 @@ Returns undef on error;
 sub get_ping_fh($$$$$) {
 	my ($self, $remailer_addr, $type, $key, $direction) = @_;
 
-	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
+	defined ($self->{'METADATA'}->{'addresses'}->{$remailer_addr}) or
 		Echolot::Log::cluck("$remailer_addr does not exist in Metadata."),
 		return undef;
 	
@@ -549,7 +549,7 @@ Returns 1 on success, undef on errors.
 sub register_pingdone($$$$$$) {
 	my ($self, $remailer_addr, $type, $key, $sent_time, $latency) = @_;
 	
-	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
+	defined ($self->{'METADATA'}->{'addresses'}->{$remailer_addr}) or
 		Echolot::Log::warn ("$remailer_addr does not exist in Metadata."),
 		return undef;
 
@@ -1234,8 +1234,6 @@ remailer-conf reply or something like B<set manually>.
 If there already is newer information about that key than I<$timestamp> the
 update is disregarded.
 
-Additionally the remailer's status is set to B<active>.
-
 If I<$dont_expire> is defined the setting is copied to the remailers metadata
 as well.
 
@@ -1244,15 +1242,12 @@ Returns 1.
 =cut
 sub set_caps($$$$$$;$) {
 	my ($self, $type, $caps, $nick, $address, $timestamp, $dont_expire) = @_;
-	if (! defined $self->{'METADATA'}->{'remailers'}->{$address} ||
-	    ! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'status'} ) {
-		$self->{'METADATA'}->{'remailers'}->{$address} =
-			{
-				status => 'active'
-			};
-	} else {
-		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
-			if ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired');
+
+	(defined $address) or
+		Echolot::Log::cluck ("$address not defined in set_key.");
+
+	if (! defined $self->{'metadata'}->{'remailers'}->{$address} )
+		$self->{'metadata'}->{'remailers'}->{$address} = {};
 	};
 
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'}) {
@@ -1301,8 +1296,6 @@ given information (I<$nick>, I<$key>, I<$caps>, I<$summary>, I<$timestamp>).
 If there already is newer information about that key than I<$timestamp> the
 update is disregarded.
 
-Additionally the remailer's status is set to B<active>.
-
 Returns 1.
 
 =cut
@@ -1311,16 +1304,9 @@ sub set_key($$$$$$$$$) {
 
 	(defined $address) or
 		Echolot::Log::cluck ("$address not defined in set_key.");
-	
-	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
-		$self->{'METADATA'}->{'remailers'}->{$address} =
-			{
-				status => 'active'
-			};
-	} else {
-		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
-			if (!defined ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'}) ||
-			   ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired'));
+
+	if (! defined $self->{'metadata'}->{'remailers'}->{$address} )
+		$self->{'metadata'}->{'remailers'}->{$address} = {};
 	};
 
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}) {
@@ -1375,29 +1361,6 @@ sub get_secret($) {
 	return $self->{'METADATA'}->{'secret'};
 };
 
-=item $storage->B<get_remailers>( )
-
-Get an array of hashes of remailers.  Each hash has the keys C<status>,
-C<pingit>, C<showit>, and C<address>
-
-=cut
-sub get_remailers($) {
-	my ($self) = @_;
-
-	my @remailers = keys %{$self->{'METADATA'}->{'remailers'}};
-	my @return_data = map {
-		carp ("remailer $_ is defined but not in addresses ")
-			unless defined $self->{'METADATA'}->{'addresses'}->{$_};
-		my %tmp;
-		$tmp{'status'} = $self->{'METADATA'}->{'remailers'}->{$_}->{'status'};
-		$tmp{'pingit'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'pingit'};
-		$tmp{'showit'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'showit'};
-		$tmp{'address'} = $_;
-		\%tmp;
-		} @remailers;
-	return @return_data;
-};
-
 =item $storage->B<get_types>( I<$remailer> )
 
 Get an array of types supported by remailer with address I<$remailer>.
@@ -1411,10 +1374,11 @@ a bug, I'm not sure.
 sub get_types($$) {
 	my ($self, $remailer) = @_;
 
-	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
+	defined ($self->{'METADATA'}->{'addresses'}->{$remailer}) or
 		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
 		return undef;
 
+	return () unless defined $self->{'METADATA'}->{'remailers'}->{$remailer};
 	return () unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'};
 	my @types = keys %{$self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}};
 	return @types;
@@ -1431,10 +1395,11 @@ Returns 1 if it has, 0 if not, undef on errors.
 sub has_type($$$) {
 	my ($self, $remailer, $type) = @_;
 
-	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
+	defined ($self->{'METADATA'}->{'addresses'}->{$remailer}) or
 		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
 		return undef;
 
+	return 0 unless defined $self->{'METADATA'}->{'remailers'}->{$remailer};
 	return 0 unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'};
 	return 0 unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type};
 	return 0 unless scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}};
@@ -1453,8 +1418,16 @@ Returns undef on errors.
 sub get_keys($$$) {
 	my ($self, $remailer, $type) = @_;
 
+	defined ($self->{'METADATA'}->{'addresses'}->{$remailer}) or
+		Echolot::Log::cluck ("$remailer does not exist in Metadata address list."),
+		return undef;
+
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
 		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
+		return undef;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}) or
+		Echolot::Log::cluck ("$remailer does not have keys in Metadata remailer list."),
 		return undef;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}) or
@@ -1479,8 +1452,16 @@ Returns undef on errors.
 sub get_key($$$$) {
 	my ($self, $remailer, $type, $key) = @_;
 
+	defined ($self->{'METADATA'}->{'addresses'}->{$remailer}) or
+		Echolot::Log::cluck ("$remailer does not exist in Metadata address list."),
+		return undef;
+
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
 		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
+		return undef;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}) or
+		Echolot::Log::cluck ("$remailer does not have keys in Metadata remailer list."),
 		return undef;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}) or
@@ -1513,6 +1494,7 @@ Returns undef on errors.
 sub get_capabilities($$) {
 	my ($self, $remailer) = @_;
 	
+	return undef unless defined $self->{'METADATA'}->{'remailers'}->{$remailer};
 	return undef unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'};
 	return $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'}->{'capabilities'};
 };
@@ -1560,24 +1542,30 @@ sub expire($) {
 
 	# Remailer Information and pings
 	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
-		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
-			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
-				if ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'last_update'} < $expire_keys) {
-					Echolot::Log::info("Expiring $remailer_addr, key, $type, $key.");
-					$self->pingdata_close_one($remailer_addr, $type, $key, 'delete');
-					delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key};
+		if (exists $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}) {
+			for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+				if (exists $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}) {
+					for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
+						if ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'last_update'} < $expire_keys) {
+							Echolot::Log::info("Expiring $remailer_addr, key, $type, $key.");
+							$self->pingdata_close_one($remailer_addr, $type, $key, 'delete');
+							delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key};
+						};
+					};
+					delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}
+						unless (scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}});
 				};
 			};
-			delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}
-				unless (scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}});
-		};
-		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}
-			unless (scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}});
+			delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}
+				unless (scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}});
+		}
 
-		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}
-			if (defined $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'} &&
-			   ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'last_update'} < $expire_conf) &&
-			   ! ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'dont_expire'}));
+		if (exists $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}) {
+			delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}
+				if (defined $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'} &&
+				   ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'last_update'} < $expire_conf) &&
+				   ! ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'dont_expire'}));
+		}
 
 		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr},
 			next
@@ -1585,7 +1573,9 @@ sub expire($) {
 			         defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}));
 
 
-		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+		next unless exists $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'};
+		for my $type keys( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+			next unless exists $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type};
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
 				my @out  = grep {$_      > $expire_pings} $self->get_pings($remailer_addr, $type, $key, 'out');
 				my @done = grep {$_->[0] > $expire_pings} $self->get_pings($remailer_addr, $type, $key, 'done');
@@ -1704,7 +1694,6 @@ sub delete_remailer($$) {
 	};
 
 	if (defined $self->{'METADATA'}->{'remailers'}->{$address}) {
-
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}} ) {
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}} ) {
 				$self->pingdata_close_one($address, $type, $key, 'delete');

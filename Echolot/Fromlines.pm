@@ -26,7 +26,7 @@ sub build_fromlines() {
 	return 1 unless Echolot::Config::get()->{'fromlines'};
 
 	my $data;
-	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
+	my @remailers = Echolot::Globals::get()->{'storage'}->get_addresses();
 
 	for my $remailer (@remailers) {
 		next unless $remailer->{'showit'};
