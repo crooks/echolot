@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.6 2002/07/02 13:40:57 weasel Exp $
+# $Id: pingd,v 1.7 2002/07/02 13:46:48 weasel Exp $
 #
 
 =pod
@@ -67,7 +67,7 @@ F<pingd.conf>
 
 =head1 AUTHOR
 
-Peter Palfrader E<lt>pp@3node.com<gt>
+Peter Palfrader E<lt>peter@palfrader.org<gt>
 
 =head1 SEE ALSO
 
