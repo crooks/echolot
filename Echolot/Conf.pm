@@ -365,7 +365,7 @@ sub parse_cpunk_key($$$) {
 			commands     => [qw{--with-colons}],
 			command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode}],
 			handles      => $handles );
-		my ($stdout, $stderr, $status) = readwrite_gpg($key, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
+		my ($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg($key, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 		waitpid $pid, 0;
 
 		($stderr eq '') or 

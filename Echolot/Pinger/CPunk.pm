@@ -44,7 +44,7 @@ sub encrypt_to($$$$) {
 		commands     => [ '--import' ],
 		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
 		handles      => $handles );
-	my ($stdout, $stderr, $status) = readwrite_gpg($keys->{$recipient}->{'key'}, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
+	my ($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg($keys->{$recipient}->{'key'}, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
 
 	($stdout eq '') or
@@ -96,7 +96,7 @@ sub encrypt_to($$$$) {
 	$pid = $GnuPG->encrypt(
 		command_args => $command_args,
 		handles      => $handles );
-	($stdout, $stderr, $status) = readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
+	($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
 
 	#($stderr eq '') or
