@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.34 2003/01/14 05:25:34 weasel Exp $
+# $Id: Conf.pm,v 1.35 2003/01/14 05:31:11 weasel Exp $
 #
 
 =pod
@@ -68,8 +68,7 @@ sub send_requests($;$) {
 				$which eq 'all' ||
 				(($which eq '') && ($this_call_id == (Echolot::Tools::makeShortNumHash($address.$type.$session_id) % $send_every_n_calls))));
 
-			print "Sending $type requests to ".$address."\n"
-				if Echolot::Config::get()->{'verbose'};
+			Echolot::Log::info("Sending $type requests to ".$address.".");
 
 			my $source_text = Echolot::Config::get()->{'remailerxxxtext'};
 			my $template =  HTML::Template->new(
@@ -98,8 +97,7 @@ sub check_resurrection() {
 		next unless ($remailer->{'status'} eq 'ttl timeout');
 		next unless ($remailer->{'fetch'});
 		next unless ($remailer->{'resurrection_ttl'});
-		print "Sending requests to ".$remailer->{'address'}." to check for resurrection\n"
-			if Echolot::Config::get()->{'verbose'};
+		Echolot::Log::info("Sending requests to ".$remailer->{'address'}." to check for resurrection.");
 		for my $type (qw{conf key help stats adminkey}) {
 			Echolot::Tools::send_message(
 				'To' => $remailer->{'address'},
@@ -218,8 +216,7 @@ sub set_caps_manually($$) {
 		Echolot::Log::info("Caps not defined."),
 		return 0;
 
-	print "Setting caps for $addr manually to $caps\n"
-		if Echolot::Config::get()->{'verbose'};
+	Echolot::Log::info("Setting caps for $addr manually to $caps.");
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address($addr);
 	defined $remailer or
