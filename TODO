@@ -1,7 +1,4 @@
 for 2.0:
- expire pings
- expire keys
- expire confs
  make setup easy/document setup
 
 for later:
