@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.2 2002/06/10 05:12:55 weasel Exp $
+# $Id: Conf.pm,v 1.3 2002/06/10 06:24:31 weasel Exp $
 #
 
 =pod
@@ -41,7 +41,7 @@ sub remailer_conf($$$) {
 	my ($conf, $token, $time) = @_;
 
 	my ($id) = $token =~ /^conf\.(\d+)$/;
-	(defined $id) &&
+	(defined $id) or
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 
@@ -60,11 +60,44 @@ sub remailer_conf($$$) {
 	if ($remailer->{'address'} ne $remailer_address) {
 		# Address mismatch -> Ignore reply and add $remailer_address to prospective addresses
 		cluck("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
-		Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'conf-reply');
+		Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-conf', $remailer_address);
 	} else {
 		Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
 		Echolot::Globals::get()->{'storage'}->set_caps($remailer_type, $remailer_caps, $remailer_nick, $remailer_address, $time);
 	}
+
+
+	# Fetch prospective remailers from reliable's remailer-conf reply:
+	my @lines = split /\r?\n/, $conf;
+	while (@lines) {
+		my $head = $lines[0];
+		chomp $head;
+		shift @lines;
+		last if ($head eq 'SUPPORTED CPUNK (TYPE I) REMAILERS');
+	};
+
+	while (@lines) {
+		my $head = $lines[0];
+		chomp $head;
+		shift @lines;
+		last unless ($head =~ /<(.*?@.*?)>/);
+		Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type1', $remailer_address);
+	};
+
+	while (@lines) {
+		my $head = $lines[0];
+		chomp $head;
+		shift @lines;
+		last if ($head eq 'SUPPORTED MIXMASTER (TYPE II) REMAILERS');
+	};
+
+	while (@lines) {
+		my $head = $lines[0];
+		chomp $head;
+		last unless ($head =~ /\s(.*?@.*?)\s/);
+		shift @lines;
+		Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type2', $remailer_address);
+	};
 
 	return 1;
 };
@@ -132,7 +165,7 @@ sub remailer_key($$$) {
 		if ($remailer->{'address'} ne $remailer_address) {
 			# Address mismatch -> Ignore reply and add $remailer_address to prospective addresses
 			cluck("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
-			Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'key-reply');
+		Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-key', $remailer_address);
 		} else {
 			Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
 			Echolot::Globals::get()->{'storage'}->set_key(
