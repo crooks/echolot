@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.1 2002/06/05 04:05:40 weasel Exp $
+# $Id: pingd,v 1.2 2002/06/11 00:09:29 weasel Exp $
 #
 
 use strict;
@@ -29,12 +29,12 @@ Echolot::Globals::init();
  
 #my @addr = $storage->get_query_addresses();
 
-require Data::Dumper;
-print Data::Dumper->Dump([Echolot::Globals::get()]);
+#require Data::Dumper;
+#print Data::Dumper->Dump([Echolot::Globals::get()]);
 #Echolot::Conf::send_requests();
 Echolot::Mailin::process();
 
-#$storage->commit();
+Echolot::Globals::get()->{'storage'}->commit();
 
 
 # vim: set ts=4 shiftwidth=4:
