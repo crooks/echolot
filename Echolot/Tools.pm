@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.8 2002/08/14 22:54:20 weasel Exp $
+# $Id: Tools.pm,v 1.9 2002/09/03 17:14:27 weasel Exp $
 #
 
 =pod
@@ -19,6 +19,7 @@ use strict;
 use Carp qw{cluck};
 use HTML::Template;
 use Digest::MD5 qw{};
+use GnuPG::Interface;
 
 sub hash($) {
 	my ($data) = @_;
@@ -222,6 +223,68 @@ sub write_HTML_file($$;$%) {
 
 	return 1;
 };
+
+
+
+
+sub crypt_symmetrically($$) {
+	my ($msg, $direction) = @_;
+
+	($direction eq 'encrypt' || $direction eq 'decrypt') or
+		cluck("Wrong argument direction '$direction' passed to crypt_symmetrically."),
+		return undef;
+
+	my $GnuPG = new GnuPG::Interface;
+	$GnuPG->call( Echolot::Config::get()->{'gnupg'} ) if (Echolot::Config::get()->{'gnupg'});
+	$GnuPG->options->hash_init( 
+		armor   => 1,
+		homedir => Echolot::Config::get()->{'gnupghome'} );
+	$GnuPG->options->meta_interactive( 0 );
+	$GnuPG->passphrase( Echolot::Globals::get()->{'storage'}->get_secret() );
+
+	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
+		= ( IO::Handle->new(),
+		IO::Handle->new(),
+		IO::Handle->new(),
+		IO::Handle->new(),
+		);
+	my $handles = GnuPG::Handles->new (
+		stdin      => $stdin_fh,
+		stdout     => $stdout_fh,
+		stderr     => $stderr_fh,
+		status     => $status_fh
+		);
+	my $pid = 
+		$direction eq 'encrypt' ?
+			$GnuPG->encrypt_symmetrically( handles      => $handles ) :
+			$GnuPG->decrypt( handles      => $handles );
+	print $stdin_fh $msg;
+	close($stdin_fh);
+
+	my $stdout = join '', <$stdout_fh>; close($stdout_fh);
+	my $stderr = join '', <$stderr_fh>; close($stderr_fh);
+	my $status = join '', <$status_fh>; close($status_fh);
+
+	waitpid $pid, 0;
+
+	if ($direction eq 'encrypt') {
+		(($status =~ /^^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
+		 ($status =~ /^^\[GNUPG:\] END_ENCRYPTION\s/m)) or
+			cluck("GnuPG status '$status' didn't indicate message was encrypted correctly (stderr: $stderr). Returning\n"),
+			return undef;
+	} elsif ($direction eq 'decrypt') {
+		(($status =~ /^^\[GNUPG:\] BEGIN_DECRYPTION\s/m) &&
+		 ($status =~ /^^\[GNUPG:\] DECRYPTION_OKAY\s/m) &&
+		 ($status =~ /^^\[GNUPG:\] END_DECRYPTION\s/m)) or
+			cluck("GnuPG status '$status' didn't indicate message was decrypted correctly (stderr: $stderr). Returning\n"),
+			return undef;
+	};
+
+	my $result = $stdout;
+	$result =~ s,^Version: .*$,Version: N/A,m;
+	return $result;
+};
+
 1;
 
 # vim: set ts=4 shiftwidth=4:

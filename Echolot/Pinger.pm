@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.18 2002/07/22 01:28:21 weasel Exp $
+# $Id: Pinger.pm,v 1.19 2002/09/03 17:14:26 weasel Exp $
 #
 
 =pod
@@ -68,6 +68,7 @@ sub do_ping($$$) {
 		"key: $key\n".
 		"sent: $now\n".
 		"mac: $mac\n";
+	$body = Echolot::Tools::crypt_symmetrically($body, 'encrypt');
 		
 	my $to = Echolot::Tools::make_address('ping');
 	if ($type eq 'mix') {
@@ -89,8 +90,9 @@ sub send_pings($) {
 	my $call_intervall = Echolot::Config::get()->{'pinger_interval'};
 	my $send_every_n_calls = Echolot::Config::get()->{'ping_every_nth_time'};
 
-	my $timemod = ($scheduled_for / $call_intervall);
+	my $timemod = int ($scheduled_for / $call_intervall);
 	my $this_call_id = $timemod % $send_every_n_calls;
+	my $session_id = int ($scheduled_for / ($call_intervall * $send_every_n_calls));
 
 	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
 	for my $remailer (@remailers) {
@@ -101,7 +103,7 @@ sub send_pings($) {
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($address)) {
 			next unless Echolot::Config::get()->{'do_pings'}->{$type};
 			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
-				next unless ($this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type.$key) % $send_every_n_calls));
+				next unless ($this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type.$key.$session_id) % $send_every_n_calls));
 				print "ping calling $type, $address, $key\n" if Echolot::Config::get()->{'verbose'};
 				do_ping($type, $address, $key);
 			}
@@ -112,9 +114,13 @@ sub send_pings($) {
 
 
 sub receive($$$) {
-	my ($body, $token, $timestamp) = @_;
+	my ($msg, $token, $timestamp) = @_;
 
 	my $now = time();
+
+	my $body;
+	$body = Echolot::Tools::crypt_symmetrically($msg, 'decrypt') if $msg =~ /^-----BEGIN PGP MESSAGE-----/m;
+	$body = $msg unless defined $body;
 
 	my ($addr) = $body =~ /^remailer: (.*)$/m;
 	my ($type) = $body =~ /^type: (.*)$/m;

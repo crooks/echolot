@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.27 2002/08/23 07:17:23 weasel Exp $
+# $Id: Conf.pm,v 1.28 2002/09/03 17:14:26 weasel Exp $
 #
 
 =pod
@@ -45,8 +45,9 @@ sub send_requests($;$) {
 	my $call_intervall = Echolot::Config::get()->{'getkeyconf_interval'};
 	my $send_every_n_calls = Echolot::Config::get()->{'getkeyconf_every_nth_time'};
 
-	my $timemod = ($scheduled_for / $call_intervall);
+	my $timemod = int ($scheduled_for / $call_intervall);
 	my $this_call_id = $timemod % $send_every_n_calls;
+	my $session_id = int ($scheduled_for / ($call_intervall * $send_every_n_calls));
 
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	
@@ -65,7 +66,7 @@ sub send_requests($;$) {
 			next unless (
 				$which eq $address ||
 				$which eq 'all' ||
-				(($which eq '') && ($this_call_id == (Echolot::Tools::makeShortNumHash($address.$type) % $send_every_n_calls))));
+				(($which eq '') && ($this_call_id == (Echolot::Tools::makeShortNumHash($address.$type.$session_id) % $send_every_n_calls))));
 
 			print "Sending $type requests to ".$address."\n"
 				if Echolot::Config::get()->{'verbose'};

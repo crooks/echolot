@@ -1,3 +1,8 @@
+Changes in version
+	* Make ping/request time more random.
+	* Encrypt pings (symmetrically), so that dup detection of some
+	  remailers (austria) fails and pings get processed.
+
 Changes in version 2.0beta33 - 2002-08-23
 	* Scheduler fixes (inserted jobs for one time processing got requeued
 	  over and over again according to their interval).
