@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.58 2003/02/17 14:44:15 weasel Exp $
+# $Id: Config.pm,v 1.59 2003/02/18 06:38:08 weasel Exp $
 #
 
 =pod
@@ -88,6 +88,7 @@ sub init($) {
 		buildstats                  => 5*60, # build statistics every 5 minutes
 		buildkeys                   => 8*60*60, # build keyring every 8 hours
 		buildthesaurus              => 60*60, # hourly
+		buildfromlines              => 60*60, # hourly
 		commitprospectives          => 8*60*60, # commit prospective addresses every 8 hours
 		expire                      => 24*60*60, # daily
 		getkeyconf_interval         => 5*60, # send out requests every 5 minutes
@@ -130,6 +131,7 @@ sub init($) {
 		resultdir                   => 'results',
 		thesaurusdir                => 'results/thesaurus',
 		thesaurusindexfile          => 'results/thesaurus/index',
+		fromlinesindexfile          => 'results/from',
 		private_resultdir           => 'results.private',
 		indexfilebasename           => 'echolot',
 		gnupghome                   => 'gnupghome',
@@ -180,6 +182,7 @@ sub init($) {
 			default => {
 				'indexfile'             => 'templates/echolot.html',
 				'thesaurusindexfile'    => 'templates/thesaurusindex.html',
+				'fromlinesindexfile'    => 'templates/fromlinesindex.html',
 				'mlist'                 => 'templates/mlist.html',
 				'mlist2'                => 'templates/mlist2.html',
 				'rlist'                 => 'templates/rlist.html',

@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.97 2003/02/16 05:46:54 weasel Exp $
+# $Id: pingd,v 1.98 2003/02/18 06:38:06 weasel Exp $
 #
 
 =pod
@@ -41,6 +41,8 @@ pingd - echolot ping daemon
 =item B<pingd> B<buildkeys>
 
 =item B<pingd> B<buildthesaurus>
+
+=item B<pingd> B<buildfromlines>
 
 =item B<pingd> B<dumpconf>
 
@@ -150,6 +152,10 @@ Send a command to immediatly rebuild the keyrings.
 
 Send a command to immediatly rebuild the Thesaurus.
 
+=item B<buildfromlines>
+
+Send a command to immediatly rebuild the From Header lines page.
+
 =item B<dumpconf>
 
 Dumps the current configuration to standard output.
@@ -185,7 +191,7 @@ Print version number and exit sucessfully.
 
 Usefull only with the B<add>, B<set>, B<setremailercaps>,
 B<deleteremailercaps>, B<getkeyconf>, B<sendpings>, B<buildstats>,
-B<buildkeys>, or B<buildthesaurus> command.
+B<buildkeys>, B<buildthesaurus>, or B<buildfromlines> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
@@ -290,6 +296,7 @@ use Echolot::Chain;
 use Echolot::Stats;
 use Echolot::Commands;
 use Echolot::Thesaurus;
+use Echolot::Fromlines;
 use Echolot::Log;
 use POSIX qw(setsid);
 
@@ -507,6 +514,7 @@ sub daemon_run($) {
 	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}           , 0, \&Echolot::Stats::build_stats );
 	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}            , 0, \&Echolot::Stats::build_keys );
 	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'buildthesaurus'}       , 0, \&Echolot::Thesaurus::build_thesaurus );
+	$scheduler->add('buildfromlines'      , Echolot::Config::get()->{'buildfromlines'}       , 0, \&Echolot::Fromlines::build_fromlines );
 
 	$scheduler->add('metadata_backup'     , Echolot::Config::get()->{'metadata_backup'}      , 0, \&metadata_backup );
 	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'}   , 0, \&commit_prospective_address );
@@ -640,6 +648,7 @@ if ($params->{'help'}) {
 	print ("  buildstats         ... build remailer stats immediatly\n");
 	print ("  buildkeys          ... buid keyrings immediatly\n");
 	print ("  buildthesaurus     ... build thesaurus immediatly\n");
+	print ("  buildfromlines     ... build fromlines immediatly\n");
 	print ("  dumpconf   dump configuration\n");
     exit 0;
 };
@@ -686,6 +695,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'buildthesaurus') {
 	Echolot::Commands::addCommand("buildthesaurus");
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'buildfromlines') {
+	Echolot::Commands::addCommand("buildfromlines");
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'process') {
 	daemon_hup();

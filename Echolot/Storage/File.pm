@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.52 2003/02/17 14:44:15 weasel Exp $
+# $Id: File.pm,v 1.53 2003/02/18 06:38:10 weasel Exp $
 #
 
 =pod
@@ -1522,6 +1522,10 @@ Returns undef on errors.
 sub get_nick($$) {
 	my ($self, $remailer) = @_;
 	
+	defined $remailer or
+		Echolot::Log::cluck ("Undefined remailer passed to get_nick()."),
+		return undef;
+	return undef unless defined $self->{'METADATA'}->{'remailers'}->{$remailer};
 	return undef unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'};
 	return $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'}->{'nick'};
 };
@@ -1739,7 +1743,7 @@ sub delete_remailercaps($$) {
 
 Register that the remailer I<$address> returned the From header
 line I<$from>.  If I<$with_from> is 1 we had tried to supply our own
-From, otherwhise not.
+From, otherwise not.
 
 Returns 1, undef on error.
 
@@ -1773,34 +1777,37 @@ sub register_fromline($$$$) {
 };
 
 
-=item $storage->B<get_fromlines>()
+=item $storage->B<get_fromline>( I<$addr>, I<$type>, I<$user_supplied> )
 
 Return a hash reference with header From line information.
 
-The key is the remailer address. This points to a hash of types (mix,
-cpunk-rsa, ..) which point to another hash with keys B<0> (no user supplied
-From header tried) and B<1> (a user supplied From header was given). These
-point to yet another hash with keys B<last_update> and B<from>.
+The hash has two keys, B<last_update> and B<from>, which holds the actual information.
+
+If there is no from line registered for the given combination, undef is returned.
+
+On Error, also undef is returned.
 
 =cut
 
-sub get_fromlines($) {
-	my ($self) = @_;
+sub get_fromline($$$$) {
+	my ($self, $addr, $type, $user_supplied) = @_;
 
-	my $result;
-	# rebuilding it so that external things cannot screw up our structure
-	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'fromlines'}} ) {
-		for my $type ( keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}} ) {
-			for my $user_supplied ( keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}} ) {
-				$result->{$remailer_addr}->{$user_supplied} = {
-					last_update => $self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}->{$user_supplied}->{'last_update'},
-					from        => $self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}->{$user_supplied}->{'from'}
-				};
-			};
-		};
-	};
+	defined $self->{'METADATA'}->{'fromlines'}->{$addr} or
+		return undef;
+	defined $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type} or
+		return undef;
+	defined $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied} or
+		return undef;
 
-	return $result;
+	defined $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'last_update'} or
+		Echolot::Log::cluck ("last_update is undefined with $addr $type $user_supplied."),
+		return undef;
+	defined $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'from'} or
+		Echolot::Log::cluck ("from is undefined with $addr $type $user_supplied."),
+		return undef;
+
+	return { last_update => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'last_update'},
+	         from        => $self->{'METADATA'}->{'fromlines'}->{$addr}->{$type}->{$user_supplied}->{'from'} };
 }
 
 

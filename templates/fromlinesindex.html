@@ -1,0 +1,57 @@
+<html>
+<head>
+	<title>From Headers [<TMPL_VAR NAME="SITE_NAME">]</title>
+	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
+	<link href="echolot.css" rel="stylesheet" type="text/css">
+	<!-- $Id: fromlinesindex.html,v 1.1 2003/02/18 06:38:34 weasel Exp $ -->
+</head>
+<body>
+<h1>From Headers [<TMPL_VAR NAME="SITE_NAME">]</h1>
+
+<p>
+<a href="./">Up</a>
+
+<h2>Default From: Headers</h2>
+<p>
+<table border=1>
+
+<tr><tr><th>nick</th><th>From Lines</th><th>type</th></tr>
+
+<TMPL_LOOP NAME="default">
+	<TMPL_LOOP NAME="data">
+		<tr>
+			<td><TMPL_VAR NAME="nick"></td>
+			<td><TMPL_VAR NAME="from"></td>
+			<td><small><TMPL_VAR NAME="types"></small></td>
+		</tr>
+	</TMPL_LOOP>
+</TMPL_LOOP>
+
+</table>
+
+<h2>User Supplied From: Headers</h2>
+<p>
+<table border=1>
+
+<tr><tr><th>nick</th><th>From Lines</th><th>type</th></tr>
+
+<TMPL_LOOP NAME="usersupplied">
+	<TMPL_LOOP NAME="data">
+		<tr>
+			<td><TMPL_VAR NAME="nick"></td>
+			<td><TMPL_VAR NAME="from"></td>
+			<td><small><TMPL_VAR NAME="types"></small></td>
+		</tr>
+	</TMPL_LOOP>
+</TMPL_LOOP>
+
+</table>
+
+<hr>
+Created by <a href="http://www.palfrader.org/echolot/">Echolot <TMPL_VAR NAME="version"></a>.<br>
+Last update: <TMPL_VAR NAME="CURRENT_TIMESTAMP">.
+</body>
+
+<!-- vim:set ts=2: -->
+<!-- vim:set shiftwidth=2: -->
+</html>

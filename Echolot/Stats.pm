@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.48 2003/02/17 07:22:49 weasel Exp $
+# $Id: Stats.pm,v 1.49 2003/02/18 06:38:09 weasel Exp $
 #
 
 =pod
@@ -532,7 +532,7 @@ sub find_broken_chains($$$) {
 				my $done = $stats->{$addr1}->{$addr2}->{'done'};
 				$done = 0 unless defined $done;
 				($out < Echolot::Config::get()->{'chainping_minsample'} && $done == 0) and
-					push (@intensive_care, { addr1 => $addr1, addr2 => $addr2, reason => "only $out samples, none returned so far" }),
+					push (@intensive_care, { addr1 => $addr1, addr2 => $addr2, reason => "only $out sample".($out>1?'s':'').", none returned so far" }),
 					next;
 				($out > 0) or
 					Echolot::Log::debug("Should not devide through zero ($done/$out) for $addr1, $addr2."),

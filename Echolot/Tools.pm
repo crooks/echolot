@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.18 2003/02/16 10:24:45 weasel Exp $
+# $Id: Tools.pm,v 1.19 2003/02/18 06:38:09 weasel Exp $
 #
 
 =pod
@@ -202,6 +202,17 @@ sub write_meta_information($%) {
 	};
 	close(F);
 	return 1;
+};
+
+sub escape_HTML_entities($) {
+	my ($in) = @_;
+
+	$in =~ s/&/&amp;/;
+	$in =~ s/"/&quot;/;
+	$in =~ s/</&lt;/;
+	$in =~ s/>/&gt;/;
+
+	return $in;
 };
 
 sub write_HTML_file($$;$%) {
