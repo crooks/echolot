@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.17 2003/02/21 12:10:17 weasel Exp $
+# $Id: CPunk.pm,v 1.18 2003/02/21 22:59:40 weasel Exp $
 #
 
 =pod
@@ -79,7 +79,7 @@ sub encrypt_to($$$$) {
 
 
 
-	$msg =~ s/\r?\n/\r\n/g;
+	#$msg =~ s/\r?\n/\r\n/g;
 
 
 
@@ -189,7 +189,8 @@ sub ping($$$$$) {
 			$header = "##\nFrom: Echolot Pinger <$address>\n\n";
 			$with_from = 0;
 		};
-		$msg = "::\n".
+		#	"Latent-Time: +0\n".
+		$msg = "::\r\n".
 			"Anon-To: $to\n".
 			"\n".
 			$header.
