@@ -1,3 +1,9 @@
+echolot (2.1.1-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun,  2 Nov 2003 07:03:43 +0100
+
 echolot (2.1-2) unstable; urgency=low
 
   * debconf internationialization.
