@@ -23,6 +23,7 @@ Changes in
 	* Do not list remailers with the 'testing' capability in
 	  public stats.  Testing indicates a node is not ready for real
 	  users' traffic yet.
+	* Publish operator's address on index page.
 
 Changes in version 2.1 - 2003-03-03
 	* Minor documentation fixes suggested by Ryan Lackey.

@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.23 2003/06/06 10:36:23 weasel Exp $
+# $Id: Tools.pm,v 1.24 2003/10/17 04:12:16 weasel Exp $
 #
 
 =pod
@@ -218,6 +218,9 @@ sub escape_HTML_entities($) {
 sub write_HTML_file($$;$%) {
 	my ($origfile, $template_file, $expire, %templateparams) = @_;
 
+	my $operator = Echolot::Config::get()->{'operator_address'};
+	$operator =~ s/@/./;
+
 	for my $lang ( keys %{Echolot::Config::get()->{'templates'}} ) {
 		my $template =  HTML::Template->new(
 			filename => Echolot::Config::get()->{'templates'}->{$lang}->{$template_file},
@@ -232,6 +235,7 @@ sub write_HTML_file($$;$%) {
 		$template->param ( thesaurus => Echolot::Config::get()->{'thesaurus'} );
 		$template->param ( fromlines => Echolot::Config::get()->{'fromlines'} );
 		$template->param ( version => Echolot::Globals::get()->{'version'} );
+		$template->param ( operator => $operator );
 		$template->param ( expires => date822( time + $expire ));
 
 		my $file = $origfile;
