@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.90 2003/01/14 06:51:58 weasel Exp $
+# $Id: pingd,v 1.91 2003/01/14 06:59:41 weasel Exp $
 #
 
 =pod
@@ -295,7 +295,7 @@ use POSIX qw(setsid);
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0.8';
+my $VERSION = '2.0.9';
 
 
 my $redirected_stdio = 0;
