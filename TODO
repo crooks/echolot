@@ -1,6 +1,7 @@
 for 2.0:
  make setup easy/document setup
- make a private [rm]list showing all remailers
+ have reload command and send HUP
+ have stop command
 
 for later:
  rotate secret

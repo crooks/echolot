@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.8 2002/07/02 18:03:55 weasel Exp $
+# $Id: Stats.pm,v 1.9 2002/07/02 23:16:53 weasel Exp $
 #
 
 =pod
@@ -262,7 +262,7 @@ sub calculate($$) {
 sub build_mlist1($$) {
 	my ($rems, $filebasename) = @_;
 
-	my $filename = Echolot::Config::get()->{'resultdir'}.'/'.$filebasename.'.txt';
+	my $filename = $filebasename.'.txt';
 	open(F, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
@@ -283,7 +283,7 @@ sub build_mlist1($$) {
 sub build_rlist1($$) {
 	my ($rems, $filebasename) = @_;
 
-	my $filename = Echolot::Config::get()->{'resultdir'}.'/'.$filebasename.'.txt';
+	my $filename = $filebasename.'.txt';
 	open(F, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
@@ -317,7 +317,7 @@ sub build_rlist1($$) {
 sub build_list2($$) {
 	my ($rems, $filebasename) = @_;
 
-	my $filename = Echolot::Config::get()->{'resultdir'}.'/'.$filebasename.'.txt';
+	my $filename = $filebasename.'.txt';
 	open(F, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
@@ -384,14 +384,18 @@ sub build_rems($) {
 sub build_lists() {
 
 	my $rems = build_rems(['mix']);
-	my @rems = grep { $_->{'showit'} } @$rems;
-	build_mlist1( \@rems, 'mlist');
-	build_list2( \@rems, 'mlist2');
+	build_mlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist');
+	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2');
+	@$rems = grep { $_->{'showit'} } @$rems;
+	build_mlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist');
+	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2');
 
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
-	@rems = grep { $_->{'showit'} } @$rems;
-	build_rlist1( \@rems, 'rlist');
-	build_list2( \@rems, 'rlist2');
+	build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist');
+	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2');
+	@$rems = grep { $_->{'showit'} } @$rems;
+	build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist');
+	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2');
 };
 
 

@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.9 2002/07/02 18:15:26 weasel Exp $
+# $Id: Config.pm,v 1.10 2002/07/02 23:16:53 weasel Exp $
 #
 
 =pod
@@ -47,6 +47,7 @@ sub init($) {
 		getkeyconf                  => 24*60*60, # daily
 		
 		resultdir                   => 'results',
+		private_resultdir           => 'results.private',
 		gnupghome                   => 'gnupg',
 		tmpdir                      => 'tmp',
 		prospective_addresses_ttl   => 432000, # 5 days
