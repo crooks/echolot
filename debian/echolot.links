@@ -1,0 +1,2 @@
+/etc/echolot/templates /var/lib/echolot/templates
+/var/log/echolot/echolot.log /var/lib/echolot/output

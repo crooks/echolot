@@ -1,0 +1,84 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=3
+
+version=`grep 'VERSION =' pingd | sed -e "s/.* '//" -e "s/'.*//"`
+REMAILERS=`tr '\n' ' ' < debian/remailers`
+
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -g
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
+build: build-stamp
+build-stamp:
+	pod2man --section=1 --release="$(version)" --center=Echolot pingd doc/pingd.1
+	pod2man --section=5 --release="$(version)" --center=Echolot doc/pingd.conf.pod doc/pingd.conf.5
+	sed -e "s/REMAILER_LIST/$(REMAILERS)/" < debian/echolot.postinst.in > debian/echolot.postinst
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	rm -f build-stamp
+	rm -f doc/pingd.1
+	rm -f doc/pingd.conf.5
+	rm -f debian/echolot.postinst
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	tar c --exclude CVS --exclude .cvsignore Echolot   | tar xv -C $(CURDIR)/debian/echolot/usr/lib/echolot
+	tar c --exclude CVS --exclude .cvsignore lib       | tar xv -C $(CURDIR)/debian/echolot/usr/lib/echolot
+	tar c --exclude CVS --exclude .cvsignore templates | tar xv -C $(CURDIR)/debian/echolot/etc/echolot
+	install -m 755 pingd $(CURDIR)/debian/echolot/usr/lib/echolot
+	install -m 644 debian/pingd.conf $(CURDIR)/debian/echolot/etc/echolot
+
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installdebconf	
+	dh_installdocs
+	dh_installmenu
+	dh_installlogrotate
+	dh_installexamples
+	dh_installman
+	dh_installchangelogs NEWS
+	dh_installinit
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch: 
+# We have nothing to do by default.
+
+binary: binary-indep binary-arch
+
+update-remailers:
+	dh_testdir
+	wget -O - http://stats.melontraffickers.com/mlist2.txt | grep '@' | sed -e 's/.*<//' -e 's/>.*//' > debian/remailers
+
+debian/remailers: update-remailers
+
+.PHONY: build clean binary-indep binary-arch binary install configure remailers

@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+# postrm for Echolot
+
+case "$1" in
+	purge)
+		rm -rf /var/lib/echolot/*
+		rmdir /etc/echolot/templates 2>/dev/null || true
+		rmdir /etc/echolot 2>/dev/null || true
+		dpkg-statoverride --remove /var/run/echolot >/dev/null 2>&1 || true
+		dpkg-statoverride --remove /var/lib/echolot >/dev/null 2>&1 || true
+		;;
+	remove|upgrade|deconfigure)
+		;;
+	failed-upgrade)
+		;;
+	abort-upgrade)
+		;;
+	*)
+		echo "unknown argument --> $1" >&2
+		exit 0
+		;;
+esac
+
+#DEBHELPER#
+
+# vim:set ts=2:
+# vim:set shiftwidth=2:

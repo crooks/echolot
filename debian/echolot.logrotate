@@ -1,0 +1,11 @@
+/var/log/echolot/echolot.log {
+	weekly
+	rotate 5
+	compress
+	missingok
+	notifempty
+	postrotate
+		/etc/init.d/echolot process
+	endscript
+	create 640 echolot adm
+}

@@ -1,0 +1,38 @@
+This package was debianized by Peter Palfrader <weasel@debian.org> on
+Mon, 22 Jul 2002 10:30:40 +0200.
+
+It was downloaded from http://www.palfrader.org/echolot/
+
+Upstream Authors: Peter Palfrader
+
+Copyright:
+ (c) 2001, 2002 Peter Palfrader
+
+Echolot is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA  02111-1307  USA
+
+On Debian systems you can find a copy of the GNU General Public License in
+/usr/share/common-licenses/GPL.
+
+
+
+This package (and the echolot upstream tarball) also includes software by
+Peter J. Acklam <pjacklam@online.no>:
+
+ - Math::SpecFun::Erf
+ - Statistics::Distrib::Normal
+ 
+Those modules may be distributed under the same terms as Perl itself (the GNU
+General Public License and the Artistic License).
+
+You can find a copy of the Artistic License in /usr/share/common-licenses too.

@@ -1,0 +1,5 @@
+usr/lib/echolot
+var/lib/echolot
+var/run/echolot
+var/log/echolot
+etc/echolot

@@ -1,0 +1,28 @@
+Template: echolot/address
+Type: string
+Description: The e-mail address of your pinger:
+ Email to this address must reach your pinger somehow. Either it gets
+ delivered to your box directly or you have fetchmail installed or some
+ other way.
+
+Template: echolot/operator
+Type: string
+Description: Operator address for your pinger:
+ Specify an address for the pinger operator.
+
+Template: echolot/sitename
+Type: string
+Description: Site name:
+ Choose a name for your pinger site. This will be shown in all pages echolot
+ produces.
+
+Template: echolot/addnow
+Type: boolean
+Default: true
+Description: Add known remailers?
+ This package has a built in list of some remailers. If you want they can
+ be added to Echolot's database now. Otherwise you have to populate it
+ by hand.
+ .
+ If you choose to add them Echolot will also fetch keys and configuration
+ data immediatly.

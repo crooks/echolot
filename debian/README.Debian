@@ -1,0 +1,26 @@
+Echolot for Debian
+------------------
+
+Make sure mail to the Echolot pinger reaches ~echolot/mail/
+
+In /usr/share/doc/mixmaster/examples you can find examples for use with
+procmail. You can of course use any other means to deliver to the Maildir
+~echolot/mail/ too.
+
+
+
+Make sure your MTA supports user defined mailboxes. so that
+my_localpart+anything@my_domain also reaches Echolot.
+             ^^^^^^^^^
+If you use another character instead of + to indicate a user defined
+extension set recipient_delimiter accordingly in echolot.conf.
+
+postfix: add »recipient_delimiter = +« to main.cf.
+
+
+To send commands to pingd it's best to use the /etc/init.d/echolot script.
+It takes care that pingd is only called as the correct user. See pingd(1) for a
+list of commands and their description.
+
+
+ -- Peter Palfrader <weasel@debian.org>, Sun, 11 Aug 2002 16:21:18 +0200

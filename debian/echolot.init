@@ -1,0 +1,146 @@
+#!/bin/sh
+#
+# pingcntl: echolot control + wrapper
+# Written by admin@arancio.net, peter@palfrader.org
+
+set -e
+
+VERBOSE=0
+
+# You probably don't want to mess with stuff below this line
+################################################################
+
+PIDFILE=/var/run/echolot/pingd.pid
+CHECKULIMIT=1
+CHECKUID=1
+USER=echolot
+GROUP=echolot
+DAEMON=/usr/lib/echolot/pingd
+DESC="Echolot Ping Daemon"
+NAME="pingd"
+test -f $DAEMON || exit 0
+
+wait_for_deaddaemon () {
+	PID=$1
+	sleep 3
+	if test -n "$PID" && kill -0 $PID 2>/dev/null
+	then
+		echo -n "Waiting for pid $PID ."
+		cnt=0
+		while kill -0 $PID 2>/dev/null
+		do
+			cnt=`expr $cnt + 1`
+			if [ $cnt -gt 30 ]
+			then
+				echo -n " Failed.. "
+				break
+			fi
+			sleep 2
+			echo -n "."
+		done
+	fi
+}
+
+
+# Check for evil ulimits
+if [ "$CHECKULIMIT" -gt "0" ]; then
+	FDs=`ulimit -n`
+	HFDs=`ulimit -H -n`
+	if [ "$FDs" -lt "512" ]; then
+		if [ "$HFDs" -lt "512" ]; then
+			echo "Hardlimit for open File Descriptors is less than 512." >&2
+			echo "Please consider raising it." >&2
+			if [ "$FDs" -lt "$HFDs" ]; then
+				echo "Raising it to $HFDs" >&2
+				ulimit -n $HFDs
+			fi
+		else
+			if [ "$HFDs" -lt "1024" ]; then
+				FDs=$HFDs
+			else
+				FDs=1024
+			fi
+			echo "Softlimit for open File Descriptors is less than 512." >&2
+			echo "Raising it to $FDs" >&2
+			ulimit -n $FDs
+		fi
+	fi
+fi
+
+
+# set VERBOSE
+if [ $VERBOSE -gt 0 ]; then
+	VERBOSE="--verbose"
+else
+	VERBOSE=""
+fi
+
+
+case $1 in
+
+start)
+	if [ -f $PIDFILE ] ; then
+		echo "Pidfile $PIDFILE already exists" >&2
+		exit 1
+	fi
+	echo -n "Starting $DESC: " 
+	start-stop-daemon \
+		--start \
+		--quiet \
+		--pidfile $PIDFILE \
+		--chuid $USER:$GROUP \
+		--exec $DAEMON -- --detach $VERBOSE start
+	echo "$NAME."
+	;;
+
+stop)
+	echo -n "Stopping $DESC: " 
+	PID=`cat $PIDFILE 2>/devnull` || true
+	start-stop-daemon \
+		--stop \
+		--quiet \
+		--oknodo \
+		--pidfile $PIDFILE \
+		--user $USER
+	wait_for_deaddaemon $PID
+	echo "$NAME."
+	;;
+
+reload|force-reload|restart)
+	PID=`cat $PIDFILE 2>/devnull` || true
+	$0 stop
+	wait_for_deaddaemon $PID
+	$0 start
+	;;
+process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|buildstats|buildkeys|buildthesaurus|dumpconf)
+	# Check for right User
+	SU=""
+	if [ "$CHECKUID" -gt "0" ]; then
+		CUID=`id -u`
+		CUIDNAME=`id -nu`
+		if [ "$CUIDNAME" = "$USER" ]; then
+			SU=""
+		elif [ "$CUID" = "0" ]; then
+			SU="su $USER -c"
+		else
+			echo "You are neither $USER nor root. Aborting." >&2
+			exit 1;
+		fi
+	fi
+
+	echo "Running $DESC: $NAME $1..."
+	$SU $DAEMON "$@"
+	echo "done."
+	;;
+*)
+	echo "Usage: $0 (start|stop|reload|force-reload|restart)" >&2
+	echo "       $0 <COMMAND> [parameters]" >&2
+	echo "See the pingd(1) manual page for valid commands" >&2
+	exit 1
+	;;
+esac
+
+exit 0
+
+# vim:set ts=2:
+# vim:set shiftwidth=2:
