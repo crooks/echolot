@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.24 2002/07/03 01:07:16 weasel Exp $
+# $Id: File.pm,v 1.25 2002/07/03 11:08:21 weasel Exp $
 #
 
 =pod
@@ -511,18 +511,28 @@ sub commit_prospective_address($) {
 	$self->enable_commit(1);
 };
 
+sub get_address($$) {
+	my ($self, $addr) = @_;
+
+	defined ($self->{'METADATA'}->{'addresses'}->{$addr}) or
+		cluck ("$addr does not exist in Metadata"),
+		return undef;
+	
+	my $result = {
+		status  => $self->{'METADATA'}->{'addresses'}->{$addr}->{'status'},
+		id      => $self->{'METADATA'}->{'addresses'}->{$addr}->{'id'},
+		address => $_,
+		fetch   => $self->{'METADATA'}->{'addresses'}->{$addr}->{'fetch'},
+	};
+
+	return $result;
+};
+
 sub get_addresses($) {
 	my ($self) = @_;
 
 	my @addresses = keys %{$self->{'METADATA'}->{'addresses'}};
-	my @return_data = map {
-		my %tmp;
-		$tmp{'status'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'status'};
-		$tmp{'id'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'id'};
-		$tmp{'address'} = $_;
-		$tmp{'fetch'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'fetch'};
-		\%tmp;
-		} @addresses;
+	my @return_data = map { $self->get_address($_); } @addresses;
 	return @return_data;
 };
 
@@ -948,6 +958,24 @@ sub delete_remailer($$) {
 	
 	return 1;
 };
+
+sub delete_remailercaps($$) {
+	my ($self, $address) = @_;
+
+	print "Deleting conf for remailer $address\n"
+		if Echolot::Config::get()->{'verbose'};
+
+	if (defined $self->{'METADATA'}->{'remailers'}->{$address}) {
+		delete $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'}
+			if defined $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'};
+	} else {
+		cluck("Remailer $address does not exist in remailers")
+	};
+	$self->commit();
+	
+	return 1;
+};
+
 
 
 

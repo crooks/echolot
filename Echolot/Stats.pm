@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.9 2002/07/02 23:16:53 weasel Exp $
+# $Id: Stats.pm,v 1.10 2002/07/03 11:08:21 weasel Exp $
 #
 
 =pod
@@ -342,7 +342,7 @@ sub build_list2($$) {
 
 	printf F "\n\n\nRemailer-Capabilities:\n\n";
 	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
-		print F $remailer->{'caps'},"\n"
+		print F $remailer->{'caps'},"\n" if defined $remailer->{'caps'};
 	}
 
 	close (F);

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.14 2002/07/03 00:54:40 weasel Exp $
+# $Id: pingd,v 1.15 2002/07/03 11:08:21 weasel Exp $
 #
 
 =pod
@@ -25,6 +25,10 @@ pingd - echolot ping daemon
 =item B<pingd> B<delete> I<address> [I<address> ...]
 
 =item B<pingd> B<set> option=value [option=value..] I<address> [I<address> ...]
+
+=item B<pingd> B<setremailercaps> I<capsstring>
+
+=item B<pingd> B<deleteremailercaps> I<address>
 
 =item B<pingd> B<getkeyconf>
 
@@ -99,6 +103,21 @@ either B<on> or B<off>.
 
 =back
 
+=item B<setremailercaps> I<capsstring>
+
+Some remailers (Mixmaster V2 - currently lcs and passthru2) don't return a
+useable remailer-conf message. For such remailers you need to set it manually.
+
+For instance:
+
+    ./pingd setremailercaps '$remailer{"passthru2"} = "<mixer@immd1.informatik.uni-erlangen.de> mix middle";'
+    ./pingd setremailercaps '$remailer{"lcs"} = "<mix@anon.lcs.mit.edu> mix klen1000";'
+
+=item B<deleteremailercaps> I<address>
+
+Delete remailer-conf data for I<address>. The config data will be reset from
+the next valid remailer-conf reply by the remailer.
+
 =item B<getkeyconf>
 
 Send a command to immediatly request keys and configuration from remailers.
@@ -106,6 +125,8 @@ Send a command to immediatly request keys and configuration from remailers.
 =item B<dumpconf>
 
 Dumps the current configuration to standard output.
+
+=back
 
 =head1 OPTIONS
 
@@ -121,7 +142,8 @@ Print a short help and exit sucessfully.
 
 =item --nohup
 
-Usefull only when passwd with the B<add>, B<set> or B<getkeyconf> command.
+Usefull only when passwd with the B<add>, B<set>, B<setremailercaps>,
+B<deleteremailercaps> or B<getkeyconf> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
@@ -142,9 +164,9 @@ F<pingd.conf>
 
 =head1 SIGNALS
 
-On B<SIGINT>, B<SIGQUIT>, and B<SIGTERM> B<pingd> will schedule an exist
-for after the current actions are finished or immediatly if no actions are
-currently beeing processed. It will then write all metadata and metadata to
+On B<SIGINT>, B<SIGQUIT>, and B<SIGTERM> B<pingd> will schedule a shutdown
+for as soon as the current actions are finished or immediatly if no actions are
+currently beeing processed. It will then write all metadata and pingdata to
 disk and close all files cleanly before exiting.
 
 On B<SIGHUP> <pingd> will execute any pending commands from the commands file
@@ -154,7 +176,7 @@ This can be used if you want to rotate that file.
 
 =head1 AUTHOR
 
-Peter Palfrader E<lt>peter@palfrader.org<gt>
+Peter Palfrader E<lt>peter@palfrader.orgE<gt>
 
 =head1 SEE ALSO
 
@@ -162,7 +184,7 @@ echolot Documentation
 
 =head1 BUGS
 
-Please report them at <lt>URL:http://savannah.gnu.org/bugs/?group=echolot<gt>
+Please report them at E<lt>URL:http://savannah.gnu.org/bugs/?group=echolotE<gt>
 
 =cut
 
@@ -265,6 +287,35 @@ sub command_set(@) {
 	};
 };
 
+sub command_setremailercaps(@) {
+	my @argv = @_;
+
+	my @caps;
+	for my $caps (@argv) {
+		my ($remailer_nick, $remailer_address) = ($caps =~ /^\s*  \$remailer{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
+		die ("caps '$caps' is not a valid remailer caps line\n") unless (defined $remailer_nick && defined $remailer_address);
+		push @caps, {
+			address => $remailer_address,
+			caps => $caps };
+	};
+	for my $caps (@caps) {
+		Echolot::Commands::addCommand("setremailercaps ".$caps->{'address'}." ".$caps->{'caps'});
+	};
+};
+
+sub command_deleteremailercaps(@) {
+	my @argv = @_;
+
+	my @addresses;
+	for my $address (@argv) {
+		die ("argument $address is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
+		push @addresses, $address;
+	};
+
+	for my $address (@argv) {
+		Echolot::Commands::addCommand("deleteremailercaps $address");
+	};
+};
 
 
 sub pid_exists() {
@@ -408,6 +459,20 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	} else {
 		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
 	};
+} elsif ($COMMAND eq 'setremailercaps') {
+	command_setremailercaps(@ARGV);
+	if (!$params->{'nohup'} && pid_exists()) {
+		daemon_hup()
+	} else {
+		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+	};
+} elsif ($COMMAND eq 'deleteremailercaps') {
+	command_deleteremailercaps(@ARGV);
+	if (!$params->{'nohup'} && pid_exists()) {
+		daemon_hup()
+	} else {
+		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+	};
 } elsif ($COMMAND eq 'getkeyconf') {
 	Echolot::Commands::addCommand("getkeyconf");
 	if (!$params->{'nohup'} && pid_exists()) {
@@ -420,6 +485,8 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 } elsif ($COMMAND eq 'stop') {
 	daemon_stop();
 } elsif ($COMMAND eq 'start') {
+	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
+		if pid_exists();
 	make_dirs();
 	if ($params->{'detach'}) {
 		print "Detaching.\n";

@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.9 2002/07/02 18:03:55 weasel Exp $
+# $Id: Conf.pm,v 1.10 2002/07/03 11:08:21 weasel Exp $
 #
 
 =pod
@@ -117,6 +117,35 @@ sub remailer_conf($$$) {
 		shift @lines;
 		Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type2', $remailer_address);
 	};
+
+	return 1;
+};
+
+sub set_caps_manually($$) {
+	my ($addr, $caps) = @_;
+
+	defined $addr or
+		cluck("Address not defined."),
+		return 0;
+	defined $caps or
+		cluck("Caps not defined."),
+		return 0;
+
+	print "Setting caps for $addr manually to $caps\n"
+		if Echolot::Config::get()->{'verbose'};
+
+	my $remailer = Echolot::Globals::get()->{'storage'}->get_address($addr);
+	defined $remailer or
+		cluck("Remailer address $addr did not give a valid remailer."),
+		return 0;
+	my $id = $remailer->{'id'};
+	defined $id or
+		cluck("Remailer address $addr did not give a remailer with an id."),
+		return 0;
+	my $token = 'conf.'.$id;
+
+	my $conf = "Remailer-Type: set-manually\n$caps";
+	remailer_conf($conf, $token, time + 10 * 365 * 24 * 60 * 60); # FIXME: Y2036
 
 	return 1;
 };
