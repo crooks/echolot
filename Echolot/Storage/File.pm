@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.30 2002/07/10 13:01:03 weasel Exp $
+# $Id: File.pm,v 1.31 2002/07/11 17:41:07 weasel Exp $
 #
 
 =pod
@@ -23,7 +23,7 @@ use warnings;
 use Data::Dumper;
 use IO::Handle;
 use English;
-use Carp qw{cluck confess};
+use Carp qw{cluck confess croak carp};
 use Fcntl ':flock'; # import LOCK_* constants
 use Fcntl ':seek'; # import LOCK_* constants
 use Echolot::Tools;
