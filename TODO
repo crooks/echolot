@@ -1,9 +1,8 @@
-$Id: TODO,v 1.42 2002/12/13 06:54:23 weasel Exp $
+$Id: TODO,v 1.43 2003/01/14 06:28:27 weasel Exp $
 
-can be done later, nice if for 2.0:
+can be done later:
  check for mixmaster binary on startup
  check gnupg version number on startup
- real logs
  detect broken chains
  ping nymservers
  chain preload and postload
