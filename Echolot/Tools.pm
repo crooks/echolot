@@ -21,6 +21,7 @@ use Digest::MD5 qw{};
 use IO::Handle;
 use GnuPG::Interface;
 use Echolot::Log;
+use English;
 
 sub hash($) {
 	my ($data) = @_;

@@ -96,7 +96,7 @@ sub encrypt_to($$$$) {
 	$pid = $GnuPG->encrypt(
 		command_args => $command_args,
 		handles      => $handles );
-	my ($stdout, $stderr, $status) = readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
+	($stdout, $stderr, $status) = readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
 
 	#($stderr eq '') or
