@@ -42,5 +42,10 @@ $CONFIG = {
   # standard format it is nice to read for a human eye.
 	'combined_list'    => 0,
 
+  # Log file and level (valid levels are debug, info, notice, warning, error,
+  # critical, alert, emergency)
+	#'logfile'         => 'pingd.log',
+	#'loglevel'        => 'info',
+
           };
 1;

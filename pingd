@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.88 2003/01/14 06:27:41 weasel Exp $
+# $Id: pingd,v 1.89 2003/01/14 06:40:24 weasel Exp $
 #
 
 =pod
@@ -307,7 +307,8 @@ sub setSigHandlers() {
 		if ($redirected_stdio) {
 			close STDOUT;
 			close STDERR;
-			open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
+			my $logfile = Echolot::Config::get()->{'logfile'};
+			open (STDOUT, ">>$logfile") or die ("Cannot open '$logfile' as STDOUT\n");
 			open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
 		};
 		Echolot::Log::reopen();
@@ -666,7 +667,8 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 		exit(0) if (fork());
 		POSIX::setsid();
 		exit(0) if (fork());
-		open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
+		my $logfile = Echolot::Config::get()->{'logfile'};
+		open (STDOUT, ">>$logfile") or die ("Cannot open '$logfile' as STDOUT\n");
 		open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
 		open (STDIN , "</dev/null") or die ("Cannot open /dev/null as STDIN\n");
 		$redirected_stdio = 1;

@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.45 2003/01/14 05:25:35 weasel Exp $
+# $Id: Config.pm,v 1.46 2003/01/14 06:40:24 weasel Exp $
 #
 
 =pod
@@ -138,6 +138,11 @@ sub init($) {
 			}
 		},
 
+		# logging
+		logfile                     => 'pingd.log',
+		loglevel                    => 'info',
+
+
 		# ping types
 		do_pings => {
 			'cpunk-dsa' => 1,
@@ -180,7 +185,7 @@ sub init($) {
 			"	not a remailer\n".
 			"\n".
 			"If you want to talk to a human please mail <TMPL_VAR NAME=\"operator_address\">.\n",
-		
+
 		homedir                     => undef,
 		my_localpart                => undef,
 		my_domain                   => undef,

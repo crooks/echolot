@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.11 2003/01/14 06:04:37 weasel Exp $
+# $Id: Mix.pm,v 1.12 2003/01/14 06:40:24 weasel Exp $
 #
 
 =pod
@@ -67,7 +67,7 @@ sub ping($$$$) {
 		return 0;
 	
 	$ENV{'MIXPATH'} = Echolot::Config::get()->{'mixhome'};
-	open(MIX, "|".Echolot::Config::get()->{'mixmaster'}." -m -S -l $chaincomma") or
+	open(MIX, "|".Echolot::Config::get()->{'mixmaster'}." -m -S -l $chaincomma 2>/dev/null") or
 		Echolot::Log::warn("Cannot exec mixpinger: $!."),
 		return 0;
 	print MIX "To: $to\n\n$body\n";
