@@ -8,7 +8,7 @@ set -e
 ################################################################
 # You perhaps want to change those items
 
-USER=echolot
+USER=pinger
 VERBOSE=0
 PINGD="/home/pinger/echolot/pingd"
 
@@ -71,13 +71,21 @@ case $1 in
 
 start)
 	echo -n "Starting Echolot: pingd" 
-	$SU $PINGD --detach $VERBOSE start
+	if [ ! -z "$SU" ]; then
+		$SU "$PINGD --detach $VERBOSE start"
+	else
+		$PINGD --detach $VERBOSE start
+	fi
 	echo "."
 	;;
 
 stop)
 	echo -n "Stopping Echolot: pingd" 
- 	$SU $PINGD stop
+	if [ ! -z "$SU" ]; then
+ 		$SU "$PINGD stop"
+	else
+ 		$PINGD stop
+	fi
 	echo "."
 	;;
 
@@ -88,7 +96,11 @@ reload|force-reload|restart)
 	;;
 process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|buildstats|buildkeys|buildthesaurus|dumpconf)
 	echo "Running pingd $1..."
-	$SU $PINGD "$@"
+	if [ ! -z "$SU" ]; then
+		$SU "$PINGD \"$@\""
+	else
+		$PINGD "$@"
+	fi
 	echo "done."
 	;;
 *)
