@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.98 2003/02/18 06:38:06 weasel Exp $
+# $Id: pingd,v 1.99 2003/02/18 06:57:07 weasel Exp $
 #
 
 =pod
@@ -509,8 +509,7 @@ sub daemon_run($) {
 
 	$scheduler->add('processmail'         , Echolot::Config::get()->{'processmail'}          , 0, \&Echolot::Mailin::process );
 	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}      , 0, \&Echolot::Pinger::send_pings );
-	$scheduler->add('chainping'           , Echolot::Config::get()->{'chainpinger_interval'} , 0, \&Echolot::Chain::send_pings )
-		if Echolot::Config::get()->{'do_chainpings'};
+	$scheduler->add('chainping'           , Echolot::Config::get()->{'chainpinger_interval'} , 0, \&Echolot::Chain::send_pings );
 	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}           , 0, \&Echolot::Stats::build_stats );
 	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}            , 0, \&Echolot::Stats::build_keys );
 	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'buildthesaurus'}       , 0, \&Echolot::Thesaurus::build_thesaurus );

@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.1 2003/02/18 06:41:52 weasel Exp $
+# $Id: Fromlines.pm,v 1.2 2003/02/18 06:57:07 weasel Exp $
 #
 
 =pod
@@ -23,6 +23,8 @@ use Echolot::Log;
 
 
 sub build_fromlines() {
+	return 1 unless Echolot::Config::get()->{'fromlines'};
+
 	my $data;
 	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
 

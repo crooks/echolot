@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.19 2003/02/18 06:38:09 weasel Exp $
+# $Id: Tools.pm,v 1.20 2003/02/18 06:57:07 weasel Exp $
 #
 
 =pod
@@ -230,6 +230,7 @@ sub write_HTML_file($$;$%) {
 		$template->param ( separate_rlist => Echolot::Config::get()->{'separate_rlists'} );
 		$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
 		$template->param ( thesaurus => Echolot::Config::get()->{'thesaurus'} );
+		$template->param ( fromlines => Echolot::Config::get()->{'fromlines'} );
 		$template->param ( version => Echolot::Globals::get()->{'version'} );
 		$template->param ( expires => date822( time + $expire ));
 

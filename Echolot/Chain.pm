@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.9 2003/02/18 06:38:06 weasel Exp $
+# $Id: Chain.pm,v 1.10 2003/02/18 06:57:07 weasel Exp $
 #
 
 =pod
@@ -128,6 +128,8 @@ sub get_latest_key($$) {
 };
 
 sub send_pings($;$$) {
+	return 1 unless Echolot::Config::get()->{'do_chainpings'};
+
 	my ($scheduled_for, $which1, $which2) = @_;
 
 	$which1 = '' unless defined $which1;

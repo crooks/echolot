@@ -203,6 +203,14 @@ Collect Thesaurus data and build Thesaurus Index.
 	Default: 'thesaurus' => 1,
 	Example: 'thesaurus' => 0,
 
+=item B<fromlines> [bool]
+
+Build a summary of default From: header lines and list
+remailers which allow overriding them.
+
+	Default: 'fromlines' => 1,
+	Example: 'fromlines' => 0,
+
 =item B<stats_sort_by_latency>
 
 In the statistics output remailers are sorted by reliability as the primary key.

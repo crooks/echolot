@@ -3,7 +3,7 @@
 	<title>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</title>
 	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
 	<link href="echolot.css" rel="stylesheet" type="text/css">
-	<!-- $Id: echolot.html,v 1.13 2003/02/18 06:44:35 weasel Exp $ -->
+	<!-- $Id: echolot.html,v 1.14 2003/02/18 06:57:07 weasel Exp $ -->
 </head>
 <body>
 <h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
@@ -122,10 +122,12 @@ over 98.0% in terms of overall reliability.
 Find the Thesaurus index in <a href="thesaurus/">thesaurus/</a>.
 </TMPL_IF>
 
+<TMPL_IF NAME="fromlines">
 <h2>From Header Lines</h2>
 
 A summary of <a href="from.html">From Headers</a> each remailer uses has also
 been compiled.  It also lists which remailers allow setting the From: Header.
+</TMPL_IF>
 
 <hr>
 Created by <a href="http://www.palfrader.org/echolot/">Echolot <TMPL_VAR

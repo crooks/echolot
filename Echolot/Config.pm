@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.59 2003/02/18 06:38:08 weasel Exp $
+# $Id: Config.pm,v 1.60 2003/02/18 06:57:07 weasel Exp $
 #
 
 =pod
@@ -81,6 +81,7 @@ sub init($) {
 		separate_rlists             => 0,
 		combined_list               => 0,
 		thesaurus                   => 1,
+		fromlines                   => 1,
 		stats_sort_by_latency       => 0,
 
 		# Timers and Counters
