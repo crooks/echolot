@@ -495,10 +495,13 @@ generated stats. Otherwise its content is copied in verbatim.
 	Example conent:
 		(xganon2 xganon)
 		(cracker redneck)
+
 =back
 
 
 =head2 MISCELLANEOUS
+
+=over
 
 =item B<write_meta_files> [bool]
 
@@ -513,6 +516,8 @@ a specific page expires.
 The extension that such metafiles (see above) should have.
 
 	Default: 'meta_extension' => '.meta',
+
+=back
 
 =head2 PINGING TYPES
 
@@ -545,15 +550,13 @@ Pings mixmaster remailers.
 =back
 
 	Default: 'do_pings' => {
-	           'cpunk-dsa' => 1,
-	           'cpunk-rsa' => 1,
-	           'cpunk-clear' => 1,
-	           'mix' => 1
-	          },
- 
+	   'cpunk-dsa' => 1,
+	   'cpunk-rsa' => 1,
+	   'cpunk-clear' => 1,
+	   'mix' => 1
+	  },
+
 =back
-
-
 
 =head2 TEMPLATES
 
@@ -577,19 +580,19 @@ B<rlist2-clear>, and
 B<clist>.
 
 	Default: 'templates' => {
-                    'thesaurusindexfile' => 'templates/thesaurusindex.html',
-                    'mlist'              => 'templates/mlist.html',
-                    'mlist2'             => 'templates/mlist2.html',
-                    'rlist'              => 'templates/rlist.html',
-                    'rlist-rsa'          => 'templates/rlist-rsa.html',
-                    'rlist-dsa'          => 'templates/rlist-dsa.html',
-                    'rlist-clear'        => 'templates/rlist-clear.html',
-                    'rlist2'             => 'templates/rlist2.html',
-                    'rlist2-rsa'         => 'templates/rlist2-rsa.html',
-                    'rlist2-dsa'         => 'templates/rlist2-dsa.html',
-                    'rlist2-clear'       => 'templates/rlist2-clear.html',
-                    'clist'              => 'templates/clist.html',
-	          };
+	    'thesaurusindexfile' => 'templates/thesaurusindex.html',
+	    'mlist'              => 'templates/mlist.html',
+	    'mlist2'             => 'templates/mlist2.html',
+	    'rlist'              => 'templates/rlist.html',
+	    'rlist-rsa'          => 'templates/rlist-rsa.html',
+	    'rlist-dsa'          => 'templates/rlist-dsa.html',
+	    'rlist-clear'        => 'templates/rlist-clear.html',
+	    'rlist2'             => 'templates/rlist2.html',
+	    'rlist2-rsa'         => 'templates/rlist2-rsa.html',
+	    'rlist2-dsa'         => 'templates/rlist2-dsa.html',
+	    'rlist2-clear'       => 'templates/rlist2-clear.html',
+	    'clist'              => 'templates/clist.html',
+	  };
 
 =back
 

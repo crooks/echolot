@@ -1,3 +1,6 @@
+Changes in version
+	* Fix pingd.conf(5) manpage a bit (indention levels).
+
 Changes in version 2.0.3 - 2002-10-12
 	* Set program name according to current action.
 	* Fix a typo that showed up in perl 5.0005_02 (had a , instead of a .
