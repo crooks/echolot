@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.11 2002/06/22 23:35:55 weasel Exp $
+# $Id: File.pm,v 1.12 2002/07/02 13:40:13 weasel Exp $
 #
 
 =pod
@@ -229,9 +229,9 @@ sub pingdata_open_one($$$$) {
 		return 0;
 	
 
-	my $basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key};
+	my $basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'stats'};
 	defined($basename) or
-		$basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key} = $remailer_addr.'.'.$type.'.'.$key.'.'.time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++,
+		$basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'stats'} = $remailer_addr.'.'.$type.'.'.$key.'.'.time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++,
 		$self->commit();
 
 	my $filename = $self->{'datadir'} .'/'. $basename;
@@ -290,22 +290,47 @@ sub get_ping_fh($$$$$) {
 	return $fh;
 };
 
-sub pingdata_close() {
+sub pingdata_close_one($$$$;$) {
+	my ($self, $remailer_addr, $type, $key, $delete) = @_;
+
+	for my $direction ( keys %{$self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}} ) {
+		my $fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
+
+		flock($fh, LOCK_UN) or
+			cluck("Error when releasing lock on $remailer_addr type $type key $key direction $direction pings: $!"),
+			return 0;
+		close ($fh) or
+				cluck("Error when closing $remailer_addr type $type key $key direction $direction pings: $!"),
+				return 0;
+
+		if ((defined $delete) && ($delete eq 'delete')) {
+			my $basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'stats'};
+			my $filename = $self->{'datadir'} .'/'. $basename;
+			unlink ($filename.'.'.$direction) or
+				carp ("Cannot unlink $filename.'.'.$direction: $!");
+		};
+	};
+
+	delete $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key};
+
+	delete $self->{'PING_FHS'}->{$remailer_addr}->{$type}
+		unless (scalar keys %{$self->{'PING_FHS'}->{$remailer_addr}->{$type}});
+	delete $self->{'PING_FHS'}->{$remailer_addr}
+		unless (scalar keys %{$self->{'PING_FHS'}->{$remailer_addr}});
+
+
+	return 1;
+};
+
+sub pingdata_close($) {
 	my ($self) = @_;
 
 	for my $remailer_addr ( keys %{$self->{'PING_FHS'}} ) {
 		for my $type ( keys %{$self->{'PING_FHS'}->{$remailer_addr}} ) {
 			for my $key ( keys %{$self->{'PING_FHS'}->{$remailer_addr}->{$type}} ) {
-				for my $direction ( keys %{$self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}} ) {
-
-					my $fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
-					flock($fh, LOCK_UN) or
-						cluck("Error when releasing lock on $remailer_addr type $type key $key direction $direction pings: $!"),
-						return 0;
-					close ($fh) or
-							cluck("Error when closing $remailer_addr type $type key $key direction $direction pings: $!"),
-							return 0;
-				};
+				$self->pingdata_close_one($remailer_addr, $type, $key) or
+					cluck("Error when calling pingdata_close_one with $remailer_addr type $type key $key"),
+					return 0;
 			};
 		};
 	};
@@ -564,6 +589,9 @@ sub set_caps($$$$$$) {
 				pingit => Echolot::Config::get()->{'ping_new'},
 				showit => Echolot::Config::get()->{'show_new'},
 			};
+	} else {
+		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
+			if ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired');
 	};
 
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'}) {
@@ -609,6 +637,9 @@ sub set_key($$$$$$$$$) {
 				pingit => Echolot::Config::get()->{'ping_new'},
 				showit => Echolot::Config::get()->{'show_new'},
 			};
+	} else {
+		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
+			if ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired');
 	};
 
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}) {
@@ -743,6 +774,105 @@ sub get_nick($$) {
 	return undef unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'};
 	return $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'}->{'nick'};
 };
+
+
+sub expire($) {
+	my ($self) = @_;
+
+	my $now = time();
+	my $expire_keys  = $now - Echolot::Config::get()->{'expire_keys'};
+	my $expire_conf = $now - Echolot::Config::get()->{'expire_confs'};
+	my $expire_pings = $now - Echolot::Config::get()->{'expire_pings'};
+
+	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
+		next unless ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'status'} eq 'active');
+
+		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
+				if ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'last_update'} < $expire_keys) {
+					print "Expiring $remailer_addr, key, $type, $key\n";
+					$self->pingdata_close_one($remailer_addr, $type, $key, 'delete');
+					delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key};
+				};
+			};
+			delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}
+				unless (scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}});
+		};
+		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}
+			unless (scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}});
+
+		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}
+			if (defined $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'} &&
+			   ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'last_update'} < $expire_conf));
+
+		$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'status'} = 'expired'
+			unless ( defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}) ||
+			         defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}));
+
+
+		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
+				my @out  = grep {$_      > $expire_pings} Echolot::Globals::get()->{'storage'}->get_pings($remailer_addr, $type, $key, 'out');
+				my @done = grep {$_->[0] > $expire_pings} Echolot::Globals::get()->{'storage'}->get_pings($remailer_addr, $type, $key, 'done');
+
+
+				# write ping to done
+				my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'done') or
+					cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for done pings"),
+					return 0;
+				seek($fh, 0, SEEK_SET) or
+					cluck("Cannot seek to start of $remailer_addr out pings: $!"),
+					return 0;
+				truncate($fh, 0) or
+					cluck("Cannot truncate done pings file for remailer $remailer_addr; key=$key file to zero length: $!"),
+					return 0;
+				for my $done (@done) {
+					print($fh $done->[0]." ".$done->[1]."\n") or
+						cluck("Error when writing to $remailer_addr out pings: $!"),
+						return 0;
+				};
+				$fh->flush();
+
+				# rewrite outstanding pings
+				$fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
+					cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings"),
+					return 0;
+				seek($fh, 0, SEEK_SET) or
+					cluck("Cannot seek to start of outgoing pings file for remailer $remailer_addr; key=$key: $!"),
+					return 0;
+				truncate($fh, 0) or
+					cluck("Cannot truncate outgoing pings file for remailer $remailer_addr; key=$key file to zero length: $!"),
+					return 0;
+				print($fh (join "\n", @out), (scalar @out ? "\n" : '') ) or
+					cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
+					return 0;
+				$fh->flush();
+			};
+		};
+	};
+
+
+
+};
+
+
+# sub convert($) {
+# 	my ($self) = @_;
+# 
+# 	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
+# 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+# 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
+# 				if (defined $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key}) {
+# 					$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'stats'} = 
+# 						$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key};
+# 				};
+# 			};
+# 		};
+# 		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'};
+# 	};
+# 
+# 	$self->commit();
+# };
 
 =back
 
