@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.16 2002/07/13 20:35:50 weasel Exp $
+# $Id: Conf.pm,v 1.17 2002/07/13 20:45:39 weasel Exp $
 #
 
 =pod
@@ -322,8 +322,7 @@ sub parse_cpunk_key($$$) {
 		waitpid $pid, 0;
 
 		($stderr eq '') or 
-			cluck("GnuPG returned something in stderr: '$stderr' when checking key '$key'; skipping\n"),
-			next;
+			cluck("GnuPG returned something in stderr: '$stderr' when checking key '$key'; So what?\n");
 		($status eq '') or 
 			cluck("GnuPG returned something in status '$status' when checking key '$key': So what?\n");
 		
