@@ -20,7 +20,8 @@ use strict;
 use English;
 use Echolot::Log;
 
-sub print_summary() {
+sub print_summary(;$) {
+	my ($manual) = @_;
 
 	my @addresses = sort { $a->{'address'} cmp $b->{'address'} } Echolot::Globals::get()->{'storage'}->get_addresses();
 	my %remailers = map { $_->{'address'} => $_ } Echolot::Globals::get()->{'storage'}->get_remailers();
@@ -42,7 +43,11 @@ sub print_summary() {
 			};
 		};
 	};
-	Echolot::Log::info($report);
+	if (defined $manual) {
+		Echolot::Log::notice($report);
+	} else {
+		Echolot::Log::info($report);
+	}
 
 	return 1;
 };

@@ -82,7 +82,8 @@ sub processCommands($) {
 		} elsif ($command eq 'buildfromlines') {
 			Echolot::Globals::get()->{'scheduler'}->schedule('buildfromlines', 0, time() );
 		} elsif ($command eq 'summary') {
-			Echolot::Globals::get()->{'scheduler'}->schedule('summary', 0, time() );
+			@args = ('manual');
+			Echolot::Globals::get()->{'scheduler'}->schedule('summary', 0, time(), \@args );
 		} elsif ($command eq 'delete') {
 			Echolot::Globals::get()->{'storage'}->delete_remailer(@args);
 		} elsif ($command eq 'setremailercaps') {

@@ -183,7 +183,7 @@ Send a command to immediatly rebuild the From Header lines page.
 
 =item B<summary>
 
-Print a status summary of all known addresses to the log.
+Print a status summary of all known addresses to the log (level notice).
 
 =item B<dumpconf>
 
