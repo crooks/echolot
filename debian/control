@@ -8,13 +8,14 @@ Standards-Version: 3.5.2
 Package: echolot
 Architecture: all
 Depends: ${shlibs:Depends}, debconf, gnupg (>= 1.0.7), postfix | mail-transport-agent, mixmaster, libdigest-MD5-perl, libhtml-template-perl, libgnupg-interface-perl (>= 0.33)
-Suggests: procmail
-Description: pinger for anonymous remailers
- A Pinger in the context of anonymous remailers is a program that regularily
- sends messages through remailers to check their reliability. It then
- calculates reliability statistics which are used by remailer clients to choose
- the chain of remailers to use.
+Description: Pinger for anonymous remailers such as Mixmaster
+ A Pinger in the context of anonymous remailers is a program that
+ regularly sends messages through remailers to determine their status.
+ Based on the responses, the Pinger calculates reliability statistics
+ which may be used by remailer clients to choose a chain of remailers to
+ use.
  .
- Additionally Echolot collects configuration parameters and keys of all
- remailers and offers them in a format readable by humans as well as remailer
- clients.
+ Furthermore, Echolot collects configuration parameters and keys of
+ remailers and offers the collected information in a format readable by
+ remailer clients.  This helps reduce the administration effort required
+ to use or host remailers.
