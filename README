@@ -1,3 +1,5 @@
+$Id: README,v 1.9 2002/07/06 23:26:32 weasel Exp $
+
 Echolot is a Pinger for anonymous remailers.
 
 A Pinger in the context of anonymous remailers is a program that
