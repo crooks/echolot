@@ -1,5 +1,6 @@
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.
+	* Removed --pgp2 in CPunk RSA pings.
 
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.
