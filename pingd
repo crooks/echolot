@@ -1,7 +1,9 @@
 #!/usr/bin/perl -wT
 
+$| = 1;
+
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.27 2002/07/10 13:21:40 weasel Exp $
+# $Id: pingd,v 1.28 2002/07/10 17:16:45 weasel Exp $
 #
 
 =pod

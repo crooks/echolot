@@ -3,6 +3,8 @@ Changes in
 	  Use the change-thesaurus-filenames script in the tools
 	  directory to convert your current thesaurus if you wish
 	  to keep the data.
+	* Seperate rlists for rsa, dsa and plaintext pings are
+	  supported now. Enable seperate_rlists in pingd.conf.
 
 Changes in version 2.0 beta4 - 2002-07-10
 	* Minor documentation fixes

@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.12 2002/07/06 20:15:12 weasel Exp $
+# $Id: Stats.pm,v 1.13 2002/07/10 17:16:45 weasel Exp $
 #
 
 =pod
@@ -275,6 +275,7 @@ sub write_file($$;$) {
 	$template->param ( list => $output );
 	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
 	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
+	$template->param ( seperate_rlist => Echolot::Config::get()->{'seperate_rlists'} );
 
 	$filename = $filebasename.'.html';
 	open(F, '>'.$filename) or
@@ -320,6 +321,7 @@ sub build_rlist1($$;$) {
 	#$output .= sprintf "Broken type-I remailer chains:\n\n";
 	#$output .= sprintf "Broken type-II remailer chains:\n\n";
 
+	$output .= sprintf "\n";
 	$output .= sprintf "Last update: %s\n", makeDate();
 	$output .= sprintf "remailer  email address                        history  latency  uptime\n";
 	$output .= sprintf "-----------------------------------------------------------------------\n";
@@ -424,6 +426,29 @@ sub build_lists() {
 	@$rems = grep { $_->{'showit'} } @$rems;
 	build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', Echolot::Config::get()->{'templates'}->{'rlist'});
 	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
+
+	if (Echolot::Config::get()->{'seperate_rlists'}) {
+		$rems = build_rems(['cpunk-rsa']);
+		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
+		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
+		@$rems = grep { $_->{'showit'} } @$rems;
+		build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
+		build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
+
+		$rems = build_rems(['cpunk-dsa']);
+		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
+		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
+		@$rems = grep { $_->{'showit'} } @$rems;
+		build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
+		build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
+
+		$rems = build_rems(['cpunk-clear']);
+		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
+		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
+		@$rems = grep { $_->{'showit'} } @$rems;
+		build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
+		build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
+	}
 };
 
 
