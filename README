@@ -1,4 +1,4 @@
-$Id: README,v 1.20 2002/07/16 02:42:01 weasel Exp $
+$Id: README,v 1.21 2002/07/17 16:53:38 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -51,6 +51,8 @@ o Create a Mixmaster client installation in ~pinger/Mix echolot needs to
   putting current keyrings there.
 
 o Copy all echolot files and directories to ~pinger/echolot
+
+o Copy/Rename the pingd.conf.sample file to pingd.conf.
 
 o Check the homedir setting and set sitename in pingd.conf.
 

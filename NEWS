@@ -4,6 +4,9 @@ Changes in version
 	  was replaced by md5. The local secret also is an input to the
 	  function so not all echolot pingers ping the same remailer at the
 	  same time.
+	* In the distribution the pingd.conf file has been renamed to pingd.conf.
+	  So it should be possible to just untar the new tar.gz over the old
+	  installation (you have a backup anyway, don't you?).
 
 Changes in version 2.0beta15 - 2002-07-16
 	* Have echolot version in stats HTML pages
