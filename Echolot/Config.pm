@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.48 2003/02/14 05:14:43 weasel Exp $
+# $Id: Config.pm,v 1.49 2003/02/15 11:43:41 weasel Exp $
 #
 
 =pod
@@ -131,6 +131,7 @@ sub init($) {
 		commands_file               => 'commands.txt',
 		pidfile                     => 'pingd.pid',
 
+		'save-errormails'           => 0,
 		write_meta_files            => 1,
 		meta_extension              => '.meta',
 

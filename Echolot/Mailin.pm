@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.12 2003/02/14 05:12:50 weasel Exp $
+# $Id: Mailin.pm,v 1.13 2003/02/15 11:43:41 weasel Exp $
 #
 
 =pod
@@ -82,7 +82,7 @@ sub handle($) {
 	Echolot::Conf::remailer_adminkey($body, $type, $timestamp), return 1 if ($type =~ /^adminkey\./);
 
 	Echolot::Pinger::receive($body, $type, $timestamp), return 1 if ($type eq 'ping');
-	Echolot::Chain($body, $type, $timestamp), return 1 if ($type eq 'chainping');
+	Echolot::Chain::receive($body, $type, $timestamp), return 1 if ($type eq 'chainping');
 
 	Echolot::Log::warn("Didn't know what to do with '$to'."),
 	return 0;
@@ -214,10 +214,14 @@ sub process() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $mail (@$mails) {
 		unless (handle($mail)) {
-			Echolot::Log::info("Trashing mail with unknown destination (probably a bounce).");
-			#my $name = make_sane_name();
-			#storemail($mailerrordir, $mail) or
-			#	Echolot::Log::warn("Could not store a mail.");
+			if (Echolot::Config::get()->{'save-errormails'}) {
+				Echolot::Log::info("Saving mail with unknown destination (probably a bounce) to mail-errordir.");
+				my $name = make_sane_name();
+				storemail($mailerrordir, $mail) or
+					Echolot::Log::warn("Could not store a mail.");
+			} else {
+				Echolot::Log::info("Trashing mail with unknown destination (probably a bounce).");
+			};
 		};
 	};
 	Echolot::Globals::get()->{'storage'}->enable_commit();

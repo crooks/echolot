@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.12 2003/02/14 04:56:16 weasel Exp $
+# $Id: CPunk.pm,v 1.13 2003/02/15 11:43:41 weasel Exp $
 #
 
 =pod
@@ -136,8 +136,11 @@ sub encrypt_to($$$$) {
 	#($stderr eq '') or
 		#Echolot::Log::warn("GnuPG returned something in stderr: '$stderr' while encrypting to '$recipient'."),
 		#return undef;
-	(($status =~ /^^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
-	 ($status =~ /^^\[GNUPG:\] END_ENCRYPTION\s/m)) or
+	($status =~ /^\[GNUPG:\] KEYEXPIRED (\d+)/m) and
+		Echolot::Log::info("Key $recipient expired at ".scalar gmtime($1)." UTC"),
+		return undef;
+	(($status =~ /^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
+	 ($status =~ /^\[GNUPG:\] END_ENCRYPTION\s/m)) or
 		Echolot::Log::info("GnuPG status '$status' didn't indicate message to '$recipient' was encrypted correctly (stderr: $stderr; args: ".join(' ', @$command_args).")."),
 		return undef;
 

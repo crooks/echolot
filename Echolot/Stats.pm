@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.38 2003/01/14 05:25:35 weasel Exp $
+# $Id: Stats.pm,v 1.39 2003/02/15 11:43:41 weasel Exp $
 #
 
 =pod
@@ -705,12 +705,12 @@ sub build_pgpring_type($$$$) {
 
 			($stdout eq '') or
 				Echolot::Log::info("GnuPG returned something in stdout '$stdout' while adding key for '$addr': So what?");
-			unless ($status =~ /^^\[GNUPG:\] IMPORTED /m) {
-				if ($status =~ /^^\[GNUPG:\] IMPORT_RES /m) {
-					Echolot::Log::info("GnuPG status '$status' indicates more than one  key for '$addr' imported. Ignoring.");
-				} else {
-					Echolot::Log::info("GnuPG status '$status' didn't indicate key for '$addr' was imported correctly. Ignoring.");
-				};
+			# See DETAIL.gz in GnuPG's doc directory for syntax of GnuPG status
+			my ($count, $count_imported) = $status =~ /^\[GNUPG:\] IMPORT_RES (\d+) \d+ (\d+)/m;
+			if ($count_imported > 1) {
+				Echolot::Log::info("GnuPG status '$status' indicates more than one key for '$addr' imported. Ignoring.");
+			} elsif ($count_imported < 1) {
+				Echolot::Log::info("GnuPG status '$status' didn't indicate key for '$addr' was imported correctly. Ignoring.");
 			};
 			$keyids->{$final_keyid} = $remailer->{'showit'};
 		};

@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.14 2003/01/14 05:25:35 weasel Exp $
+# $Id: Tools.pm,v 1.15 2003/02/15 11:43:41 weasel Exp $
 #
 
 =pod
@@ -291,14 +291,14 @@ sub crypt_symmetrically($$) {
 	waitpid $pid, 0;
 
 	if ($direction eq 'encrypt') {
-		(($status =~ /^^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
-		 ($status =~ /^^\[GNUPG:\] END_ENCRYPTION\s/m)) or
+		(($status =~ /^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
+		 ($status =~ /^\[GNUPG:\] END_ENCRYPTION\s/m)) or
 			Echolot::Log::info("GnuPG status '$status' didn't indicate message was encrypted correctly (stderr: $stderr). Returning."),
 			return undef;
 	} elsif ($direction eq 'decrypt') {
-		(($status =~ /^^\[GNUPG:\] BEGIN_DECRYPTION\s/m) &&
-		 ($status =~ /^^\[GNUPG:\] DECRYPTION_OKAY\s/m) &&
-		 ($status =~ /^^\[GNUPG:\] END_DECRYPTION\s/m)) or
+		(($status =~ /^\[GNUPG:\] BEGIN_DECRYPTION\s/m) &&
+		 ($status =~ /^\[GNUPG:\] DECRYPTION_OKAY\s/m) &&
+		 ($status =~ /^\[GNUPG:\] END_DECRYPTION\s/m)) or
 			Echolot::Log::info("GnuPG status '$status' didn't indicate message was decrypted correctly (stderr: $stderr). Returning."),
 			return undef;
 	};

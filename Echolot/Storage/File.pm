@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.48 2003/02/14 06:01:29 weasel Exp $
+# $Id: File.pm,v 1.49 2003/02/15 11:43:41 weasel Exp $
 #
 
 =pod
@@ -533,7 +533,7 @@ sub register_pingout($$$$$) {
 		Echolot::Log::warn("Error when writing to $remailer_addr; type=$type; key=$key; out pings: $!."),
 		return undef;
 	$fh->flush();
-	Echolot::Log::info("registering pingout for $remailer_addr ($type; $key).");
+	Echolot::Log::debug("registering pingout for $remailer_addr ($type; $key).");
 
 	return 1;
 };
@@ -586,7 +586,7 @@ sub register_pingdone($$$$$$) {
 		Echolot::Log::warn("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!."),
 		return undef;
 	$fh->flush();
-	Echolot::Log::info("registering pingdone from ".(scalar localtime $sent_time)." with latency $latency for $remailer_addr ($type; $key).");
+	Echolot::Log::debug("registering pingdone from ".(scalar localtime $sent_time)." with latency $latency for $remailer_addr ($type; $key).");
 
 	return 1;
 };
@@ -737,7 +737,7 @@ sub register_chainpingout($$$$$$$$$) {
 		Echolot::Log::warn("Error when writing to chaintype $chaintype out pings: $!."),
 		return undef;
 	$fh->flush();
-	Echolot::Log::info("registering chainping $chaintype out through $addr1 ($type1; $key1) via $addr1 ($type2; $key2).");
+	Echolot::Log::debug("registering chainping $chaintype out through $addr1 ($type1; $key1) via $addr2 ($type2; $key2).");
 
 	return 1;
 };
@@ -765,7 +765,7 @@ sub register_chainpingdone($$$$$$$$$$) {
 		Echolot::Log::warn("Error when writing to $chaintype/done pings: $!."),
 		return undef;
 	$fh->flush();
-	Echolot::Log::info("registering pingdone from ".(scalar localtime $sent_time)." with latency $latency chainping $chaintype out through $addr1 ($type1; $key1) via $addr1 ($type2; $key2).");
+	Echolot::Log::debug("registering chainpingdone from ".(scalar localtime $sent_time)." with latency $latency chainping $chaintype out through $addr1 ($type1; $key1) via $addr2 ($type2; $key2).");
 
 	return 1;
 };

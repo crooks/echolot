@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.2 2003/02/15 00:44:39 weasel Exp $
+# $Id: Chain.pm,v 1.3 2003/02/15 11:43:41 weasel Exp $
 #
 
 =pod
@@ -41,7 +41,7 @@ sub do_mix_chainping($$$$$$$$) {
 	return 1;
 };
 
-sub do_cpunk_ping($$$$$$$$) {
+sub do_cpunk_chainping($$$$$$$$) {
 	my ($addr1, $type1, $keyid1, $addr2, $type2, $keyid2, $to, $body) = @_;
 
 	my $keyhash = {};
@@ -116,8 +116,8 @@ sub get_latest_key($$) {
 	my $latest = 0;
 	my $chosen = undef;
 	for my $keyid (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
-		my $key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
-		$chosen = $keyid if $latest < $key->{'last_updated'};
+		my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
+		$chosen = $keyid if $latest < $key{'last_update'};
 	};
 	return $chosen;
 };
@@ -194,7 +194,7 @@ sub receive($$$) {
 	};
 	$body = $msg unless defined $body;
 
-	my ($chaintype) = $body =~ /^chaintype (.*)$/m;
+	my ($chaintype) = $body =~ /^chaintype: (.*)$/m;
 	my ($addr1) = $body =~ /^remailer1: (.*)$/m;
 	my ($type1) = $body =~ /^type1: (.*)$/m;
 	my ($key1) = $body =~ /^key1: (.*)$/m;
@@ -216,7 +216,7 @@ sub receive($$$) {
 		Echolot::Log::warn("Received chainping at $timestamp has wrong mac; $cleanstring."),
 		return 0;
 
-	Echolot::Globals::get()->{'storage'}->register_chainpingdone($chaintype, $addr1, $type1, $key1, $addr2, $type2, $key2, $now - $sent) or
+	Echolot::Globals::get()->{'storage'}->register_chainpingdone($chaintype, $addr1, $type1, $key1, $addr2, $type2, $key2, $sent, $now - $sent) or
 		return 0;
 	
 	return 1;
