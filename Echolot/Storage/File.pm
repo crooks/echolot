@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.31 2002/07/11 17:41:07 weasel Exp $
+# $Id: File.pm,v 1.32 2002/07/11 17:42:48 weasel Exp $
 #
 
 =pod
@@ -23,7 +23,7 @@ use warnings;
 use Data::Dumper;
 use IO::Handle;
 use English;
-use Carp qw{cluck confess croak carp};
+use Carp qw{cluck confess carp};
 use Fcntl ':flock'; # import LOCK_* constants
 use Fcntl ':seek'; # import LOCK_* constants
 use Echolot::Tools;
@@ -172,7 +172,7 @@ sub metadata_read($) {
 			$self->{'METADATA'} = $METADATA;
 		};
 		$EVAL_ERROR and
-			croak("Error when reading from metadata file: $EVAL_ERROR"),
+			confess("Error when reading from metadata file: $EVAL_ERROR"),
 			return 0;
 
 		defined($self->{'METADATA'}->{'version'}) or
