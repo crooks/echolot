@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.9 2002/07/16 02:48:57 weasel Exp $
+# $Id: Thesaurus.pm,v 1.10 2002/08/07 23:33:19 weasel Exp $
 #
 
 =pod
@@ -68,7 +68,7 @@ sub build_thesaurus() {
 			= stat($dir.'/'.$filename);
 
 		if ($mtime < $expire_date) {
-			unlink ($filename) or
+			unlink ($dir.'/'.$filename) or
 				cluck("Cannot unlink expired $filename");
 			print ("Expired thesaurus file $filename\n") if
 				Echolot::Config::get()->{'verbose'};
