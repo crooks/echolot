@@ -24,6 +24,7 @@ Changes in
 	  public stats.  Testing indicates a node is not ready for real
 	  users' traffic yet.
 	* Publish operator's address on index page.
+	* Refuse to run with euid == 0.
 
 Changes in version 2.1 - 2003-03-03
 	* Minor documentation fixes suggested by Ryan Lackey.

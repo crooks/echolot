@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.109 2003/10/20 15:53:54 weasel Exp $
+# $Id: pingd,v 1.110 2003/11/02 05:59:26 weasel Exp $
 #
 
 =pod
@@ -646,7 +646,8 @@ sub hup_if_wanted($) {
 
 
 
-
+($EUID == 0) and
+	die("$PROGRAM_NAME should not be run as root.\n");
 
 my $params = { basedir => $Bin };
 $params->{'basedir'} = $ENV{'ECHOLOT_HOME'} if (defined $ENV{'ECHOLOT_HOME'});
