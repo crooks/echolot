@@ -1,5 +1,6 @@
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.
+	* Adjusted some loglevels (several info got downgraded to debug)
 	* Removed --pgp2 in CPunk RSA pings.
 	* Append random garbage to pings so they have different
 	  lengths.
