@@ -1,7 +1,7 @@
 package Echolot::Log;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Log.pm,v 1.3 2003/01/14 06:32:22 weasel Exp $
+# $Id: Log.pm,v 1.4 2003/01/14 07:32:58 weasel Exp $
 #
 
 =pod
@@ -16,14 +16,26 @@ Echolot::Globals - echolot global variables
 
 use strict;
 use Carp qw{};
-use Log::Dispatch::File;
-use Log::Dispatch;
 
-my $LOG;
+my %LOGLEVELS = qw{
+	debug		7
+	info		6
+	notice		5
+	warn		4
+	warning		4
+	error		3
+	critical	2
+	alert		1
+	emergency	0
+};
+
+my $LOGLEVEL;
+my $LOGFILE;
+my $LOGFH;
 
 my @monnames = qw{Jan Feb Mar Arp May Jun Jul Aug Sep Oct Nov Dec};
-sub header_log(%) {
-	my (%msg) = @_;
+sub header_log($$) {
+	my ($level, $msg) = @_;
 
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 	my $time = sprintf("%s %02d %02d:%02d:%02d",
@@ -31,55 +43,70 @@ sub header_log(%) {
 		$mday,
 		$hour, $min, $sec);
 	my $logstring = $time.' '.
-		'['.uc($msg{'level'}).']'. ' '.
-		$msg{'message'}."\n";
+		'['.uc($level).']'. ' '.
+		$msg."\n";
 	$logstring =~ s/(?<=.)^/	/mg;
 	return $logstring;
 };
 
 sub reopen() {
-	$LOG->remove( 'file1' );
-	$LOG->add( Log::Dispatch::File->new(
-		name       => 'file1',
-		min_level  => Echolot::Config::get()->{'loglevel'},
-		filename   => Echolot::Config::get()->{'logfile'},
-		mode       => 'append',
-	));
+	$LOGFH->close() if ($LOGFH->opened());
+
+	open($LOGFH, ">>".$LOGFILE) or
+		warn("Cannot open logfile $LOGFILE: $!");
 };
 
-sub init(%) {
-	my (%args) = @_;
+sub init() {
+	$LOGFILE = Echolot::Config::get()->{'logfile'};
+	$LOGLEVEL = Echolot::Config::get()->{'loglevel'};
+	$LOGFH = new IO::Handle;
 
-	$LOG = Log::Dispatch->new( callbacks => \&header_log );
+	die ("Logfile not defined") unless defined ($LOGFILE);
+	die ("Loglevel not defined") unless defined ($LOGLEVEL);
+	die ("Loglevel $LOGLEVEL unkown") unless defined ($LOGLEVELS{$LOGLEVEL});
+
+	$LOGLEVEL = $LOGLEVELS{$LOGLEVEL};
+
 	reopen();
 };
 
+sub log_message($$) {
+	my ($level, $msg) = @_;
+
+	die("Loglevel $level unkown.") unless defined $LOGLEVELS{$level};
+	return if $LOGLEVELS{$level} > $LOGLEVEL;
+
+	$msg = header_log($level, $msg);
+	print $LOGFH $msg;
+	$LOGFH->flush();
+};
+
 sub debug($) {
-	$LOG->debug(@_);
+	log_message('debug', $_[0]);
 };
 sub info($) {
-	$LOG->info(@_);
+	log_message('info', $_[0]);
 };
 sub notice($) {
-	$LOG->notice(@_);
+	log_message('notice', $_[0]);
 };
 sub warn($) {
-	$LOG->warning(@_);
+	log_message('warn', $_[0]);
 };
 sub warning($) {
-	$LOG->warning(@_);
+	log_message('warning', $_[0]);
 };
 sub error($) {
-	$LOG->error(@_);
+	log_message('error', $_[0]);
 };
 sub critical($) {
-	$LOG->critical(@_);
+	log_message('critical', $_[0]);
 };
 sub alert($) {
-	$LOG->alert(@_);
+	log_message('alert', $_[0]);
 };
 sub emergency($) {
-	$LOG->emergency(@_);
+	log_message('emergency', $_[0]);
 };
 
 sub logdie($) {

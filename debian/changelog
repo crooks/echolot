@@ -1,7 +1,6 @@
 echolot (2.0.9-1) unstable; urgency=medium
 
   * New upstream version.
-    Depends on liblog-dispatch-perl
   * Remove link from output to /var/log/echolot/echolot.log
     since pngd now has some sort of saner logging.
 

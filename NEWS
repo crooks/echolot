@@ -1,6 +1,6 @@
 Changes in version 2.0.9 - 2003-01-14
 	* Logging is finally cleaned up. There are two new config options:
-	  logfile and loglevel.  Log::Dispatch is now required as well.
+	  logfile and loglevel.
 	* Automatically remove stale .pid files.
 
 Changes in version 2.0.8 - 2003-01-13

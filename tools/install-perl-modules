@@ -6,7 +6,7 @@
 use strict;
 use CPAN;
 
-for my $mod (qw{Data::Dumper Digest::MD5 HTML::Template GnuPG::Interface Log::Dispatch}) {
+for my $mod (qw{Data::Dumper Digest::MD5 HTML::Template GnuPG::Interface}) {
 	my $obj = CPAN::Shell->expand('Module',$mod);
 	$obj->install();
 };

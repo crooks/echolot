@@ -1,4 +1,4 @@
-$Id: README,v 1.38 2003/01/14 06:27:41 weasel Exp $
+$Id: README,v 1.39 2003/01/14 07:32:58 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -43,8 +43,6 @@ o HTML::Template
 o GnuPG::Interface (0.33 or higher required)
 o Data::Dumper (should be part of perl-base)
 o Digest::MD5 (included in perl 5.8 or higher)
-o Log::Dispatch and
-  Log::Dispatch::File (tested with 1.79 and 2.01)
 
 INITIAL SETUP
 -------------
@@ -72,8 +70,7 @@ o If the required perl modules above are not yet installed on your
 
    On Debian for instance the following command can be used to get
    everything that is required:
-      # apt-get install liblog-dispatch-perl libgnupg-interface-perl
-                libhtml-template-perl
+      # apt-get install libgnupg-interface-perl libhtml-template-perl
   ]
 
 o Create a new user named »pinger« (You can use a different user name if
