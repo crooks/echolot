@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.6 2002/07/02 17:12:45 weasel Exp $
+# $Id: Config.pm,v 1.7 2002/07/02 17:13:11 weasel Exp $
 #
 
 =pod
@@ -85,7 +85,7 @@ sub get() {
 };
 
 sub dump() {
-    # FIXME XML::Dumper bug workaround
+	# FIXME XML::Dumper bug workaround
 	# There is a bug in pl2xml that changes data passed (cf. Debian Bug #148969 and #148970
 	# at http://bugs.debian.org/148969 and http://bugs.debian.org/148970
 	require Data::Dumper;
