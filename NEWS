@@ -1,4 +1,4 @@
-Changes in version 
+Changes in version 2.0beta15 - 2002-07-16
 	* Have echolot version in stats HTML pages
 	* Random documentation fixes
 	* Make it run with older perls (5.005_03 is tested)
