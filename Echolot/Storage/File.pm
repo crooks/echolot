@@ -403,15 +403,18 @@ sub pingdata_open($) {
 	return 1;
 };
 
-=item $storage->B<get_ping_fh>( I<$remailer_addr>, I<$type>, I<$key>, I<$direction> )
+=item $storage->B<get_ping_fh>( I<$remailer_addr>, I<$type>, I<$key>, I<$direction>, I<$oknodo> )
 
 Return the FH for the pingdata file of I<$remailer_addr>, I<$type>, I<$key>, and I<$direction>.
+
+If $<oknodo> is set, the absense of a defined filehandle does not cause it to
+be opened/created.  Instead -1 is returned.
 
 Returns undef on error;
 
 =cut
-sub get_ping_fh($$$$$) {
-	my ($self, $remailer_addr, $type, $key, $direction) = @_;
+sub get_ping_fh($$$$$;$) {
+	my ($self, $remailer_addr, $type, $key, $direction, $oknodo) = @_;
 
 	defined ($self->{'METADATA'}->{'addresses'}->{$remailer_addr}) or
 		Echolot::Log::cluck("$remailer_addr does not exist in Metadata."),
@@ -419,12 +422,15 @@ sub get_ping_fh($$$$$) {
 	
 	my $fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
 
-	defined ($fh) or
+	unless (defined $fh) {
+		return -1 if (defined $oknodo && $oknodo);
+
 		$self->pingdata_open_one($remailer_addr, $type, $key),
 		$fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
 		defined ($fh) or
 			Echolot::Log::warn ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings."),
 			return undef;
+	}
 
 	return $fh;
 };
@@ -507,7 +513,10 @@ sub get_pings($$$$$) {
 
 	my @pings;
 
-	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, $direction) or
+	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, $direction, 1);
+	(defined $fh) or
+		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings."),
+	($fh == -1) and
 		Echolot::Log::info ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings (key has expired)."),
 		return ();
 
