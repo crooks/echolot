@@ -1,7 +1,7 @@
 package Echolot::Log;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Log.pm,v 1.4 2003/01/14 07:32:58 weasel Exp $
+# $Id: Log.pm,v 1.5 2003/01/14 07:36:56 weasel Exp $
 #
 
 =pod
@@ -45,7 +45,7 @@ sub header_log($$) {
 	my $logstring = $time.' '.
 		'['.uc($level).']'. ' '.
 		$msg."\n";
-	$logstring =~ s/(?<=.)^/	/mg;
+	$logstring =~ s/\n/\n	/mg;
 	return $logstring;
 };
 
