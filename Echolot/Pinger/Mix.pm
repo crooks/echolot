@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.1 2002/06/11 09:53:35 weasel Exp $
+# $Id: Mix.pm,v 1.2 2002/06/18 17:19:00 weasel Exp $
 #
 
 =pod
@@ -24,6 +24,8 @@ use English;
 sub ping($$$$) {
 	my ($body, $to, $chain, $keys) = @_;
 
+	my $chaincomma = join (',', @$chain);
+
 	my $keyring = Echolot::Config::get()->{'Pinger::Mix'}->{'mixdir'}.'/pubring.mix';
 	open (F, '>'.$keyring) or
 		cluck("Cannot open $keyring for writing: $!"),
@@ -36,7 +38,7 @@ sub ping($$$$) {
 		cluck("Cannot close $keyring"),
 		return 0;
 	
-	open(MIX, "|".Echolot::Config::get()->{'Pinger::Mix'}->{'mix'}." -m -S -l $chain") or
+	open(MIX, "|".Echolot::Config::get()->{'Pinger::Mix'}->{'mix'}." -m -S -l $chaincomma") or
 		cluck("Cannot exec mixpinger: $!"),
 		return 0;
 	print MIX "To: $to\n\n$body";
