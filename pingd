@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.42 2002/07/16 00:53:33 weasel Exp $
+# $Id: pingd,v 1.43 2002/07/16 02:50:18 weasel Exp $
 #
 
 =pod
@@ -442,7 +442,7 @@ sub make_dirs() {
 		Echolot::Config::get()->{'storage'}->{'File'}->{'basedir'}
 	) {
 		if ( ! -d $dir ) {
-			mkdir ($dir) or
+			mkdir ($dir, 0755) or
 				confess ("Cannot create directory $dir: $!\n");
 		};
 	};
