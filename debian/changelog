@@ -1,3 +1,10 @@
+echolot (2.1.6-1) unstable; urgency=medium
+
+  * New upstream version, catch one use of an undefined variable in
+    logging.
+
+ -- Peter Palfrader <weasel@debian.org>  Sat,  7 Aug 2004 16:00:52 +0200
+
 echolot (2.1.5-1) unstable; urgency=low
 
   * New upstream version.

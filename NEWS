@@ -1,4 +1,4 @@
-Changes in version     5 - 2004-     
+Changes in version 2.1.6 - 2004-08-07
 	* Catch a possible use of undefined values in a log trace() call.
 
 Changes in version 2.1.5 - 2004-06-22
