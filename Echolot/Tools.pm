@@ -295,17 +295,21 @@ sub readwrite_gpg($$$$$) {
 	$sout->add($statusfd);
 	$sin->add($inputfd);
 
+	Echolot::Log::debug("input is $inputfd; output is $stdoutfd; err is $stderrfd; status is $statusfd.");
+
 	my ($stdout, $stderr, $status) = ("", "", "");
 
 	my ($readyr, $readyw, $written);
 	while ($sout->count() > 0) {
 		Echolot::Log::debug("select waiting for ".($sout->count())." fds.");
 		($readyr, $readyw, undef) = IO::Select::select($sout, $sin, undef, 42);
-		Echolot::Log::debug("ready: write: ".(scalar @$readyw)."; read: ".(scalar @$readyw));
-		foreach my $wfd (@$readyw) {
+		Echolot::Log::debug("ready: write: ".(scalar @$readyw)."; read: ".(scalar @$readyr));
+		for my $wfd (@$readyw) {
+			Echolot::Log::debug("writing to $wfd.");
 			$written = $wfd->syswrite($in, length($in) - $offset, $offset);
 			$offset += $written;
 			if ($offset == length($in)) {
+				Echolot::Log::debug("writing to $wfd done.");
 				close $wfd;
 				$sin->remove($wfd);
 				$sin = undef;
@@ -321,6 +325,7 @@ sub readwrite_gpg($$$$$) {
 				close($rfd);
 				next;
 			}
+			Echolot::Log::debug("reading from $rfd.");
 			if ($rfd == $stdoutfd) {
 				$stdout .= <$rfd>;
 				next;
