@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.3 2003/02/15 11:43:41 weasel Exp $
+# $Id: Chain.pm,v 1.4 2003/02/16 03:06:51 weasel Exp $
 #
 
 =pod
@@ -105,7 +105,7 @@ sub remailer_supports_chaintype($$) {
 	my ($address, $type) = @_;
 
 	my %supports = map { $_ => 1} Echolot::Globals::get()->{'storage'}->get_types($address);
-	for my $type (@{Echolot::Config::get()->{'do_chainpings'}->{$type}}) {
+	for my $type (@{Echolot::Config::get()->{'which_chainpings'}->{$type}}) {
 		return $type if $supports{$type};
 	};
 	return 0;
@@ -145,7 +145,7 @@ sub send_pings($;$$) {
 			$which1 eq $addr1 ||
 			$which1 eq '');
 
-		for my $chaintype (keys %{Echolot::Config::get()->{'do_chainpings'}}) {
+		for my $chaintype (keys %{Echolot::Config::get()->{'which_chainpings'}}) {
 			my $type1 = remailer_supports_chaintype($addr1, $chaintype);;
 			next unless $type1;
 			my $key1 = get_latest_key($addr1, $type1);

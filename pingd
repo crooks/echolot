@@ -2,8 +2,8 @@
 
 $| = 1;
 
-# (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.95 2003/02/14 05:12:37 weasel Exp $
+# (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
+# $Id: pingd,v 1.96 2003/02/16 03:06:51 weasel Exp $
 #
 
 =pod
@@ -502,7 +502,8 @@ sub daemon_run($) {
 
 	$scheduler->add('processmail'         , Echolot::Config::get()->{'processmail'}          , 0, \&Echolot::Mailin::process );
 	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}      , 0, \&Echolot::Pinger::send_pings );
-	$scheduler->add('chainping'           , Echolot::Config::get()->{'chainpinger_interval'} , 0, \&Echolot::Chain::send_pings );
+	$scheduler->add('chainping'           , Echolot::Config::get()->{'chainpinger_interval'} , 0, \&Echolot::Chain::send_pings )
+		if Echolot::Config::get()->{'do_chainpings'};
 	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}           , 0, \&Echolot::Stats::build_stats );
 	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}            , 0, \&Echolot::Stats::build_keys );
 	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'buildthesaurus'}       , 0, \&Echolot::Thesaurus::build_thesaurus );
@@ -621,7 +622,7 @@ if (!GetOptions (
 if ($params->{'help'}) {
     print ("Usage: $PROGRAM_NAME [options] command\n");
     print ("See man pingd or perldoc pingd for more info.\n");
-    print ("echolot $VERSION - (c) 2002 Peter Palfrader <peter\@palfrader.org>\n");
+    print ("echolot $VERSION - (c) 2002, 2003 Peter Palfrader <peter\@palfrader.org>\n");
     print ("http://savannah.gnu.org/projects/echolot/\n");
 	print ("\n");
 	print ("Commands:\n");
@@ -644,7 +645,7 @@ if ($params->{'help'}) {
 };
 if ($params->{'version'}) {
     print ("echolot $VERSION\n");
-    print ("(c) 2002 Peter Palfrader <peter\@palfrader.org>\n");
+    print ("(c) 2002, 2003 Peter Palfrader <peter\@palfrader.org>\n");
     print ("http://savannah.gnu.org/projects/echolot/\n");
     exit 0;
 };

@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.39 2003/02/15 11:43:41 weasel Exp $
+# $Id: Stats.pm,v 1.40 2003/02/16 03:06:51 weasel Exp $
 #
 
 =pod
@@ -18,8 +18,6 @@ and keyrings.
 =cut
 
 use strict;
-use constant DAYS => 12;
-use constant SECS_PER_DAY => 24 * 60 * 60;
 use English;
 use Echolot::Log;
 
@@ -28,6 +26,12 @@ use Statistics::Distrib::Normal qw{};
 my $NORMAL = new Statistics::Distrib::Normal;
 $NORMAL->mu(0);
 $NORMAL->sigma(1);
+
+my $STATS_DAYS;
+my $SECONDS_PER_DAY;
+
+my %LAST_BROKENCHAIN_RUN;
+my %BROKEN_CHAINS;
 
 sub make_date() {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime();
@@ -69,9 +73,9 @@ sub make_min_hr($$) {
 sub build_list1_latencystr($) {
 	my ($lat) = @_;
 
-	my $str = '?' x DAYS;
-	for my $day (0 .. DAYS - 1) {
-		substr($str, DAYS - 1 - $day, 1) = 
+	my $str = '?' x $STATS_DAYS;
+	for my $day (0 .. $STATS_DAYS - 1) {
+		substr($str, $STATS_DAYS - 1 - $day, 1) = 
 			(defined $lat->[$day]) ?
 			 ($lat->[$day] <    300 ? '#' :
 			  ($lat->[$day] <   3600 ? '*' :
@@ -88,9 +92,9 @@ sub build_list1_latencystr($) {
 sub build_list2_latencystr($) {
 	my ($lat) = @_;
 
-	my $str = '?' x DAYS;
-	for my $day (0 .. DAYS - 1) {
-		substr($str, DAYS - 1 - $day, 1) = 
+	my $str = '?' x $STATS_DAYS;
+	for my $day (0 .. $STATS_DAYS - 1) {
+		substr($str, $STATS_DAYS - 1 - $day, 1) = 
 			(defined $lat->[$day]) ?
 			 ($lat->[$day] <    20*60 ? '0' :
 			  ($lat->[$day] <   1*3600 ? '1' :
@@ -119,9 +123,9 @@ sub build_list2_latencystr($) {
 sub build_list2_reliabilitystr($) {
 	my ($rel) = @_;
 
-	my $str = '?' x DAYS;
-	for my $day (0 .. DAYS - 1) {
-		substr($str, DAYS - 1 - $day, 1) =
+	my $str = '?' x $STATS_DAYS;
+	for my $day (0 .. $STATS_DAYS - 1) {
+		substr($str, $STATS_DAYS - 1 - $day, 1) =
 			(defined $rel->[$day]) ?
 				(($rel->[$day] >= 0.9999) ?
 				#(($rel->[$day] == 1) ?
@@ -198,8 +202,8 @@ sub calculate($$) {
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, $type);
 		my @keys = Echolot::Globals::get()->{'storage'}->get_keys($addr, $type);
 		for my $key (@keys) {
-			push @out,  grep {$_      > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'out');
-			push @done, grep {$_->[0] > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'done');
+			push @out,  grep {$_      > $now - $STATS_DAYS * $SECONDS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'out');
+			push @done, grep {$_->[0] > $now - $STATS_DAYS * $SECONDS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'done');
 		};
 	};
 
@@ -210,13 +214,13 @@ sub calculate($$) {
 	my @received;
 	my @sent;
 	for my $done (@done) {
-		$latency += $done->[1];   $latency [int(($now - $done->[0]) / SECS_PER_DAY)] += $done->[1];
-		$sent ++;                 $sent    [int(($now - $done->[0]) / SECS_PER_DAY)] ++;
-		$received ++;             $received[int(($now - $done->[0]) / SECS_PER_DAY)] ++;
+		$latency += $done->[1];   $latency [int(($now - $done->[0]) / $SECONDS_PER_DAY)] += $done->[1];
+		$sent ++;                 $sent    [int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
+		$received ++;             $received[int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
 	};
 	$latency /= (scalar @done) if (scalar @done);
 	$latency = undef unless (scalar @done);
-	for ( 0 .. DAYS - 1 ) {
+	for ( 0 .. $STATS_DAYS - 1 ) {
 		$latency[$_] /= $received[$_] if ($received[$_]);
 	};
 
@@ -232,12 +236,12 @@ sub calculate($$) {
 				$NORMAL->utp( map { ($now - $_ - $latency) / $deviation } @out ) :
 				map { 0 } @out;
 		for (my $i=0; $i < scalar @out; $i++) {
-			$sent ++;            $sent    [int(($now - $out[$i]) / SECS_PER_DAY)] ++;
-			$received += $p[$i]; $received[int(($now - $out[$i]) / SECS_PER_DAY)] += $p[$i];
+			$sent ++;            $sent    [int(($now - $out[$i]) / $SECONDS_PER_DAY)] ++;
+			$received += $p[$i]; $received[int(($now - $out[$i]) / $SECONDS_PER_DAY)] += $p[$i];
 		};
 	};
 	$received /= $sent if ($sent);
-	for ( 0 .. DAYS - 1 ) {
+	for ( 0 .. $STATS_DAYS - 1 ) {
 		$received[$_] /= $sent[$_] if ($sent[$_]);
 	};
 
@@ -472,6 +476,83 @@ sub build_rems($) {
 	return \@rems;
 };
 
+sub find_broken_chains($$$) {
+	my ($chaintype, $rems, $manual) = @_;
+
+	if (!defined $LAST_BROKENCHAIN_RUN{$chaintype} ||
+	    $LAST_BROKENCHAIN_RUN{$chaintype} < time() - Echolot::Config::get()->{'chainping_update'} ||
+	    ! defined $BROKEN_CHAINS{$chaintype} ) {
+		Echolot::Log::debug ("Broken Chains $chaintype need generating."),
+		$LAST_BROKENCHAIN_RUN{$chaintype} = time();
+
+		my $pings = Echolot::Globals::get()->{'storage'}->get_chainpings($chaintype);
+
+		my %remailers = map { $_->{'address'} => $_ } @$rems;
+
+		my $stats;
+		my %received;
+		my @broken_chains;
+		for my $status (qw{done out}) {
+			my $status_done = $status eq 'done';
+			my $status_out = $status eq 'out';
+			for my $ping (@{$pings->{$status}}) {
+				my $addr1 = $ping->{'addr1'};
+				my $addr2 = $ping->{'addr2'};
+				my $sent  = $ping->{'sent'};
+				next if $sent < (time() - Echolot::Config::get()->{'chainping_period'});
+				next unless defined $remailers{$addr1};
+				next unless defined $remailers{$addr2};
+
+				if ($status_done) {
+					$received{$addr1.':'.$addr2.':'.$sent} = 1;
+				};
+				if ($status_out && !defined $received{$addr1.':'.$addr2.':'.$sent}) {
+					my $theoretical_lat = $remailers{$addr1}->{'stats'}->{'avr_latency'} +
+							      $remailers{$addr2}->{'stats'}->{'avr_latency'};
+					$theoretical_lat = 0 unless defined $theoretical_lat;
+					my $latency = time() - $ping->{'sent'};
+					# print ("lat helps $latency $theoretical_lat\n"), 
+					next if ($latency < $theoretical_lat * Echolot::Config::get()->{'chainping_grace'});
+				};
+
+				# print "Having $addr1 $addr2 $status at $sent\n";
+				$stats->{$addr1}->{$addr2}->{$status}++;
+			};
+		};
+		# require Data::Dumper;
+		# print Data::Dumper->Dump([$stats]);
+		for my $addr1 (keys %$stats) {
+			for my $addr2 (keys %{$stats->{$addr1}}) {
+				my $theoretical_rel = $remailers{$addr1}->{'stats'}->{'avr_reliability'} *
+						      $remailers{$addr2}->{'stats'}->{'avr_reliability'};
+				($stats->{$addr1}->{$addr2}->{'out'} != 0) or
+					Echolot::Log::debug("Should not devide through zero (".
+						$stats->{$addr1}->{$addr2}->{'done'}."/".
+						$stats->{$addr1}->{$addr2}->{'out'}.
+						") for $addr1, $addr2."),
+					next;
+				my $real_rel = $stats->{$addr1}->{$addr2}->{'done'} /
+					       $stats->{$addr1}->{$addr2}->{'out'};
+				# print "$addr1 $addr2 $stats->{$addr1}->{$addr2}->{'done'}/$stats->{$addr1}->{$addr2}->{'out'}".
+				#       " == $real_rel ($theoretical_rel)\n";
+				next if ($real_rel > $theoretical_rel * Echolot::Config::get()->{'chainping_fudge'});
+				my $nick1 = $remailers{$addr1}->{'nick'};
+				my $nick2 = $remailers{$addr2}->{'nick'};
+				push @broken_chains, "($nick1 $nick2)\n";
+			};
+		};
+		$BROKEN_CHAINS{$chaintype} = \@broken_chains;
+	} else {
+		Echolot::Log::debug ("Broken Chains $chaintype are up to date."),
+	};
+
+	my @result = defined $manual ? (split /\n/, $manual) : ();
+	push @result, @{ $BROKEN_CHAINS{$chaintype} };
+	my %unique;
+	@result = grep { ! $unique{$_}++; } @result;
+	return join "\n", @result;
+};
+
 sub build_lists() {
 
 	my $clist;
@@ -486,7 +567,16 @@ sub build_lists() {
 	my $broken2 = read_file( Echolot::Config::get()->{'broken2'}, 1);
 	my $sameop = read_file( Echolot::Config::get()->{'sameop'}, 1);
 
-	$rems = build_rems(['mix']);
+
+	my $mixrems = build_rems(['mix']);
+	my $cpunkrems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
+	if (Echolot::Config::get()->{'do_chainpings'}) {
+		$broken1 = find_broken_chains('cpunk', $cpunkrems, $broken1);
+		$broken2 = find_broken_chains('mix', $mixrems, $broken2);
+	};
+
+	$rems = $mixrems;
+	$mixrems = undef;
 	@$pubrems = grep { $_->{'showit'} } @$rems;
 	build_mlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist', 'mlist');
 	build_list2( $rems, 2, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2', 'mlist2');
@@ -500,7 +590,8 @@ sub build_lists() {
 		$pubclist->{'mix'} = $pubrems; $pubrems = undef;
 	};
 
-	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
+	$rems = $cpunkrems;
+	$cpunkrems = undef;
 	@$pubrems = grep { $_->{'showit'} } @$rems;
 	build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist', 'rlist');
 	build_list2( $rems, 1, $broken1, $broken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2', 'rlist2');
@@ -805,6 +896,8 @@ sub build_pgpring() {
 };
 
 sub build_stats() {
+	$STATS_DAYS = Echolot::Config::get()->{'stats_days'};
+	$SECONDS_PER_DAY = Echolot::Config::get()->{'seconds_per_day'};
 	build_lists();
 };
 sub build_keys() {

@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.49 2003/02/15 11:43:41 weasel Exp $
+# $Id: Config.pm,v 1.50 2003/02/16 03:06:51 weasel Exp $
 #
 
 =pod
@@ -68,6 +68,8 @@ sub init($) {
 
 		# Magic Numbers
 		hash_len                    => 8,
+		stats_days                  => 12,
+		seconds_per_day             => 24 * 60 * 60,
 
 		# New Remailers
 		fetch_new                   => 1,
@@ -99,6 +101,10 @@ sub init($) {
 
 		chainpinger_interval        => 5*60, # send out pings every 5 minutes
 		chainping_every_nth_time    => 810,  # send out pings to the same chain every 810 calls, i.e. every 3 days
+		chainping_period            => 10*24*60*60, # 10 days
+		chainping_fudge             => 0.7, # if less than 0.7 * rel1 * rel2 make it, the chain is really broken
+		chainping_grace             => 1.5, # don't count pings sent no longer than 1.5 * (lat1 + lat2) ago
+		chainping_update            => 300, # chain stats should never be older than 300 seconds
 
 		addresses_default_ttl       => 5, # getkeyconf seconds (days)
 		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
@@ -131,14 +137,14 @@ sub init($) {
 		commands_file               => 'commands.txt',
 		pidfile                     => 'pingd.pid',
 
-		'save-errormails'           => 0,
+		save_errormails             => 0,
 		write_meta_files            => 1,
 		meta_extension              => '.meta',
 
 		storage                     => {
-			backend                 	=> 'File',
-			File                    	=> {
-				basedir             		=> 'data'
+			backend                 => 'File',
+			File                    => {
+				basedir             => 'data'
 			}
 		},
 
@@ -154,8 +160,8 @@ sub init($) {
 			'cpunk-clear' => 1,
 			'mix' => 1
 		},
-		# ping types
-		do_chainpings => {
+		do_chainpings => 1,
+		which_chainpings => {
 			'cpunk' => [ qw{cpunk-dsa cpunk-rsa cpunk-clear} ],
 			'mix' => [ qw{mix} ]
 		},

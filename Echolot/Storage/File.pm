@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.49 2003/02/15 11:43:41 weasel Exp $
+# $Id: File.pm,v 1.50 2003/02/16 03:06:51 weasel Exp $
 #
 
 =pod
@@ -639,7 +639,7 @@ Returns 1.
 sub chainpingdata_open($) {
 	my ($self) = @_;
 
-	for my $type ( keys %{Echolot::Config::get()->{'do_chainpings'}} ) {
+	for my $type ( keys %{Echolot::Config::get()->{'which_chainpings'}} ) {
 		$self->chainpingdata_open_one($type);
 	};
 
@@ -715,6 +715,86 @@ sub chainpingdata_close($) {
 
 
 
+=item $storage->B<get_chainpings>( I<$chaintype> )
+
+Return chainping data for I<$chaintype>.
+
+The result is a reference to a hash having two entries: out and done.
+
+Each of them is a reference to an array of single pings.  Each ping is a hash
+reference with the hash having the keys B<sent>, B<addr1>, B<type1>, B<key1>,
+B<addr2>, B<type2>, B<key2>, and in case of received pings B<lat>.
+
+Out currently includes all sent pings - also those that allready arrived.
+This is different from the get_pings() function above.
+
+Returns undef on error.
+
+=cut
+sub get_chainpings($$) {
+	my ($self, $chaintype) = @_;
+
+	my $fh = $self->get_chainping_fh($chaintype, 'out') or
+		Echolot::Log::warn ("assigned filehandle for $chaintype out chainpings."),
+		return undef;
+	seek($fh, 0, SEEK_SET) or
+		Echolot::Log::warn("Cannot seek to start of $chaintype out chainpings $!."),
+		return undef;
+	my @out =
+		map {
+			chomp;
+			my @a = split;
+			{	sent  => $a[0],
+				addr1 => $a[1],
+				type1 => $a[2],
+				key1  => $a[3],
+				addr2 => $a[4],
+				type2 => $a[5],
+				key2  => $a[6]
+			}
+		} <$fh>;
+	my %sent = map {
+		my $a = $_;
+		my $key = join (' ', map ({ $a->{$_} } qw{sent addr1 type1 key1 addr2 type2 key2}));
+		$key => 1
+	} @out;
+
+	$fh = $self->get_chainping_fh($chaintype, 'done') or
+		Echolot::Log::warn ("assigned filehandle for $chaintype done chainpings."),
+		return undef;
+	seek($fh, 0, SEEK_SET) or
+		Echolot::Log::warn("Cannot seek to start of $chaintype done chainpings $!."),
+		return undef;
+	my @done =
+		grep {
+			# Only list things that actually got sent - and only once
+			my $a = $_;
+			my $key = join (' ', map ({ $a->{$_} } qw{sent addr1 type1 key1 addr2 type2 key2}));
+			my $exists = exists $sent{$key};
+			delete $sent{$key};
+			$exists
+		}
+		map {
+			chomp;
+			my @a = split;
+			{	sent  => $a[0],
+				addr1 => $a[1],
+				type1 => $a[2],
+				key1  => $a[3],
+				addr2 => $a[4],
+				type2 => $a[5],
+				key2  => $a[6],
+				lat   => $a[7]
+			}
+		} <$fh>;
+
+	return {
+		out => \@out,
+		done => \@done
+	};
+};
+
+
 =item $storage->B<register_chainpingout>( I<$chaintype>, I<$addr1>, I<$type1>, I<$key1>, I<$addr2>, I<$type2>, I<$key2>, I<$sent_time> >
 
 Register a chain ping of type I<$chaintype> sent through I<$addr1> (I<$type1>, I<$key1>)
@@ -761,7 +841,7 @@ sub register_chainpingdone($$$$$$$$$$) {
 	seek($fh, 0, SEEK_END) or
 		Echolot::Log::warn("Cannot seek to end of $chaintype/done pings: $!."),
 		return undef;
-	print($fh join(' ', $sent_time, $latency, $addr1, $type1, $key1, $addr2, $type2, $key2)."\n") or
+	print($fh join(' ', $sent_time, $addr1, $type1, $key1, $addr2, $type2, $key2, $latency)."\n") or
 		Echolot::Log::warn("Error when writing to $chaintype/done pings: $!."),
 		return undef;
 	$fh->flush();

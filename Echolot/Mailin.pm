@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.13 2003/02/15 11:43:41 weasel Exp $
+# $Id: Mailin.pm,v 1.14 2003/02/16 03:06:51 weasel Exp $
 #
 
 =pod
@@ -214,7 +214,7 @@ sub process() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $mail (@$mails) {
 		unless (handle($mail)) {
-			if (Echolot::Config::get()->{'save-errormails'}) {
+			if (Echolot::Config::get()->{'save_errormails'}) {
 				Echolot::Log::info("Saving mail with unknown destination (probably a bounce) to mail-errordir.");
 				my $name = make_sane_name();
 				storemail($mailerrordir, $mail) or
