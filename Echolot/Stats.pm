@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.58 2003/06/09 22:52:51 weasel Exp $
+# $Id: Stats.pm,v 1.59 2003/06/23 13:14:14 weasel Exp $
 #
 
 =pod
@@ -23,6 +23,7 @@ use Echolot::Log;
 
 my $STATS_DAYS;
 my $SECONDS_PER_DAY;
+my $WEIGHT;
 
 my %LAST_BROKENCHAIN_RUN;
 my %BROKEN_CHAINS;
@@ -197,6 +198,8 @@ sub median($) {
 	};
 };
 
+# how many % (0-1) values of @$lats are greater than $lat.
+# $@lats needs to be sorted
 sub percentile($$) {
 	my ($lat, $lats) = @_;
 
@@ -230,13 +233,15 @@ sub calculate($$) {
 	my @latency_total = map { $_->[1] } @done;
 	my @latency_day;
 	my $sent_total;
-	my $received_total;
+	my $received_total = 0;
 	my @sent_day;
 	my @received_day;
 	for my $done (@done) {
 		push @{ $latency_day [int(($now - $done->[0]) / $SECONDS_PER_DAY)] }, $done->[1];
-		$sent_total ++;     $sent_day    [int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
-		$received_total ++; $received_day[int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
+		my $day = int(($now - $done->[0]) / $SECONDS_PER_DAY);
+		my $weight = $WEIGHT->[$day];
+		$sent_total     += $weight; $sent_day    [$day] ++;
+		$received_total += $weight; $received_day[$day] ++;
 	};
 
 	@latency_total = sort { $a <=> $b } @latency_total;
@@ -249,13 +254,19 @@ sub calculate($$) {
 
 	if (scalar @out) {
 		my @p = ( scalar @latency_total ) ?
-				map { percentile( ($now - $_ - $SKEW_ABS)/$SKEW_PERCENT , \@latency_total ) } @out :
+				map { #printf(STDERR "($now - $_ - $SKEW_ABS)/$SKEW_PERCENT   ".
+				      #"%s in (%s): %s\n", ($now - $_ - $SKEW_ABS)/$SKEW_PERCENT, join(',', @latency_total), 
+				      #percentile( ($now - $_ - $SKEW_ABS)/$SKEW_PERCENT , \@latency_total ));
+				      percentile( ($now - $_ - $SKEW_ABS)/$SKEW_PERCENT , \@latency_total ) } @out :
 				map { 0 } @out;
 		for (my $i=0; $i < scalar @out; $i++) {
-			$sent_total ++;            $sent_day    [int(($now - $out[$i]) / $SECONDS_PER_DAY)] ++;
-			$received_total += $p[$i]; $received_day[int(($now - $out[$i]) / $SECONDS_PER_DAY)] += $p[$i];
+			my $day = int(($now - $out[$i]) / $SECONDS_PER_DAY);
+			my $weight = $WEIGHT->[$day];
+			$sent_total     += $weight;          $sent_day    [$day] ++;
+			$received_total += $weight * $p[$i]; $received_day[$day] += $p[$i];
 		};
 	};
+	#printf STDERR "$received_total / %s\n", (defined $sent_total ? $sent_total : 'n/a');
 	$received_total /= $sent_total if ($sent_total);
 	for ( 0 .. $STATS_DAYS - 1 ) {
 		$received_day[$_] /= $sent_day[$_] if ($sent_day[$_]);
@@ -973,6 +984,7 @@ sub build_pgpring() {
 sub build_stats() {
 	$STATS_DAYS = Echolot::Config::get()->{'stats_days'};
 	$SECONDS_PER_DAY = Echolot::Config::get()->{'seconds_per_day'};
+	$WEIGHT = Echolot::Config::get()->{'pings_weight'};
 	build_lists();
 };
 sub build_keys() {

@@ -18,6 +18,7 @@ Changes in
 	  use percentiles when calculating a life probability of an outstanding
 	  ping.  Also we do not show the mean of latency but the median as
 	  this seems to be 'more correct'.
+	  Also have different weights for pings based on their age.
 	* Optimized chain pinging: takes less CPU.
 
 Changes in version
