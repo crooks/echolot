@@ -1,4 +1,4 @@
-$Id: TODO,v 1.61 2003/06/06 10:36:23 weasel Exp $
+$Id: TODO,v 1.62 2003/06/09 21:04:55 weasel Exp $
 
 Legend:
         - Not done
@@ -8,14 +8,7 @@ Legend:
         D Deferred
         X Abandoned
 
- - normal distribution is plain out wrong for latency
-   - change to median for the latency column
-   - assumption on whether a ping is lost should be
-     changed from the normal distribution caluclation
-     to quantiles
  - updated information with from lines
- - optimize chain pinger:
-   cache callids in chainpinging - md5 is not that cheap
 
 
 can be done later:
