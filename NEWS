@@ -6,7 +6,7 @@ Changes in version 2.0.6 - 2002-12-18
 	  longer have the extension (.html) in them
 	* Fix v2 stats for cypherpunk remailers by using right column title.
 	* Use '(no subject)' instead of '' as a subject if none is
-	  otherwhise chosen.
+	  otherwise chosen.
 
 Changes in version 2.0.5 - 2002-10-25
 	* Only take default parameters if they are not set in
