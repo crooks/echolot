@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.57 2003/02/22 21:01:06 weasel Exp $
+# $Id: File.pm,v 1.58 2003/02/24 16:18:41 weasel Exp $
 #
 
 =pod
@@ -744,6 +744,7 @@ sub get_chainpings($$) {
 		map {
 			chomp;
 			my @a = split;
+			Echolot::Log::warn("'$_' has not 7 fields") if (scalar @a < 7);
 			{	sent  => $a[0],
 				addr1 => $a[1],
 				type1 => $a[2],
