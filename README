@@ -1,4 +1,4 @@
-$Id: README,v 1.18 2002/07/16 01:37:17 weasel Exp $
+$Id: README,v 1.19 2002/07/16 01:51:52 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -60,8 +60,10 @@ o Set my_localpart and my_domain in pingd.conf to the appropriate values
 o Make sure your MTA supports user defined mailboxes. so that
   my_localpart+anything@my_domain also reaches echolot.
               ^^^^^^^^^
-  If you use another character instead or + to indicate a user defined
+  If you use another character instead of + to indicate a user defined
   extension set recipient_delimiter accordingly in pingd.conf.
+
+  postfix: add »recipient_delimiter = +« to main.cf.
 
 o Mail should be delivered to /home/pinger/echolot/mail which must be a Maildir
   mailbox, i.e there are 3 directories: /home/pinger/echolot/mail/tmp,
