@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.34 2002/09/12 15:41:49 weasel Exp $
+# $Id: Stats.pm,v 1.35 2002/12/03 02:59:13 weasel Exp $
 #
 
 =pod
@@ -289,7 +289,7 @@ sub write_file($$$$) {
 		$output =~ s/</&lt;/g;
 		$output =~ s/>/&gt;/g;
 	};
-	Echolot::Tools::write_HTML_file($filebasename.'.html', $html_template, $expires, list => $output);
+	Echolot::Tools::write_HTML_file($filebasename, $html_template, $expires, list => $output);
 
 	return 1;
 };
@@ -489,10 +489,10 @@ sub build_lists() {
 
 	$rems = build_rems(['mix']);
 	@$pubrems = grep { $_->{'showit'} } @$rems;
-	build_mlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist');
-	build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2');
-	build_mlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', Echolot::Config::get()->{'templates'}->{'mlist'});
-	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
+	build_mlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist', 'mlist');
+	build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2', 'mlist2');
+	build_mlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', 'mlist');
+	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', 'mlist2');
 	$stats{'mix_total'} = scalar @$pubrems;
 	$stats{'mix_98'} = scalar grep { $_->{'stats'}->{'avr_reliability'} >= 0.98 } @$pubrems;
 	$addresses{$_->{'address'}}=1 for @$pubrems;
@@ -503,10 +503,10 @@ sub build_lists() {
 
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
 	@$pubrems = grep { $_->{'showit'} } @$rems;
-	build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist');
-	build_list2( $rems,$broken1, $broken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2');
-	build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', Echolot::Config::get()->{'templates'}->{'rlist'});
-	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
+	build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist', 'rlist');
+	build_list2( $rems,$broken1, $broken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2', 'rlist2');
+	build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', 'rlist');
+	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', 'rlist2');
 	$stats{'cpunk_total'} = scalar @$pubrems;
 	$stats{'cpunk_98'} = scalar grep { $_->{'stats'}->{'avr_reliability'} >= 0.98 } @$pubrems;
 	$addresses{$_->{'address'}}=1 for @$pubrems;
@@ -518,10 +518,10 @@ sub build_lists() {
 	if (Echolot::Config::get()->{'separate_rlists'}) {
 		$rems = build_rems(['cpunk-rsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
-		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
-		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
-		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
+		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
+		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
+		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
+		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-rsa'} = $rems;
 			$pubclist->{'cpunk-rsa'} = $pubrems; $pubrems = undef;
@@ -529,10 +529,10 @@ sub build_lists() {
 
 		$rems = build_rems(['cpunk-dsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
-		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
-		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
-		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
+		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
+		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
+		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
+		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-dsa'} = $rems;
 			$pubclist->{'cpunk-dsa'} = $pubrems; $pubrems = undef;
@@ -540,26 +540,50 @@ sub build_lists() {
 
 		$rems = build_rems(['cpunk-clear']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
-		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
-		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
-		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
+		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', 'rlist-clear');
+		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
+		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', 'rlist-clear');
+		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-clear'} = $rems;
 			$pubclist->{'cpunk-clear'} = $pubrems; $pubrems = undef;
 		};
 	};
 	if (Echolot::Config::get()->{'combined_list'}) {
-		build_clist( $clist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
-		build_clist( $pubclist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
+		build_clist( $clist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', 'clist');
+		build_clist( $pubclist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', 'clist');
 	};
 
 	$stats{'unique_addresses'} = scalar keys %addresses;
 	Echolot::Tools::write_HTML_file(
 		Echolot::Config::get()->{'resultdir'}.'/'.Echolot::Config::get()->{'indexfilebasename'},
-		Echolot::Config::get()->{'templates'}->{'indexfile'},
+		'indexfile',
 		Echolot::Config::get()->{'buildstats'},
 		%stats );
+	
+	my $file = Echolot::Config::get()->{'echolot_css'},
+	my $css;
+	{
+		local $/ = undef;
+		open(F, $file) or
+			cluck("Could not open $file: $!\n"),
+			return 0;
+		$css = <F>;
+		close (F) or
+			cluck("Cannot close $file: $!\n"),
+			return 0;
+	}
+	$file = Echolot::Config::get()->{'resultdir'}.'/echolot.css';
+	open(F, '>'.$file) or
+		cluck("Cannot open $file: $!\n"),
+		return 0;
+	print F $css or
+		cluck("Cannot print to $file: $!\n"),
+		return 0;
+	close (F) or
+		cluck("Cannot close $file: $!\n"),
+		return 0;
+
 };
 
 

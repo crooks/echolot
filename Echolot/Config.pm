@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.42 2002/10/25 10:46:52 weasel Exp $
+# $Id: Config.pm,v 1.43 2002/12/03 02:59:13 weasel Exp $
 #
 
 =pod
@@ -112,9 +112,9 @@ sub init($) {
 		mailerrordir                => 'mail-errors',
 		resultdir                   => 'results',
 		thesaurusdir                => 'results/thesaurus',
-		thesaurusindexfile          => 'results/thesaurus/index.html',
+		thesaurusindexfile          => 'results/thesaurus/index',
 		private_resultdir           => 'results.private',
-		indexfilebasename           => 'echolot.html',
+		indexfilebasename           => 'echolot',
 		gnupghome                   => 'gnupghome',
 		gnupg                       => '',
 		mixhome                     => 'mixhome',
@@ -148,20 +148,24 @@ sub init($) {
 
 		# templates
 		templates => {
-			'indexfile'             => 'templates/echolot.html',
-			'thesaurusindexfile'    => 'templates/thesaurusindex.html',
-			'mlist'                 => 'templates/mlist.html',
-			'mlist2'                => 'templates/mlist2.html',
-			'rlist'                 => 'templates/rlist.html',
-			'rlist-rsa'             => 'templates/rlist-rsa.html',
-			'rlist-dsa'             => 'templates/rlist-dsa.html',
-			'rlist-clear'           => 'templates/rlist-clear.html',
-			'rlist2'                => 'templates/rlist2.html',
-			'rlist2-rsa'            => 'templates/rlist2-rsa.html',
-			'rlist2-dsa'            => 'templates/rlist2-dsa.html',
-			'rlist2-clear'          => 'templates/rlist2-clear.html',
-			'clist'                 => 'templates/clist.html',
+			default => {
+				'indexfile'             => 'templates/echolot.html',
+				'thesaurusindexfile'    => 'templates/thesaurusindex.html',
+				'mlist'                 => 'templates/mlist.html',
+				'mlist2'                => 'templates/mlist2.html',
+				'rlist'                 => 'templates/rlist.html',
+				'rlist-rsa'             => 'templates/rlist-rsa.html',
+				'rlist-dsa'             => 'templates/rlist-dsa.html',
+				'rlist-clear'           => 'templates/rlist-clear.html',
+				'rlist2'                => 'templates/rlist2.html',
+				'rlist2-rsa'            => 'templates/rlist2-rsa.html',
+				'rlist2-dsa'            => 'templates/rlist2-dsa.html',
+				'rlist2-clear'          => 'templates/rlist2-clear.html',
+				'clist'                 => 'templates/clist.html',
+			},
 		},
+
+		'echolot_css'               => 'templates/echolot.css',
 
 		remailerxxxtext => "Hello,\n".
 			"\n".

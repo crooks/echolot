@@ -402,7 +402,7 @@ The directory where Thesaurus data is put.
 
 The Thesaurus index file.
 
-	Default: 'thesaurusindexfile' => 'results/thesaurus/index.html',
+	Default: 'thesaurusindexfile' => 'results/thesaurus/index',
 
 =item B<private_resultdir>
 
@@ -415,8 +415,8 @@ show set to false are shown here too).
 
 The file to write the index.html to (relative to the result directory).
 
-	Default: 'indexfilebasename' => 'echolot.html',
-	Example: 'indexfilebasename' => 'index.html',
+	Default: 'indexfilebasename' => 'echolot',
+	Example: 'indexfilebasename' => 'index',
 
 =item B<gnupghome>
 
@@ -581,7 +581,7 @@ Pings mixmaster remailers.
 =item B<templates>
 
 The template files are used to generate the HTML version of all Echolot output.
-It is a hash that has the following keys:
+It is a hash of hashes which each have following keys:
 B<thesaurusindexfile>,
 B<mlist>,
 B<mlist2>,
@@ -595,20 +595,38 @@ B<rlist2-dsa>,
 B<rlist2-clear>, and
 B<clist>.
 
+The outer hash keys are for language selection.
+
 	Default: 'templates' => {
-	    'thesaurusindexfile' => 'templates/thesaurusindex.html',
-	    'mlist'              => 'templates/mlist.html',
-	    'mlist2'             => 'templates/mlist2.html',
-	    'rlist'              => 'templates/rlist.html',
-	    'rlist-rsa'          => 'templates/rlist-rsa.html',
-	    'rlist-dsa'          => 'templates/rlist-dsa.html',
-	    'rlist-clear'        => 'templates/rlist-clear.html',
-	    'rlist2'             => 'templates/rlist2.html',
-	    'rlist2-rsa'         => 'templates/rlist2-rsa.html',
-	    'rlist2-dsa'         => 'templates/rlist2-dsa.html',
-	    'rlist2-clear'       => 'templates/rlist2-clear.html',
-	    'clist'              => 'templates/clist.html',
+	    'default' => {
+		    'thesaurusindexfile' => 'templates/thesaurusindex.html',
+		    'mlist'              => 'templates/mlist.html',
+		    'mlist2'             => 'templates/mlist2.html',
+		    'rlist'              => 'templates/rlist.html',
+		    'rlist-rsa'          => 'templates/rlist-rsa.html',
+		    'rlist-dsa'          => 'templates/rlist-dsa.html',
+		    'rlist-clear'        => 'templates/rlist-clear.html',
+		    'rlist2'             => 'templates/rlist2.html',
+		    'rlist2-rsa'         => 'templates/rlist2-rsa.html',
+		    'rlist2-dsa'         => 'templates/rlist2-dsa.html',
+		    'rlist2-clear'       => 'templates/rlist2-clear.html',
+		    'clist'              => 'templates/clist.html',
+	    },
+	    'de' => { 
+		   'thesaurusindexfile' => 'templates/thesaurusindex.de.html',
+		   ....
+	    },
+	    'pl' => { 
+		   'thesaurusindexfile' => 'templates/thesaurusindex.pl.html',
+		   ....
+	    }
 	  };
+
+=item B<echolot_css>
+
+Location of the CSS file. This is copied to resultdir/echolot.css.
+
+	Default: 'echolot_css'               => 'templates/echolot.css',
 
 =back
 

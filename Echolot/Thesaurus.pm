@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.12 2002/09/05 15:41:38 weasel Exp $
+# $Id: Thesaurus.pm,v 1.13 2002/12/03 02:59:13 weasel Exp $
 #
 
 =pod
@@ -103,7 +103,7 @@ sub build_thesaurus() {
 
 	Echolot::Tools::write_HTML_file(
 		Echolot::Config::get()->{'thesaurusindexfile'},
-		Echolot::Config::get()->{'templates'}->{'thesaurusindexfile'},
+		'thesaurusindexfile',
 		Echolot::Config::get()->{'buildthesaurus'},
 		remailers => \@data);
 };

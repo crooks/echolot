@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.11 2002/10/25 10:47:54 weasel Exp $
+# $Id: Tools.pm,v 1.12 2002/12/03 02:59:13 weasel Exp $
 #
 
 =pod
@@ -205,37 +205,43 @@ sub write_meta_information($%) {
 };
 
 sub write_HTML_file($$;$%) {
-	my ($file, $template_file, $expire, %templateparams) = @_;
+	my ($origfile, $template_file, $expire, %templateparams) = @_;
 
-	my $template =  HTML::Template->new(
-		filename => $template_file,
-		strict => 0,
-		die_on_bad_params => 0,
-		global_vars => 1 );
-	$template->param ( %templateparams );
-	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
-	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
-	$template->param ( separate_rlist => Echolot::Config::get()->{'separate_rlists'} );
-	$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
-	$template->param ( thesaurus => Echolot::Config::get()->{'thesaurus'} );
-	$template->param ( version => Echolot::Globals::get()->{'version'} );
-	$template->param ( expires => date822( time + $expire ));
+	for my $lang ( keys %{Echolot::Config::get()->{'templates'}} ) {
+		my $template =  HTML::Template->new(
+			filename => Echolot::Config::get()->{'templates'}->{$lang}->{$template_file},
+			strict => 0,
+			die_on_bad_params => 0,
+			global_vars => 1 );
+		$template->param ( %templateparams );
+		$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
+		$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
+		$template->param ( separate_rlist => Echolot::Config::get()->{'separate_rlists'} );
+		$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
+		$template->param ( thesaurus => Echolot::Config::get()->{'thesaurus'} );
+		$template->param ( version => Echolot::Globals::get()->{'version'} );
+		$template->param ( expires => date822( time + $expire ));
 
-	open(F, '>'.$file) or
-		cluck("Cannot open $file: $!\n"),
-		return 0;
-	print F $template->output() or
-		cluck("Cannot print to $file: $!\n"),
-		return 0;
-	close (F) or
-		cluck("Cannot close $file: $!\n"),
-		return 0;
+		my $file = $origfile;
+		$file .= '.'.$lang unless ($lang eq 'default');
+		$file .= '.html';
 
-	if (defined $expire) {
-		write_meta_information($file,
-			Expires => time + $expire) or
-			cluck ("Error while writing meta information for $file"),
+		open(F, '>'.$file) or
+			cluck("Cannot open $file: $!\n"),
 			return 0;
+		print F $template->output() or
+			cluck("Cannot print to $file: $!\n"),
+			return 0;
+		close (F) or
+			cluck("Cannot close $file: $!\n"),
+			return 0;
+
+		if (defined $expire) {
+			write_meta_information($file,
+				Expires => time + $expire) or
+				cluck ("Error while writing meta information for $file"),
+				return 0;
+		};
 	};
 
 	return 1;
