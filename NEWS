@@ -1,6 +1,7 @@
 Changes in
-	* first go at sane loggin
-	  fixme: make logging configureable
+	* Logging is finally cleaned up. There are two new config options:
+	  logfile and loglevel.  Log::Dispatch is now required as well.
+	* Automatically remove stale .pid files.
 
 Changes in version 2.0.8 - 2003-01-13
 	* Work around a bug that let pingd die in certain random cases when

@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.89 2003/01/14 06:40:24 weasel Exp $
+# $Id: pingd,v 1.90 2003/01/14 06:51:58 weasel Exp $
 #
 
 =pod
@@ -444,15 +444,48 @@ sub command_sendpings(@) {
 };
 
 
-sub pid_exists() {
-	return (-e Echolot::Config::get()->{'pidfile'});
+sub pid_exists($) {
+	my ($remove_stale) = @_;
+
+	my $pidfile = Echolot::Config::get()->{'pidfile'};
+	if (! $remove_stale) {
+		return (-e $pidfile);
+	} else {
+		if (!-e $pidfile) {
+			return 0;
+		};
+
+		open (PIDFILE, $pidfile) or
+			die ("Cannot open pidfile '$pidfile': $!.\n");
+		my $line = <PIDFILE>;
+		close PIDFILE;
+
+		my ($pid, $host, $time) = $line =~ /^(\d+) \s+ (\S+) \s+ (\d+) \s* $/x or
+			die ("Cannot parse pidfile '$pidfile' line '$line'.\n");
+
+		(Echolot::Globals::get()->{'hostname'} eq $host) or
+			die ("Pidfile exists and is from another host.\n");
+		($host ne 'unknown') or
+			die ("Pidfile exists and hostname is unknown.\n");
+		($time < time()) or
+			die ("Pidfile exists and timestamp is in the future.\n");
+		my $sent = kill 0, $pid;
+		($sent == 0) or
+			die ("Pidfile exists and process $pid running.\n");
+		warn ("Removing stale pidfile.\n");
+		unlink ($pidfile) or
+			die ("Removing stale pidfile $pidfile failed.\n");
+		return 0;
+	}
+
+
 };
 
 sub daemon_run($) {
 	my ($process) = @_;
 
 	Echolot::Log::logdie("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
-		if pid_exists();
+		if pid_exists(0);
 	open (PIDFILE, '>'.Echolot::Config::get()->{'pidfile'}) or
 		Echolot::Log::logdie("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!");
 	print PIDFILE "$PROCESS_ID ".Echolot::Globals::get()->{'hostname'}." ".time()."\n";
@@ -494,7 +527,7 @@ sub send_sig($) {
 	my ($sig) = @_;
 
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' does not exist\n")
-		unless pid_exists();
+		unless pid_exists(0);
 	open (PIDFILE, '<'.Echolot::Config::get()->{'pidfile'}) or
 		confess ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
 	my $line = <PIDFILE>;
@@ -551,7 +584,7 @@ sub make_dirs() {
 
 sub hup_if_wanted($) {
 	my ($nohup) = @_;
-	if (!$nohup && pid_exists()) {
+	if (!$nohup && pid_exists(0)) {
 		daemon_hup()
 	} else {
 		print "Don't forget to run $PROGRAM_NAME process.\n";
@@ -658,7 +691,7 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 } elsif ($COMMAND eq 'start') {
 	# FIXME: remove stale pid files
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
-		if pid_exists();
+		if pid_exists(1);
 	Echolot::Log::init();
 	make_dirs();
 	if ($params->{'detach'}) {
