@@ -1,3 +1,6 @@
+Changes in version
+	* Have correct title tags and some layout changes in the HTML templates
+
 Changes in version 2.0beta12 - 2002-07-11
 	* Cut strings when they do not fit in the table formats
 	* Sort type2.list/pubring.mix
