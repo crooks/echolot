@@ -41,7 +41,7 @@ cat > $filename << 'EOF'
 		use strict;
 		use Debconf::Client::ConfModule;
 		use IO::File;
-		
+
 		my $postblock = "";
 		my $preblock = "";
 
@@ -79,7 +79,7 @@ cat > $filename << 'EOF'
 			die ("Cannot open /etc/echolot/pingd.conf: $!");
 		print $fh $preblock .
 		          "### BEGIN DEBCONF SECTION\n" .
-				  $debconf .
+		          $debconf .
 		          "1;\n" .
 		          "### END DEBCONF SECTION\n" .
 		          $postblock or
@@ -98,12 +98,12 @@ fi
 # Configuration reprise
 ########################################################################
 if [ "$1" = "configure" ]; then
-    db_get echolot/addnow || true
-    if [ "$RET" = "true" ]; then
+	db_get echolot/addnow || true
+	if [ "$RET" = "true" ]; then
 		/etc/init.d/echolot add REMAILER_LIST
-        # But don't do it again unless the user asks for it
-        db_set echolot/addnow false
-    fi
+		# But don't do it again unless the user asks for it
+		db_set echolot/addnow false
+	fi
 fi
 
 
