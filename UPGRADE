@@ -1,5 +1,5 @@
 Upgrading checklist for Echolot
-$Id: UPGRADE,v 1.3 2003/01/14 07:32:58 weasel Exp $
+$Id$
 
 - Download the latest .tar.gz from <URL:http://www.palfrader.org/echolot/>.
 - Verify the signature.
