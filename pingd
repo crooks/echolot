@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.82 2002/10/25 11:00:07 weasel Exp $
+# $Id: pingd,v 1.83 2002/12/13 06:44:21 weasel Exp $
 #
 
 =pod
@@ -48,7 +48,7 @@ pingd - echolot ping daemon
 
 =head1 DESCRIPTION
 
-pingd is a the heart of echolot. Echolot is a pinger for anonymous remailers. 
+pingd is the heart of echolot. Echolot is a pinger for anonymous remailers. 
 
 A Pinger in the context of anonymous remailers is a program that regularily
 sends messages through remailers to check their reliability. It then calculates
@@ -59,7 +59,7 @@ Additionally it collects configuration parameters and keys of all remailers and
 offers them in a format readable by remailer clients. 
 
 When called without parameters pingd schedules tasks like sending pings,
-processing incoming mail and requesting remailer-xxx data and runs them in
+processing incoming mail and requesting remailer-xxx data and runs them at
 configurable intervalls.
 
 =head1 COMMANDS
@@ -78,7 +78,7 @@ Send the running pingd process a SIGTERM.
 
 Sends a HUP signal to the daemon which instructs it to process the commands.
 
-For other affects of sending the HUP Signal see the SIGNALS section below.
+For other effects of sending the HUP Signal see the SIGNALS section below.
 
 =item B<add> I<address> [I<address> ...]
 
@@ -162,7 +162,7 @@ Dumps the current configuration to standard output.
 
 =item B<--basedir>
 
-The home directory to which everything else is relative to. See the BASE
+The home directory to which everything else is relative. See the BASE
 DIRECTORY section below.
 
 =item B<--verbose>
@@ -171,11 +171,11 @@ Verbose mode. Causes B<pingd> to print debugging messages about its progress.
 
 =item B<--quiet>
 
-Quiet mode. Be even more quient than normally.
+Quiet mode. Be even quieter than normal.
 
 =item B<--help>
 
-Print a short help and exit sucessfully.
+Print a short help message and exit sucessfully.
 
 =item B<--version>
 
@@ -190,7 +190,7 @@ B<buildkeys>, or B<buildthesaurus> command.
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
 
-Per default such a signal is sent.
+By default such a signal is sent.
 
 =item B<--process>
 
@@ -208,10 +208,10 @@ Tell B<pingd> to detach.
 
 =head1 BASE DIRECTORY
 
-The home directory to which everything else is relative to.
+The home directory to which everything else is relative.
 
 Basedir defaults to whatever directory the B<pingd> binary is located. It can
-get overridden by the B<ECHOLOT_HOME> environment variable which in turn is
+be overridden by the B<ECHOLOT_HOME> environment variable which in turn is
 weaker than the B<--basedir> setting.
 
 This directory is then used to locate the configuration file B<pingd.conf> (see
@@ -221,7 +221,7 @@ The B<homedir> setting in B<pingd.conf> finally sets the base directory.
 
 =head1 FILES
 
-The configuration file is searched in those places in that order:
+The configuration file is searched in these places in this order:
 
 =over   
 
@@ -255,12 +255,12 @@ The configuration file is searched in those places in that order:
 
 On B<SIGINT>, B<SIGQUIT>, and B<SIGTERM> B<pingd> will schedule a shutdown
 for as soon as the current actions are finished or immediatly if no actions are
-currently beeing processed. It will then write all metadata and pingdata to
+currently being processed. It will then write all metadata and pingdata to
 disk and close all files cleanly before exiting.
 
 On B<SIGHUP> <pingd> will execute any pending commands from the commands file
-(B<commands.txt> per default).  It also closes and reopens the file 'output'
-which is used for stdout and stderr in case the daemon was told to detach.
+(B<commands.txt> by default).  It also closes and reopens the file 'output'
+which is used for stdout and stderr when the daemon is running detached.
 This can be used if you want to rotate that file.
 
 =head1 AUTHOR

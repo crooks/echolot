@@ -6,8 +6,8 @@ pingd.conf - configuration file for the Echolot ping daemon
 
 =head1 DESCRIPTION
 
-The file B<pingd.conf> sets configuration parameters for the Echolot pingd(1).
-It is a Perl script that gets eval()ed from withing pingd. It has to set the
+The file B<pingd.conf> sets configuration parameters for Echolot pingd(1).
+It is a Perl script that gets eval()ed from within pingd. It has to set the
 values in the $CONFIG hash.
 
 =cut
@@ -20,7 +20,7 @@ values in the $CONFIG hash.
 
 =item B<sitename>
 
-A short name for your site/pinger. Is used in the statistics produced.
+A short name for your site/pinger. It is used in the statistics produced.
 
 	Default: none
 	Example: 'sitename' => 'testsite',
@@ -66,7 +66,7 @@ The B<recipient_delimiter> parameter specifies the separator between user names
 and address extensions (user+foo).
 
 If it is an empty string Echolot does not make use of user defined mailboxes
-but rather encodes the message type et al in a Comment/Realname part of an
+but rather encodes the message type etc in a Comment/Realname part of an
 address.
 
 The use of recipient_delimiter is strongly recommended if your MTA setup
@@ -167,23 +167,23 @@ only unencrypted pings.
 
 =item B<combined_list> [bool]
 
-Build a combined list of all different stats too. While this is no
-standard format it is nice to read for a human eye.
+Build a combined list of all different stats too. While there is no
+standard format it is nice to read for the human eye.
 
 	Default: 'combined_list' => 0,
 	Example: 'combined_list' => 1,
 
 =item B<thesaurus> [bool]
 
-Collect Thesaurus data and build Thesaurus' Index.
+Collect Thesaurus data and build Thesaurus Index.
 
 	Default: 'thesaurus' => 1,
 	Example: 'thesaurus' => 0,
 
 =item B<stats_sort_by_latency>
 
-In statistics output remailers are sorted by reliability as the primary key.
-The secondary key usually is nickname. If you prefer to sort by latency rather
+In the statistics output remailers are sorted by reliability as the primary key.
+The secondary key is usually nickname. If you prefer to sort by latency rather
 than nick set this to 1 (-1 if you want to reverse the order).
 
 	Default: 'stats_sort_by_latency' => 0,
@@ -207,7 +207,7 @@ How often to process incoming email.
 
 =item B<buildstats> [seconds]
 
-How often to build mlist et al.
+How often to build mlist etc.
 
 	Default: 'buildstats' => 5*60, # every 5 minutes
 	Example: 'buildstats' => 60*60, # hourly
@@ -260,7 +260,7 @@ B<getkeyconf_every_nth_time> time.
 How often to check assumed dead remailers for resurrection.
 
 	Default: 'check_resurrection' => 7*24*60*60, # weekly
-	Example: 'check_resurrection' => 24*24*60*60, # every other week
+	Example: 'check_resurrection' => 14*24*60*60, # every other week
 
 =item B<pinger_interval> [seconds]
 
@@ -288,7 +288,7 @@ dead.
 
 =item B<check_resurrection_ttl> [integer]
 
-How many times to request remailer-xxx from a assumed dead remailer (done every
+How many times to request remailer-xxx from an assumed dead remailer (done every
 B<check_resurrection> seconds, weekly per default) without a reply before it is
 really considered dead.
 
@@ -299,14 +299,14 @@ really considered dead.
 
 How long to keep information about a prospective address in the database.
 Addresses that are not committed to the list of remailer addresses are
-expired after that time.
+expired after this time.
 
 	Default: 'prospective_addresses_ttl' => 5*24*60*60, # 5 days
 	Example: 'prospective_addresses_ttl' =>14*24*60*60, # 2 weeks
 
 =item B<reliable_auto_add_min> [integer]
 
-How many different remailer need to list an address in Reliable's remailer-conf
+How many different remailers need to list an address in Reliable's remailer-conf
 reply to get it committed to the list of remailer addresses.
 
 	Default: 'reliable_auto_add_min' => 3,
@@ -314,22 +314,21 @@ reply to get it committed to the list of remailer addresses.
 
 =item B<expire_keys> [seconds]
 
-After which time to expire received keys if they were not updated
-by remailer-key replies.
+After how long to expire received keys if they were not updated by remailer-key replies.
 
 	Default: 'expire_keys' => 5*24*60*60, # 5 days
 	Example: 'expire_keys' => 7*24*60*60, # 1 week
 
 =item B<expire_confs> [seconds]
 
-After which time to expire received remailer-conf replies.
+After how long to expire received remailer-conf replies.
 
 	Default: 'expire_confs' => 5*24*60*60, # 5 days
 	Example: 'expire_confs' => 7*24*60*60, # 1 week
 
 =item B<expire_pings> [seconds]
 
-After which time to expire pings. 12 is the value of choice
+After how long to expire pings. 12 is the value of choice
 because that is the time frame the statistics show. You should
 not make this smaller than 12 days.
 
@@ -337,7 +336,7 @@ not make this smaller than 12 days.
 
 =item B<expire_thesaurus> [seconds]
 
-After which time to expire files in the thesaurus directory.
+After how long to expire files in the thesaurus directory.
 
 	Default: 'expire_thesaurus' => 21*24*60*60, # 2 weeks
 	Example: 'expire_thesaurus' => 7*24*60*60, # 1 week
@@ -367,7 +366,7 @@ How many backups of metadata to keep.
 =item B<homedir>
 
 The base directory of the Echolot installation. All other filenames and
-directorynames are local to this directory. B<pingd> changes into this
+directory names are local to this directory. B<pingd> changes into this
 directory upon startup.
 
 	Default: The directory in which pingd is.
@@ -441,7 +440,7 @@ is used.
 Name of the gzip executable. If it is not in your PATH make sure to
 include path information.
 
-	Default: 'gnupg' => 'gzip',
+	Default: 'gzip' => 'gzip',
 
 =item B<mixhome>
 
@@ -508,7 +507,7 @@ important infrastructure.  If it does not exist, the part is skipped in
 generated stats. Otherwise its content is copied in verbatim.
 
 	Default: 'sameop' => 'sameop.txt',
-	Example conent:
+	Example content:
 		(xganon2 xganon)
 		(cracker redneck)
 

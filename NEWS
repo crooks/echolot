@@ -1,6 +1,7 @@
 Changes in 
 	* Have support for translated templates
 	* Use CSS - they need to be trimmed, I don't like Sergiusz's colors
+	* Minor documentation fixes by Colin Tuckley
 	* thesaurusindexfile and indexfilebasename config values should not
 	  longer have the extension (.html) in them
 	  FIXME - handle this gracefully for now
