@@ -326,8 +326,22 @@ After which time to expire files in the thesaurus directory.
 	Default: 'expire_thesaurus' => 21*24*60*60, # 2 weeks
 	Example: 'expire_thesaurus' => 7*24*60*60, # 1 week
 
-=back
+=item B<metadata_backup> [seconds]
 
+How often to make backups of metadata and rotate them. If gzip is set, backups
+are compressed.
+
+	Default: 'metadata_backup' => 8*60*60, # 8 hours
+	Example: 'metadata_backup' => 24*60*60, # daily
+
+=item B<metadata_backup_count> [integer]
+
+How many backups of metadata to keep.
+
+	Default: 'metadata_backup_count' => 32, # keep the last 32 backups
+	Example: 'metadata_backup_count' => 4, # keep 4 rotations
+
+=back
 
 
 =head2 DIRECTORIES AND FILES
@@ -405,6 +419,13 @@ is used.
 
 	Default: 'gnupg' => '',
 	Example: 'gnupg' => '/home/pinger/bin/myGnuPG',
+
+=item B<gzip>
+
+Name of the gzip executable. If it is not in your PATH make sure to
+include path information.
+
+	Default: 'gnupg' => 'gzip',
 
 =item B<mixhome>
 

@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.78 2002/09/21 01:45:39 weasel Exp $
+# $Id: pingd,v 1.79 2002/09/21 03:24:41 weasel Exp $
 #
 
 =pod
@@ -294,7 +294,7 @@ use POSIX qw(setsid);
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0.1';
+my $VERSION = '2.0.2';
 
 
 my $redirected_stdio = 0;
@@ -331,6 +331,9 @@ sub commit_prospective_address() {
 };
 sub expire() {
 	Echolot::Globals::get()->{'storage'}->expire();
+};
+sub metadata_backup() {
+	Echolot::Globals::get()->{'storage'}->metadata_backup();
 };
 
 
@@ -466,6 +469,7 @@ sub daemon_run($) {
 	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}          , 0, \&Echolot::Stats::build_keys );
 	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'buildthesaurus'}     , 0, \&Echolot::Thesaurus::build_thesaurus );
 
+	$scheduler->add('metadata_backup'     , Echolot::Config::get()->{'metadata_backup'}    , 0, \&metadata_backup );
 	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'} , 0, \&commit_prospective_address );
 	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}             , 0, \&expire );
 	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf_interval'}, 0, \&Echolot::Conf::send_requests );

@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.40 2002/09/05 15:41:38 weasel Exp $
+# $Id: File.pm,v 1.41 2002/09/21 03:24:41 weasel Exp $
 #
 
 =pod
@@ -129,6 +129,7 @@ sub metadata_open($) {
 	flock($self->{'METADATA_FH'}, LOCK_EX) or
 		cluck("Cannot get exclusive lock on $filename: $!"),
 		return 0;
+	return 1;
 };
 
 sub metadata_close($) {
@@ -140,6 +141,7 @@ sub metadata_close($) {
 	close($self->{'METADATA_FH'}) or
 		cluck("Error when closing metadata file: $!"),
 		return 0;
+	return 1;
 };
 
 
@@ -172,7 +174,7 @@ sub metadata_read($) {
 			return 0;
 
 		defined($self->{'METADATA'}->{'version'}) or
-			cluck("Stored data lacks version header"),
+			confess("Stored data lacks version header"),
 			return 0;
 		($self->{'METADATA'}->{'version'} == ($METADATA_VERSION)) or
 			cluck("Metadata version mismatch ($self->{'METADATA'}->{'version'} vs. $METADATA_VERSION)"),
@@ -209,6 +211,41 @@ sub metadata_write($) {
 	return 1;
 };
 
+sub metadata_backup($) {
+	my ($self) = @_;
+
+	my $filename = $self->{'datadir'} .'/'. $CONSTANTS->{'metadatafile'};
+	for (my $i=Echolot::Config::get()->{'metadata_backup_count'} - 1; $i>=0; $i--) {
+		rename ($filename.'.'.($i)      , $filename.'.'.($i+1));
+		rename ($filename.'.'.($i).'.gz', $filename.'.'.($i+1).'.gz');
+	};
+	$filename .= '.1';
+
+
+	my $data = Data::Dumper->Dump( [ $self->{'METADATA'} ], [ 'METADATA' ] );
+	my $fh = new IO::Handle;
+	open ($fh, '>'.$filename) or
+		cluck("Cannot open $filename for writing: $!"),
+		return 0;
+	print($fh "# vim:set syntax=perl:\n") or
+		cluck("Error when writing to metadata file: $!"),
+		return 0;
+	print($fh $data) or
+		cluck("Error when writing to metadata file: $!"),
+		return 0;
+	$fh->flush();
+	close($fh) or
+		cluck("Error when closing metadata file: $!"),
+		return 0;
+	
+	if (Echolot::Config::get()->{'gzip'}) {
+		system(Echolot::Config::get()->{'gzip'}, $filename) and
+			cluck("Gziping $filename faild."),
+			return 0;
+	};
+
+	return 1;
+};
 
 
 

@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.40 2002/09/12 15:41:49 weasel Exp $
+# $Id: Config.pm,v 1.41 2002/09/21 03:24:41 weasel Exp $
 #
 
 =pod
@@ -91,6 +91,9 @@ sub init($) {
 		getkeyconf_every_nth_time   => 24*60/5, # send out the same request to the same remailer once a day
 		check_resurrection          => 7*24*60*60, # weekly
 
+		metadata_backup             => 8*60*60, # make backups of metadata and rotate them every 8 hours
+		metadata_backup_count       => 32, # keep 32 rotations of metadata
+
 		pinger_interval             => 5*60, # send out pings every 5 minutes
 		ping_every_nth_time         => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
 
@@ -120,6 +123,7 @@ sub init($) {
 		broken1                     => 'broken1.txt',
 		broken2                     => 'broken2.txt',
 		sameop                      => 'sameop.txt',
+		gzip                        => 'gzip',
 
 		commands_file               => 'commands.txt',
 		pidfile                     => 'pingd.pid',

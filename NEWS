@@ -1,3 +1,7 @@
+Changes in version 2.0.2 - 2002-09-21
+	* Die immeditatly if there is no Version information in metadata.
+	* Make regular backups of metadata and rotate them properly.
+
 Changes in version 2.0.1 - 2002-09-21
 	* Store unkown fields from mix summary lines and put them in keyrings.
 
