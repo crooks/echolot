@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.50 2003/02/16 03:06:51 weasel Exp $
+# $Id: Config.pm,v 1.51 2003/02/16 03:38:09 weasel Exp $
 #
 
 =pod
@@ -101,10 +101,10 @@ sub init($) {
 
 		chainpinger_interval        => 5*60, # send out pings every 5 minutes
 		chainping_every_nth_time    => 810,  # send out pings to the same chain every 810 calls, i.e. every 3 days
-		chainping_period            => 10*24*60*60, # 10 days
+		chainping_period            => 10*24*60*60, # 12 days
 		chainping_fudge             => 0.7, # if less than 0.7 * rel1 * rel2 make it, the chain is really broken
 		chainping_grace             => 1.5, # don't count pings sent no longer than 1.5 * (lat1 + lat2) ago
-		chainping_update            => 300, # chain stats should never be older than 300 seconds
+		chainping_update            => 8*60*60, # chain stats should never be older than 8 hours
 
 		addresses_default_ttl       => 5, # getkeyconf seconds (days)
 		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
@@ -115,6 +115,7 @@ sub init($) {
 		expire_confs                => 5*24*60*60, # 5 days
 		expire_pings                => 12*24*60*60, # 12 days
 		expire_thesaurus            => 21*24*60*60, # 21 days
+		expire_chainpings           => 12*24*60*60, # 12 days
 
 		# Directories and files
 		mailin                      => 'mail',

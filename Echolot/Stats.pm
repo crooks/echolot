@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.40 2003/02/16 03:06:51 weasel Exp $
+# $Id: Stats.pm,v 1.41 2003/02/16 03:38:09 weasel Exp $
 #
 
 =pod
@@ -507,8 +507,11 @@ sub find_broken_chains($$$) {
 					$received{$addr1.':'.$addr2.':'.$sent} = 1;
 				};
 				if ($status_out && !defined $received{$addr1.':'.$addr2.':'.$sent}) {
-					my $theoretical_lat = $remailers{$addr1}->{'stats'}->{'avr_latency'} +
-							      $remailers{$addr2}->{'stats'}->{'avr_latency'};
+					my $lat1 = $remailers{$addr1}->{'stats'}->{'avr_latency'};
+					my $lat2 = $remailers{$addr2}->{'stats'}->{'avr_latency'};
+					$lat1 = 0 unless defined $lat1;
+					$lat2 = 0 unless defined $lat2;
+					my $theoretical_lat = $lat1 + $lat2;
 					$theoretical_lat = 0 unless defined $theoretical_lat;
 					my $latency = time() - $ping->{'sent'};
 					# print ("lat helps $latency $theoretical_lat\n"), 
@@ -525,16 +528,14 @@ sub find_broken_chains($$$) {
 			for my $addr2 (keys %{$stats->{$addr1}}) {
 				my $theoretical_rel = $remailers{$addr1}->{'stats'}->{'avr_reliability'} *
 						      $remailers{$addr2}->{'stats'}->{'avr_reliability'};
-				($stats->{$addr1}->{$addr2}->{'out'} != 0) or
-					Echolot::Log::debug("Should not devide through zero (".
-						$stats->{$addr1}->{$addr2}->{'done'}."/".
-						$stats->{$addr1}->{$addr2}->{'out'}.
-						") for $addr1, $addr2."),
+				my $out = $stats->{$addr1}->{$addr2}->{'out'};
+				my $done = $stats->{$addr1}->{$addr2}->{'done'};
+				$done = 0 unless defined $done;
+				($out > 0) or
+					Echolot::Log::debug("Should not devide through zero ($done/$out) for $addr1, $addr2."),
 					next;
-				my $real_rel = $stats->{$addr1}->{$addr2}->{'done'} /
-					       $stats->{$addr1}->{$addr2}->{'out'};
-				# print "$addr1 $addr2 $stats->{$addr1}->{$addr2}->{'done'}/$stats->{$addr1}->{$addr2}->{'out'}".
-				#       " == $real_rel ($theoretical_rel)\n";
+				my $real_rel = $done / $out;
+				# print "$addr1 $addr2 $done / $out == $real_rel ($theoretical_rel)\n";
 				next if ($real_rel > $theoretical_rel * Echolot::Config::get()->{'chainping_fudge'});
 				my $nick1 = $remailers{$addr1}->{'nick'};
 				my $nick2 = $remailers{$addr2}->{'nick'};
