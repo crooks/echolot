@@ -1,5 +1,6 @@
 for 2.0:
- nothing
+ have mix stats for mixmasters without -conf reply (lcs, passthru).
+ build pgp public rings
 
 for later:
  rotate secret
