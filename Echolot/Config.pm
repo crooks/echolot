@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.14 2002/07/06 20:15:12 weasel Exp $
+# $Id: Config.pm,v 1.15 2002/07/06 21:35:04 weasel Exp $
 #
 
 =pod
@@ -11,6 +11,29 @@ package Echolot::Config;
 Echolot::Config - echolot configuration
 
 =head1 DESCRIPTION
+
+Sets default configuration options and
+reads configuration from the config file.
+
+=head1 FILES
+
+The configuration file is searched in those places in that order:
+
+=over
+
+=item the file pointed to by the B<ECHOLOT_CONF> environment variable
+
+=item `pwd`/pingd.conf
+
+=item $HOME/echolot/pingd.conf
+
+=item $HOME/pingd.conf
+
+=item $HOME/.pingd.conf
+
+=item /etc/pingd.conf
+
+=back
 
 =cut
 
@@ -22,6 +45,14 @@ use Carp;
 
 my $CONFIG;
 
+my @CONFIG_FILES = 
+	( $ENV{'ECHOLOT_CONF'},
+	  'pingd.conf',
+	  $ENV{'HOME'}.'/echolot/pingd.conf',
+	  $ENV{'HOME'}.'/pingd.conf',
+	  $ENV{'HOME'}.'/.pingd.conf',
+	  '/etc/pingd.conf' );
+	  
 sub init($) {
 	my ($params) = @_;
 
@@ -92,9 +123,20 @@ sub init($) {
 		verbose                     => 0
 	};
 
+
+	my $configfile = undef;
+	for my $filename ( @CONFIG_FILES ) {
+		if ( defined $filename && -e $filename ) {
+			$configfile = $filename;
+			last;
+		};
+	};
+
+	die ("no Configuration file found\n") unless defined $configfile;
+	
 	{
 		my $parser = new XML::Parser(Style => 'Tree');
-		my $tree = $parser->parsefile('pingd.conf');
+		my $tree = $parser->parsefile($configfile);
 		my $dump = new XML::Dumper;
 		$CONFIG = $dump->xml2pl($tree);
 	}

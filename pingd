@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.18 2002/07/06 01:31:39 weasel Exp $
+# $Id: pingd,v 1.19 2002/07/06 21:35:04 weasel Exp $
 #
 
 =pod
@@ -160,7 +160,23 @@ Tell B<pingd> to detach.
 
 =head1 FILES
 
-F<pingd.conf>
+The configuration file is searched in those places in that order:
+
+=over   
+
+=item the file pointed to by the B<ECHOLOT_CONF> environment variable
+
+=item `pwd`/pingd.conf
+
+=item $HOME/echolot/pingd.conf
+
+=item $HOME/pingd.conf
+
+=item $HOME/.pingd.conf
+
+=item /etc/pingd.conf
+
+=back
 
 =head1 SIGNALS
 
@@ -177,10 +193,6 @@ This can be used if you want to rotate that file.
 =head1 AUTHOR
 
 Peter Palfrader E<lt>peter@palfrader.orgE<gt>
-
-=head1 SEE ALSO
-
-echolot Documentation
 
 =head1 BUGS
 
@@ -214,7 +226,7 @@ my $redirected_stdio = 0;
 
 sub setSigHandlers() {
 	$SIG{'HUP'} = sub {
-		print "Got SIGINT. scheduling readcommands\n";
+		print "Got SIGHUP. scheduling readcommands\n";
 		Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', time() );
 		if ($redirected_stdio) {
 			close STDOUT;
@@ -436,7 +448,8 @@ if (!GetOptions (
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
 };
 if ($params->{'help'}) {
-    print ("Usage: $PROGRAM_NAME [options]\n"); #FIXME
+    print ("Usage: $PROGRAM_NAME [options] command\n");
+    print ("See man pingd or perldoc pingd for more info.\n");
     exit 0;
 };
 
