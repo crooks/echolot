@@ -1,4 +1,4 @@
-$Id: TODO,v 1.62 2003/06/09 21:04:55 weasel Exp $
+$Id: TODO,v 1.63 2003/07/10 02:57:36 weasel Exp $
 
 Legend:
         - Not done
@@ -9,23 +9,25 @@ Legend:
         X Abandoned
 
  - updated information with from lines
+ - have a timeout on GPG calls
+ - optionally log messages wich raise problems
 
 
 can be done later:
- - ping mail2news gates
- - ping remailer -> usenet, summarize from lines
- - have different stats philosophies (pessimist, optimist..)
  - allow capsstring overrides/additions
  - check gnupg version number on startup
- - have a way to always have certain keys in the keyring
+ - chain preload and postload
+ D have a way to always have certain keys in the keyring
    (manually add nym's keyrings)
    This is not necessary if we add real nymserv pinging
- - ping nymservers
- - chain preload and postload
  D rotate secret
  D parse bounces and mark pings as dead immediatly
  D separate keys in remailer-key reply if they share the same armor (cmeclex is
    the only one doing this. AARG)
  D query other stat pages for new remailers
+ D ping nymservers
+ D ping mail2news gates
+ D ping remailer -> usenet, summarize from lines
+ X have different stats philosophies (pessimist, optimist..)
  X get rid of dependency on mix
  X get rid of dependency on gnupg
