@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.7 2002/08/15 03:27:47 weasel Exp $
+# $Id: Mix.pm,v 1.8 2002/08/19 19:02:19 weasel Exp $
 #
 
 =pod
@@ -54,6 +54,7 @@ sub ping($$$$) {
 	open (F, ">$mixcfg") or
 		cluck("Cannot open $mixcfg for writing: $!"),
 		return 0;
+	print (F "REMAIL          n\n");
 	print (F "NAME            Echolot Pinger\n");
 	print (F "ADDRESS         $address\n");
 	print (F "PUBRING         pubring.mix\n");
