@@ -305,7 +305,7 @@ Peter Palfrader E<lt>peter@palfrader.orgE<gt>
 
 =head1 BUGS
 
-Please report them at E<lt>URL:http://savannah.gnu.org/bugs/?group=echolotE<gt>
+Please report them at E<lt>URL:http://alioth.debian.org/projects/echolot/<gt>
 
 =cut
 
@@ -709,7 +709,7 @@ if ($params->{'help'}) {
     print ("Usage: $PROGRAM_NAME [options] command\n");
     print ("See man pingd or perldoc pingd for more info.\n");
     print ("echolot $VERSION - (c) 2002, 2003 Peter Palfrader <peter\@palfrader.org>\n");
-    print ("http://savannah.gnu.org/projects/echolot/\n");
+    print ("http://alioth.debian.org/projects/echolot/\n");
 	print ("\n");
 	print ("Commands:\n");
 	print ("  start      starts echolot pingd\n");
@@ -737,7 +737,7 @@ if ($params->{'help'}) {
 if ($params->{'version'}) {
     print ("echolot $VERSION\n");
     print ("(c) 2002, 2003 Peter Palfrader <peter\@palfrader.org>\n");
-    print ("http://savannah.gnu.org/projects/echolot/\n");
+    print ("http://alioth.debian.org/projects/echolot/\n");
     exit 0;
 };
 $params->{'quiet'} = undef if ($params->{'verbose'});

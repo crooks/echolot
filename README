@@ -304,7 +304,7 @@ need to increase it. A ulimit of 512 should suffice. Obscure errors
 experienced might be caused by a ulimit that has been set too low.
 
 Please report bugs and feature requests at
-    http://savannah.gnu.org/bugs/?group=echolot
+    http://alioth.debian.org/projects/echolot/
 
 The Echolot homepage can be found at
     http://www.palfrader.org/echolot/
@@ -317,4 +317,3 @@ ACKNOWLEDGEMENTS
 	Lucky Green for (re)writing docs
 	BiKiKii Admin for valuable feedback
 	All testers of Echolot.
-	The FSF for savanna.gnu.org.

@@ -884,6 +884,6 @@ Peter Palfrader E<lt>peter@palfrader.orgE<gt>
 
 =head1 BUGS
 
-Please report them at E<lt>URL:http://savannah.gnu.org/bugs/?group=echolotE<gt>
+Please report them at E<lt>URL:http://alioth.debian.org/projects/echolot/<gt>
 
 =cut
