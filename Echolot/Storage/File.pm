@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.55 2003/02/20 19:39:03 weasel Exp $
+# $Id: File.pm,v 1.56 2003/02/21 05:52:05 weasel Exp $
 #
 
 =pod
@@ -817,7 +817,7 @@ sub register_chainpingout($$$$$$$$$) {
 		Echolot::Log::warn("Error when writing to chaintype $chaintype out pings: $!."),
 		return undef;
 	$fh->flush();
-	Echolot::Log::debug("registering chainping $chaintype out through $addr1 ($type1; $key1) via $addr2 ($type2; $key2).");
+	Echolot::Log::debug("registering chainping $chaintype out through $addr1 ($type1; $key1) to $addr2 ($type2; $key2).");
 
 	return 1;
 };
@@ -845,7 +845,7 @@ sub register_chainpingdone($$$$$$$$$$) {
 		Echolot::Log::warn("Error when writing to $chaintype/done pings: $!."),
 		return undef;
 	$fh->flush();
-	Echolot::Log::debug("registering chainpingdone from ".(scalar localtime $sent_time)." with latency $latency chainping $chaintype out through $addr1 ($type1; $key1) via $addr2 ($type2; $key2).");
+	Echolot::Log::debug("registering chainpingdone from ".(scalar localtime $sent_time)." with latency $latency chainping $chaintype out through $addr1 ($type1; $key1) to $addr2 ($type2; $key2).");
 
 	return 1;
 };
