@@ -1,8 +1,14 @@
 #!/bin/sh -e
 
 # postinst for Echolot
-
-. /usr/share/debconf/confmodule
+# remove old debconf stuff
+if [ "$1" = "configure" ] && [ -e /usr/share/debconf/confmodule ]; then
+	 if dpkg --compare-versions "$2" lt "2.1.7" ; then
+		. /usr/share/debconf/confmodule
+		db_purge
+		db_stop
+	fi
+fi
 
 # Make sure the echolot user exists
 adduser --quiet \
@@ -27,15 +33,6 @@ fi
 # and /var/run/echolot
 if ( ! dpkg-statoverride --list /var/run/echolot > /dev/null ); then
 	dpkg-statoverride --update --add root echolot 02770 /var/run/echolot
-fi
-
-# remove debconf stuff
-if [ "$1" = "configure" ] && [ -e /usr/share/debconf/confmodule ]; then
-	 if dpkg --compare-versions "$2" lt "2.1.7" ; then
-		. /usr/share/debconf/confmodule
-		db_purge
-		db_stop
-	fi
 fi
 
 #DEBHELPER#
