@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.12 2002/07/02 13:40:13 weasel Exp $
+# $Id: File.pm,v 1.13 2002/07/02 13:51:00 weasel Exp $
 #
 
 =pod
@@ -383,7 +383,6 @@ sub register_pingout($$$$) {
 		cluck("Error when writing to $remailer_addr; type=$type; key=$key; out pings: $!"),
 		return 0;
 	$fh->flush();
-print "registering pingout at $sent_time for $remailer_addr ($type; $key)\n";
 
 	return 1;
 };
@@ -428,7 +427,6 @@ sub register_pingdone($$$$$) {
 		cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
 		return 0;
 	$fh->flush();
-print "registering pingdone from $sent_time with latency $latency for $remailer_addr ($type; $key)\n";
 	
 	return 1;
 };
