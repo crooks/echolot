@@ -22,8 +22,8 @@ REQUIREMENTS
 	in general:
 		Digest::MD5
 	for type1 pings
-		GnuPG
-		GnuPG::Interface
+		GnuPG (1.0.7)
+		GnuPG::Interface (0.33)
 	for type2 pings
 		a mixmaster installation - this requirement will be changed
 FIXME what else
