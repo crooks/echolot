@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.31 2002/08/23 08:17:21 weasel Exp $
+# $Id: Stats.pm,v 1.32 2002/09/04 01:47:01 weasel Exp $
 #
 
 =pod
@@ -481,6 +481,7 @@ sub build_lists() {
 	my $pubrems;
 
 	my %stats;
+	my %addresses;
 
 	my $broken1 = read_file( Echolot::Config::get()->{'broken1'}, 1);
 	my $broken2 = read_file( Echolot::Config::get()->{'broken2'}, 1);
@@ -494,6 +495,7 @@ sub build_lists() {
 	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
 	$stats{'mix_total'} = scalar @$pubrems;
 	$stats{'mix_98'} = scalar grep { $_->{'stats'}->{'avr_reliability'} >= 0.98 } @$pubrems;
+	$addresses{$_->{'address'}}=1 for @$pubrems;
 	if (Echolot::Config::get()->{'combined_list'}) {
 		$clist->{'mix'} = $rems;
 		$pubclist->{'mix'} = $pubrems; $pubrems = undef;
@@ -507,6 +509,7 @@ sub build_lists() {
 	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
 	$stats{'cpunk_total'} = scalar @$pubrems;
 	$stats{'cpunk_98'} = scalar grep { $_->{'stats'}->{'avr_reliability'} >= 0.98 } @$pubrems;
+	$addresses{$_->{'address'}}=1 for @$pubrems;
 	if (Echolot::Config::get()->{'combined_list'} && ! Echolot::Config::get()->{'seperate_rlists'}) {
 		$clist->{'cpunk'} = $rems;
 		$pubclist->{'cpunk'} = $pubrems; $pubrems = undef;
@@ -551,6 +554,7 @@ sub build_lists() {
 		build_clist( $pubclist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
 	};
 
+	$stats{'unique_addresses'} = scalar keys %addresses;
 	Echolot::Tools::write_HTML_file(
 		Echolot::Config::get()->{'resultdir'}.'/'.Echolot::Config::get()->{'indexfilebasename'},
 		Echolot::Config::get()->{'templates'}->{'indexfile'},

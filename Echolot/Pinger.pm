@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.19 2002/09/03 17:14:26 weasel Exp $
+# $Id: Pinger.pm,v 1.20 2002/09/04 01:47:01 weasel Exp $
 #
 
 =pod
@@ -119,7 +119,14 @@ sub receive($$$) {
 	my $now = time();
 
 	my $body;
-	$body = Echolot::Tools::crypt_symmetrically($msg, 'decrypt') if $msg =~ /^-----BEGIN PGP MESSAGE-----/m;
+	if ($msg =~ /^-----BEGIN PGP MESSAGE-----/m) {
+		# work around borken middleman remailers that have a problem with some
+		# sort of end of line characters and randhopping them through reliable
+		# remailers..
+		# they add an empty line between each usefull line
+		$msg =~ s/(\r?\n)\r?\n/$1/g if ($msg =~ /^-----BEGIN PGP MESSAGE-----\r?\n\r?\n/m);
+		$body = Echolot::Tools::crypt_symmetrically($msg, 'decrypt');
+	};
 	$body = $msg unless defined $body;
 
 	my ($addr) = $body =~ /^remailer: (.*)$/m;
