@@ -20,16 +20,85 @@ Please see the file named "LICENSE".
 REQUIREMENTS
 ------------
 	in general:
+		XML::Parser
+		XML::Dumper
 		Digest::MD5
+		Mail::Internet
 	for type1 pings
 		GnuPG (1.0.7)
 		GnuPG::Interface (0.33)
 	for type2 pings
-		a mixmaster installation - this requirement will be changed
+		a mixmaster installation
 FIXME what else
 
 
 SETUP
 -----
-FIXME
+
+o Create a new unix user named »pinger« (You can actually use any name you wish
+  but I will refer to the user as pinger in this document).
+
+o Make sure you have the perl libraries mentioned above and GnuPG installed
+  properly.
+
+o Create a mixmaster client installation in ~pinger/Mix
+  echolot needs to have its own installation because it will mess with mix'
+  mlist.txt file, the public mixmaster keyring, and type2.list.
+  Don't bother putting current keyrings there.
+
+o Check the homedir setting pingd.conf
+
+o Set my_localpart and my_domain in pingd.conf to the appropriate values
+  for your pinger. Mail to my_localpart@my_domain needs to reach echolot.
+
+o Make sure your MTA supports user defined mailboxes. so that
+  my_localpart+anything@my_domain also reaches echolot.
+              ^^^^^^^^^
+  If you use another character instead or + to indicate a user defined
+  extension set recipient_delimiter accordingly in pingd.conf.
+
+o Mail should be delivered to /home/pinger/mail which must be a Maildir mailbox, i.e
+  there are 3 directories: /home/pinger/mail/tmp, /home/pinger/mail/cur and
+  /home/pinger/mail/new. Qmail, postfix and procmail can do this.
+
+  Example snipped for procmail:
+
+  :0
+  $HOME/mail/
+  
+  (the trailing slash is important!)
+
+
+o run »./pingd --verbose« start
+
+o run »./pingd add <address> <address> <address>..« in another terminal
+  look at the first terminal where you started pingd. It should print
+  something about adding addresses.
+
+o run »./pingd getkeyconfs« to request new remailer-key and remailer-conf
+  immediatly.
+
+o pingd can be stopped with
+  »./pingd stop« or with Ctrl+C on the terminal where it runs.
+
+When everything works you may start pingd with
+
+o »./pingd --detach --verbose start«
+
+o You can tail the output file to get the debugging output:
+  »tail -f output«
+
+
+
+CONFIGURATION
+-------------
+
+Run »./pingd dumpconf« to see a list of all available configuration options.
+You may add them to the pingd.conf file. After changing that file you need to
+restart pingd.
+
+
+
+Please report bugs and feature requests to Peter Palfrader
+<peter@palfrader.org>.
 
