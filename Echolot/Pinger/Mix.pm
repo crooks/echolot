@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.13 2003/02/17 14:44:15 weasel Exp $
+# $Id: Mix.pm,v 1.14 2003/04/29 18:15:37 weasel Exp $
 #
 
 =pod
@@ -66,14 +66,22 @@ sub ping($$$$$) {
 		Echolot::Log::warn("Cannot close $mixcfg: $!."),
 		return 0;
 	
-	$ENV{'MIXPATH'} = Echolot::Config::get()->{'mixhome'};
-	open(MIX, "|".Echolot::Config::get()->{'mixmaster'}." -m -S -l $chaincomma 2>/dev/null") or
-		Echolot::Log::warn("Cannot exec mixpinger: $!."),
+	my $pid = open(KID, "|-");
+	defined $pid or
+		Echolot::Log::warn("Cannot fork for calling mixmaster: $!."),
 		return 0;
-	print MIX "From: Echolot Pinger <$address>\n"
+	unless ($pid) { # child
+		$ENV{'MIXPATH'} = Echolot::Config::get()->{'mixhome'};
+		{ exec(Echolot::Config::get()->{'mixmaster'}, qw{-m -S -l}, $chaincomma); };
+		Echolot::Log::warn("Cannot exec mixpinger: $!.");
+		exit(1);
+	};
+	print KID "From: Echolot Pinger <$address>\n"
 		if $with_from;
-	print MIX "To: $to\n\n$body\n";
-	close (MIX);
+	print KID "To: $to\n\n$body\n";
+	close (KID);
+
+	waitpid $pid, 0;
 	    
 	return 1;
 };
