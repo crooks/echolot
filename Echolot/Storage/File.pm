@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.2 2002/06/10 05:13:37 weasel Exp $
+# $Id: File.pm,v 1.3 2002/06/10 06:25:04 weasel Exp $
 #
 
 =pod
@@ -84,8 +84,12 @@ sub new {
 sub commit($) {
 	my ($self) = @_;
 
-	return if $self->{'DELAY_COMMIT'};
+	if ($self->{'DELAY_COMMIT'}) {
+		$self->{'COMMIT_PENDING'} = 1;
+		return;
+	};
 	$self->metadata_write();
+	$self->{'COMMIT_PENDING'} = 0;
 };
 
 sub delay_commit($) {
@@ -97,7 +101,7 @@ sub enable_commit($) {
 	my ($self) = @_;
 
 	$self->{'DELAY_COMMIT'}--;
-	$self->commit();
+	$self->commit() if ($self->{'COMMIT_PENDING'} && ! $self->{'DELAY_COMMIT'});
 };
 
 sub finish($) {
@@ -357,12 +361,11 @@ sub register_pingdone($$$$$) {
 	return 1;
 };
 
-sub add_prospective_address($$$) {
-	my ($self, $addr, $where) = @_;
+sub add_prospective_address($$$$) {
+	my ($self, $addr, $reason, $additional) = @_;
 
-	push @{ $self->{'METADATA'}->{'prostective_addresses'} },
-		{ 'address' => $addr,
-		  'where'   => $where };
+	return 1 if defined $self->{'METADATA'}->{'addresses'}->{$addr};
+	push @{ $self->{'METADATA'}->{'prospective_addresses'}{$addr} }, time().'; '. $reason. '; '. $additional;
 	$self->commit();
 };
 
