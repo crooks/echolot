@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.21 2002/09/11 03:10:27 weasel Exp $
+# $Id: Pinger.pm,v 1.22 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -17,8 +17,8 @@ This package provides functions for sending out and receiving pings.
 =cut
 
 use strict;
-use Carp qw{cluck};
 use English;
+use Echolot::Log;
 use Echolot::Pinger::Mix;
 use Echolot::Pinger::CPunk;
 
@@ -76,7 +76,7 @@ sub do_ping($$$) {
 	} elsif ($type eq 'cpunk-rsa' || $type eq 'cpunk-dsa' || $type eq 'cpunk-clear') {
 		do_cpunk_ping($address, $type, $key, $now, $to, $body);
 	} else {
-		cluck ("Don't know how to handle ping type $type");
+		Echolot::Log::warn("Don't know how to handle ping type $type.");
 		return 0;
 	};
 
@@ -114,7 +114,7 @@ sub send_pings($;$) {
 					$which eq 'all' ||
 					(($which eq '') && ($this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type.$key.$session_id) % $send_every_n_calls))));
 
-				print "ping calling $type, $address, $key\n" if Echolot::Config::get()->{'verbose'};
+				Echolot::Log::debug("ping calling $type, $address, $key.");
 				do_ping($type, $address, $key);
 			}
 		};
@@ -152,11 +152,11 @@ sub receive($$$) {
 	                  (defined $mac  ? $mac : 'undef') . ':';
 
 	(defined $addr && defined $type && defined $key && defined $sent && defined $mac) or
-		warn ("Received ping at $timestamp has undefined values: $cleanstring\n"), #FIXME: logging
+		Echolot::Log::warn("Received ping at $timestamp has undefined values: $cleanstring."),
 		return 0;
 
 	Echolot::Tools::verify_mac($addr.':'.$type.':'.$key.':'.$sent, $mac) or
-		warn ("Received ping at $timestamp has wrong mac; $cleanstring\n"), #FIXME: logging
+		Echolot::Log::warn("Received ping at $timestamp has wrong mac; $cleanstring."),
 		return 0;
 
 	Echolot::Globals::get()->{'storage'}->register_pingdone($addr, $type, $key, $sent, $now - $sent) or

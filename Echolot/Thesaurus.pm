@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.13 2002/12/03 02:59:13 weasel Exp $
+# $Id: Thesaurus.pm,v 1.14 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -17,8 +17,8 @@ This package provides necessary functions for the thesaurus.
 =cut
 
 use strict;
-use Carp qw{cluck};
 use English;
+use Echolot::Log;
 
 
 sub save_thesaurus($$$) {
@@ -27,13 +27,13 @@ sub save_thesaurus($$$) {
 	return 1 unless Echolot::Config::get()->{'thesaurus'};
 
 	my ($type) = $otype =~ /^([a-z-]+)$/;
-	cluck("type '$otype' is not clean in save_thesaurus"), return 0 unless defined $type;
+	Echolot::Log::cluck("type '$otype' is not clean in save_thesaurus."), return 0 unless defined $type;
 	my ($id) = $oid =~ /^([0-9]+)$/;
-	cluck("id '$oid' is not clean in save_thesaurus"), return 0 unless defined $id;
+	Echolot::Log::cluck("id '$oid' is not clean in save_thesaurus."), return 0 unless defined $id;
 
 	my $file = Echolot::Config::get()->{'thesaurusdir'}.'/'.$id.'.'.$type;
 	open (F, ">$file") or
-		cluck ("Cannot open '$file': $!"),
+		Echolot::Log::warn ("Cannot open '$file': $!."),
 		return 0;
 	print F $data;
 	close (F);
@@ -46,7 +46,7 @@ sub build_thesaurus() {
 
 	my $dir = Echolot::Config::get()->{'thesaurusdir'};
 	opendir(DIR, $dir) or 
-		cluck ("Cannot open '$dir': $!"),
+		Echolot::Log::warn ("Cannot open '$dir': $!."),
 		return 0;
 	my @files = grep { ! /^\./ } readdir(DIR);
 	closedir(DIR);
@@ -69,9 +69,8 @@ sub build_thesaurus() {
 
 		if ($mtime < $expire_date) {
 			unlink ($dir.'/'.$filename) or
-				cluck("Cannot unlink expired $filename");
-			print ("Expired thesaurus file $filename\n") if
-				Echolot::Config::get()->{'verbose'};
+				Echolot::Log::warn("Cannot unlink expired $filename.");
+			Echolot::Log::info("Expired thesaurus file $filename.");
 			next;
 		};
 

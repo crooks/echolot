@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.33 2003/01/02 23:58:53 weasel Exp $
+# $Id: Conf.pm,v 1.34 2003/01/14 05:25:34 weasel Exp $
 #
 
 =pod
@@ -23,7 +23,7 @@ account (This is the one with the latest self signature I think).
 =cut
 
 use strict;
-use Carp qw{cluck};
+use Echolot::Log;
 use GnuPG::Interface;
 use IO::Handle;
 
@@ -117,24 +117,24 @@ sub remailer_caps($$$;$) {
 
 	my ($id) = $token =~ /^conf\.(\d+)$/;
 	(defined $id) or
-		cluck ("Returned token '$token' has no id at all"),
+		Echolot::Log::info("Returned token '$token' has no id at all."),
 		return 0;
 
-	cluck("Could not find id in token '$token'"), return 0 unless defined $id;
+	Echolot::Log::info("Could not find id in token '$token'."), return 0 unless defined $id;
 	my ($remailer_type) = ($conf =~ /^\s*Remailer-Type:\s* (.*?) \s*$/imx);
-	cluck("No remailer type found in remailer_caps from '$token'"), return 0 unless defined $remailer_type;
+	Echolot::Log::info("No remailer type found in remailer_caps from '$token'."), return 0 unless defined $remailer_type;
 	my ($remailer_caps) = ($conf =~ /^\s*(  \$remailer{".*"}  \s*=\s*  "<.*@.*>.*";   )\s*$/imx);
-	cluck("No remailer caps found in remailer_caps from '$token'"), return 0 unless defined $remailer_caps;
+	Echolot::Log::info("No remailer caps found in remailer_caps from '$token'."), return 0 unless defined $remailer_caps;
 	my ($remailer_nick, $remailer_address) = ($remailer_caps =~ /^\s*  \$remailer{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
-	cluck("No remailer nick found in remailer_caps from '$token': '$remailer_caps'"), return 0 unless defined $remailer_nick;
-	cluck("No remailer address found in remailer_caps from '$token': '$remailer_caps'"), return 0 unless defined $remailer_address;
+	Echolot::Log::info("No remailer nick found in remailer_caps from '$token': '$remailer_caps'."), return 0 unless defined $remailer_nick;
+	Echolot::Log::info("No remailer address found in remailer_caps from '$token': '$remailer_caps'."), return 0 unless defined $remailer_address;
 	
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
-	cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
+	Echolot::Log::info("No remailer found for id '$id'."), return 0 unless defined $remailer;
 	if ($remailer->{'address'} ne $remailer_address) {
 		# Address mismatch -> Ignore reply and add $remailer_address to prospective addresses
-		cluck("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
+		Echolot::Log::info("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
 		Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-conf', $remailer_address);
 	} else {
 		Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
@@ -185,7 +185,7 @@ sub remailer_caps($$$;$) {
 				last unless ($head =~ /\s(.*?@.*?)\s/);
 				Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type2', $remailer_address);
 			} else {
-				carp("Shouldn't be here. wanting == $wanting");
+				Echolot::Log::confess("Shouldn't be here. wanting == $wanting.");
 			};
 		};
 	};
@@ -198,7 +198,7 @@ sub remailer_conf($$$) {
 
 	my ($id) = $token =~ /^conf\.(\d+)$/;
 	(defined $id) or
-		cluck ("Returned token '$token' has no id at all"),
+		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
 	
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
@@ -212,10 +212,10 @@ sub set_caps_manually($$) {
 	my ($addr, $caps) = @_;
 
 	defined $addr or
-		cluck("Address not defined."),
+		Echolot::Log::info("Address not defined."),
 		return 0;
 	defined $caps or
-		cluck("Caps not defined."),
+		Echolot::Log::info("Caps not defined."),
 		return 0;
 
 	print "Setting caps for $addr manually to $caps\n"
@@ -223,11 +223,11 @@ sub set_caps_manually($$) {
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address($addr);
 	defined $remailer or
-		cluck("Remailer address $addr did not give a valid remailer."),
+		Echolot::Log::info("Remailer address $addr did not give a valid remailer."),
 		return 0;
 	my $id = $remailer->{'id'};
 	defined $id or
-		cluck("Remailer address $addr did not give a remailer with an id."),
+		Echolot::Log::info("Remailer address $addr did not give a remailer with an id."),
 		return 0;
 	my $token = 'conf.'.$id;
 
@@ -307,15 +307,15 @@ sub parse_mix_key($$$) {
 	for my $keyid (keys %mixmasters) {
 		my $remailer_address = $mixmasters{$keyid}->{'address'};
 		(defined $mixmasters{$keyid}->{'nick'} && ! defined $mixmasters{$keyid}->{'key'}) and
-			cluck("Mixmaster key header without key in reply from $remailer_address"),
+			Echolot::Log::info("Mixmaster key header without key in reply from $remailer_address."),
 			next;
 		(! defined $mixmasters{$keyid}->{'nick'} && defined $mixmasters{$keyid}->{'key'}) and
-			cluck("Mixmaster key without key header in reply from $remailer_address"),
+			Echolot::Log::info("Mixmaster key without key header in reply from $remailer_address."),
 			next;
 
 		if ($remailer->{'address'} ne $remailer_address) {
 			# Address mismatch -> Ignore reply and add $remailer_address to prospective addresses
-			cluck("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
+			Echolot::Log::info("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
 			Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-key', $remailer_address);
 		} else {
 			Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
@@ -378,17 +378,17 @@ sub parse_cpunk_key($$$) {
 		waitpid $pid, 0;
 
 		($stderr eq '') or 
-			cluck("GnuPG returned something in stderr: '$stderr' when checking key '$key'; So what?\n");
+			Echolot::Log::info("GnuPG returned something in stderr: '$stderr' when checking key '$key'; So what?");
 		($status eq '') or 
-			cluck("GnuPG returned something in status '$status' when checking key '$key': So what?\n");
+			Echolot::Log::info("GnuPG returned something in status '$status' when checking key '$key': So what?");
 		
 		my @included_keys = $stdout =~ /^pub:.*$/mg;
 		(scalar @included_keys >= 2) &&
-			cluck ("Cannot handle more than one key per block correctly yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'});
+			Echolot::Log::info ("Cannot handle more than one key per block correctly yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'}.".");
 		for my $included_key (@included_keys) {
 			my ($type, $keyid, $uid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):[^:]+:[^:]*:::([^:]+):/;
 			(defined $uid) or
-				cluck ("Unexpected format of '$included_key' by ".$remailer->{'address'}."; Skipping"),
+				Echolot::Log::info ("Unexpected format of '$included_key' by ".$remailer->{'address'}."; Skipping."),
 				next;
 			my ($address) = $uid =~ /<(.*?)>/;
 			$cypherpunk{$keyid} = {
@@ -404,7 +404,7 @@ sub parse_cpunk_key($$$) {
 
 		if ($remailer->{'address'} ne $remailer_address) {
 			# Address mismatch -> Ignore reply and add $remailer_address to prospective addresses
-			cluck("Remailer address mismatch $remailer->{'address'} vs $remailer_address id key $keyid. Adding latter to prospective remailers.");
+			Echolot::Log::info("Remailer address mismatch $remailer->{'address'} vs $remailer_address id key $keyid. Adding latter to prospective remailers.");
 			Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-key', $remailer_address);
 		} else {
 			Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
@@ -424,7 +424,7 @@ sub parse_cpunk_key($$$) {
 					'N/A',
 					$time);
 			} else {
-				cluck("$keyid from $remailer_address has algoid ".$cypherpunk{$keyid}->{'type'}.". Cannot handle those.");
+				Echolot::Log::info("$keyid from $remailer_address has algoid ".$cypherpunk{$keyid}->{'type'}.". Cannot handle those.");
 			};
 		}
 	};
@@ -440,7 +440,7 @@ sub remailer_key($$$) {
 
 	my ($id) = $token =~ /^key\.(\d+)$/;
 	(defined $id) or
-		cluck ("Returned token '$token' has no id at all"),
+		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
 	
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
@@ -448,7 +448,7 @@ sub remailer_key($$$) {
 	Echolot::Thesaurus::save_thesaurus('key', $id, $reply);
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
-	cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
+	Echolot::Log::info("No remailer found for id '$id'."), return 0 unless defined $remailer;
 
 	parse_mix_key($cp_reply, $time, $remailer);
 	parse_cpunk_key($cp_reply, $time, $remailer);
@@ -461,7 +461,7 @@ sub remailer_stats($$$) {
 
 	my ($id) = $token =~ /^stats\.(\d+)$/;
 	(defined $id) or
-		cluck ("Returned token '$token' has no id at all"),
+		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
 	
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
@@ -474,7 +474,7 @@ sub remailer_help($$$) {
 
 	my ($id) = $token =~ /^help\.(\d+)$/;
 	(defined $id) or
-		cluck ("Returned token '$token' has no id at all"),
+		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
 	
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
@@ -487,7 +487,7 @@ sub remailer_adminkey($$$) {
 
 	my ($id) = $token =~ /^adminkey\.(\d+)$/;
 	(defined $id) or
-		cluck ("Returned token '$token' has no id at all"),
+		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
 	
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1

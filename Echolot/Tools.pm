@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.13 2002/12/18 17:32:46 weasel Exp $
+# $Id: Tools.pm,v 1.14 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -16,10 +16,10 @@ Echolot::Tools - Tools for echolot
 =cut
 
 use strict;
-use Carp qw{cluck};
 use HTML::Template;
 use Digest::MD5 qw{};
 use GnuPG::Interface;
+use Echolot::Log;
 
 sub hash($) {
 	my ($data) = @_;
@@ -34,13 +34,13 @@ sub make_random($;%) {
 	my $random;
 
 	open (FH, Echolot::Config::get()->{'dev_random'}) or
-		cluck("Cannot open ".Echolot::Config::get()->{'dev_random'}." for reading: $!"),
+		Echolot::Log::warn("Cannot open ".Echolot::Config::get()->{'dev_random'}." for reading: $!."),
 		return 0;
 	read(FH, $random, $length) or
-		cluck("Cannot read from ".Echolot::Config::get()->{'dev_random'}.": $!"),
+		Echolot::Log::warn("Cannot read from ".Echolot::Config::get()->{'dev_random'}.": $!."),
 		return 0;
 	close (FH) or
-		cluck("Cannot close ".Echolot::Config::get()->{'dev_random'}.": $!"),
+		Echolot::Log::warn("Cannot close ".Echolot::Config::get()->{'dev_random'}.": $!."),
 		return 0;
 
 	$random = unpack('H*', $random)
@@ -103,11 +103,11 @@ sub verify_address_tokens($) {
 		my $delimiter = quotemeta( Echolot::Config::get()->{'recipient_delimiter'});
 		($type, $timestamp, $received_hash) = $address =~ /$delimiter (.*) = (\d+) = ([0-9a-f]+) @/x or
 		($type, $timestamp, $received_hash) = $address =~ /\( (.*) = (\d+) = ([0-9a-f]+) \)/x or
-			cluck("Could not parse to header '$address'"),
+			Echolot::Log::debug("Could not parse to header '$address'."),
 			return undef;
 	} else {
 		($type, $timestamp, $received_hash) = $address =~ /\( (.*) = (\d+) = ([0-9a-f]+) \)/x or
-			cluck("Could not parse to header '$address'"),
+			Echolot::Log::debug("Could not parse to header '$address'."),
 			return undef;
 	};
 
@@ -116,7 +116,7 @@ sub verify_address_tokens($) {
 	my $cut_hash = substr($hash, 0, Echolot::Config::get()->{'hash_len'});
 
 	($cut_hash eq $received_hash) or
-		cluck("Hash mismatch in '$address'"),
+		Echolot::Log::info("Hash mismatch in '$address'."),
 		return undef;
 
 	return 
@@ -128,7 +128,7 @@ sub send_message(%) {
 	my (%args) = @_;
 
 	defined($args{'To'}) or
-		cluck ('No recipient address given'),
+		Echolot::Log::cluck ('No recipient address given.'),
 		return 0;
 	$args{'Subject'} = '(no subject)' unless (defined $args{'Subject'});
 	$args{'Body'} = '' unless (defined $args{'Body'});
@@ -146,7 +146,7 @@ sub send_message(%) {
 	my @lines = map { $_."\n" } split (/\r?\n/, $args{'Body'});
 
 	open(SENDMAIL, '|'.Echolot::Config::get()->{'sendmail'}.' -f '.$args{'From_'}.' -t')
-		or cluck("Cannot run sendmail: $!"),
+		or Echolot::Log::warn("Cannot run sendmail: $!."),
 		return 0;
 	printf SENDMAIL "From: %s\n", $args{'From'};
 	printf SENDMAIL "To: %s\n", $args{'To'};
@@ -194,7 +194,7 @@ sub write_meta_information($%) {
 
 	$file .= Echolot::Config::get()->{'meta_extension'};
 	open (F, ">$file") or
-		cluck ("Cannot open $file: $!"),
+		Echolot::Log::warn ("Cannot open $file: $!."),
 		return 0;
 	if (defined $data{'Expires'}) {
 		my $date = date822($data{'Expires'});
@@ -227,19 +227,19 @@ sub write_HTML_file($$;$%) {
 		$file .= '.html';
 
 		open(F, '>'.$file) or
-			cluck("Cannot open $file: $!\n"),
+			Echolot::Log::warn("Cannot open $file: $!."),
 			return 0;
 		print F $template->output() or
-			cluck("Cannot print to $file: $!\n"),
+			Echolot::Log::warn("Cannot print to $file: $!."),
 			return 0;
 		close (F) or
-			cluck("Cannot close $file: $!\n"),
+			Echolot::Log::warn("Cannot close $file: $!."),
 			return 0;
 
 		if (defined $expire) {
 			write_meta_information($file,
 				Expires => time + $expire) or
-				cluck ("Error while writing meta information for $file"),
+				Echolot::Log::debug ("Error while writing meta information for $file."),
 				return 0;
 		};
 	};
@@ -254,7 +254,7 @@ sub crypt_symmetrically($$) {
 	my ($msg, $direction) = @_;
 
 	($direction eq 'encrypt' || $direction eq 'decrypt') or
-		cluck("Wrong argument direction '$direction' passed to crypt_symmetrically."),
+		Echolot::Log::cluck("Wrong argument direction '$direction' passed to crypt_symmetrically."),
 		return undef;
 
 	my $GnuPG = new GnuPG::Interface;
@@ -293,13 +293,13 @@ sub crypt_symmetrically($$) {
 	if ($direction eq 'encrypt') {
 		(($status =~ /^^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
 		 ($status =~ /^^\[GNUPG:\] END_ENCRYPTION\s/m)) or
-			cluck("GnuPG status '$status' didn't indicate message was encrypted correctly (stderr: $stderr). Returning\n"),
+			Echolot::Log::info("GnuPG status '$status' didn't indicate message was encrypted correctly (stderr: $stderr). Returning."),
 			return undef;
 	} elsif ($direction eq 'decrypt') {
 		(($status =~ /^^\[GNUPG:\] BEGIN_DECRYPTION\s/m) &&
 		 ($status =~ /^^\[GNUPG:\] DECRYPTION_OKAY\s/m) &&
 		 ($status =~ /^^\[GNUPG:\] END_DECRYPTION\s/m)) or
-			cluck("GnuPG status '$status' didn't indicate message was decrypted correctly (stderr: $stderr). Returning\n"),
+			Echolot::Log::info("GnuPG status '$status' didn't indicate message was decrypted correctly (stderr: $stderr). Returning."),
 			return undef;
 	};
 

@@ -1,3 +1,8 @@
+Changes in
+	* first go at sane loggin
+	  fixme: new requirements
+	  fixme: make logging configureable
+
 Changes in version 2.0.8 - 2003-01-13
 	* Work around a bug that let pingd die in certain random cases when
 	  dealing with unuseable PGP keys (like expired keys).

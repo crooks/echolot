@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.37 2003/01/02 21:24:32 weasel Exp $
+# $Id: Stats.pm,v 1.38 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -18,11 +18,10 @@ and keyrings.
 =cut
 
 use strict;
-use Carp qw{cluck};
-
 use constant DAYS => 12;
 use constant SECS_PER_DAY => 24 * 60 * 60;
 use English;
+use Echolot::Log;
 
 use Statistics::Distrib::Normal qw{};
 
@@ -256,7 +255,7 @@ sub read_file($;$) {
 	my ($name, $fail_ok) = @_;
 
 	unless (open (F, $name)) {
-		cluck("Could not open '$name': $!") unless ($fail_ok);
+		Echolot::Log::warn("Could not open '$name': $!.") unless ($fail_ok);
 		return undef;
 	};
 	local $/ = undef;
@@ -271,14 +270,14 @@ sub write_file($$$$) {
 
 	my $filename = $filebasename.'.txt';
 	open(F, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
+		Echolot::Log::warn("Cannot open $filename: $!."),
 		return 0;
 	print F $output;
 	close (F);
 	if (defined $expires) {
 		Echolot::Tools::write_meta_information($filename,
 			Expires => time + $expires) or
-			cluck ("Error while writing meta information for $filename"),
+			Echolot::Log::debug ("Error while writing meta information for $filename."),
 			return 0;
 	};
 	return 1 unless defined $html_template;
@@ -315,7 +314,7 @@ sub build_mlist1($$$$$;$) {
 	};
 
 	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
-		cluck("writefile failed"),
+		Echolot::Log::debug("writefile failed."),
 		return 0;
 	return 1;
 };
@@ -348,7 +347,7 @@ sub build_rlist1($$$$$;$) {
 
 
 	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
-		cluck("writefile failed"),
+		Echolot::Log::debug("writefile failed."),
 		return 0;
 	return 1;
 };
@@ -384,7 +383,7 @@ sub build_list2($$$$$$;$) {
 	}
 
 	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
-		cluck("writefile failed"),
+		Echolot::Log::debug("writefile failed."),
 		return 0;
 	return 1;
 };
@@ -431,7 +430,7 @@ sub build_clist($$$$$;$) {
 	}
 
 	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
-		cluck("writefile failed"),
+		Echolot::Log::debug("writefile failed."),
 		return 0;
 	return 1;
 };
@@ -566,22 +565,22 @@ sub build_lists() {
 	{
 		local $/ = undef;
 		open(F, $file) or
-			cluck("Could not open $file: $!\n"),
+			Echolot::Log::warn("Could not open $file: $!."),
 			return 0;
 		$css = <F>;
 		close (F) or
-			cluck("Cannot close $file: $!\n"),
+			Echolot::Log::warn("Cannot close $file: $!."),
 			return 0;
 	}
 	$file = Echolot::Config::get()->{'resultdir'}.'/echolot.css';
 	open(F, '>'.$file) or
-		cluck("Cannot open $file: $!\n"),
+		Echolot::Log::warn("Cannot open $file: $!."),
 		return 0;
 	print F $css or
-		cluck("Cannot print to $file: $!\n"),
+		Echolot::Log::warn("Cannot print to $file: $!."),
 		return 0;
 	close (F) or
-		cluck("Cannot close $file: $!\n"),
+		Echolot::Log::warn("Cannot close $file: $!."),
 		return 0;
 
 };
@@ -593,22 +592,22 @@ sub build_mixring() {
 	my $filename = Echolot::Config::get()->{'resultdir'}.'/pubring.mix';
 	push @filenames, $filename;
 	open(F, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
+		Echolot::Log::warn("Cannot open $filename: $!."),
 		return 0;
 	$filename = Echolot::Config::get()->{'resultdir'}.'/type2.list';
 	push @filenames, $filename;
 	open(T2L, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
+		Echolot::Log::warn("Cannot open $filename: $!."),
 		return 0;
 	$filename = Echolot::Config::get()->{'private_resultdir'}.'/pubring.mix';
 	push @filenames, $filename;
 	open(F_PRIV, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
+		Echolot::Log::warn("Cannot open $filename: $!."),
 		return 0;
 	$filename = Echolot::Config::get()->{'private_resultdir'}.'/type2.list';
 	push @filenames, $filename;
 	open(T2L_PRIV, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
+		Echolot::Log::warn("Cannot open $filename: $!."),
 		return 0;
 
 	my $data;
@@ -652,7 +651,7 @@ sub build_mixring() {
 	for my $filename (@filenames) {
 		Echolot::Tools::write_meta_information($filename,
 			Expires => time + Echolot::Config::get()->{'buildkeys'}) or
-			cluck ("Error while writing meta information for $filename"),
+			Echolot::Log::debug ("Error while writing meta information for $filename."),
 			return 0;
 	};
 };
@@ -705,12 +704,12 @@ sub build_pgpring_type($$$$) {
 			waitpid $pid, 0;
 
 			($stdout eq '') or
-				cluck("GnuPG returned something in stdout '$stdout' while adding key for '$addr': So what?\n");
+				Echolot::Log::info("GnuPG returned something in stdout '$stdout' while adding key for '$addr': So what?");
 			unless ($status =~ /^^\[GNUPG:\] IMPORTED /m) {
 				if ($status =~ /^^\[GNUPG:\] IMPORT_RES /m) {
-					cluck("GnuPG status '$status' indicates more than one  key for '$addr' imported. Ignoring.\n");
+					Echolot::Log::info("GnuPG status '$status' indicates more than one  key for '$addr' imported. Ignoring.");
 				} else {
-					cluck("GnuPG status '$status' didn't indicate key for '$addr' was imported correctly. Ignoring.\n");
+					Echolot::Log::info("GnuPG status '$status' didn't indicate key for '$addr' was imported correctly. Ignoring.");
 				};
 			};
 			$keyids->{$final_keyid} = $remailer->{'showit'};
@@ -748,14 +747,14 @@ sub build_pgpring_export($$$$) {
 	waitpid $pid, 0;
 
 	open (F, ">$file") or
-		cluck ("Cannot open '$file': $!"),
+		Echolot::Log::warn ("Cannot open '$file': $!."),
 		return 0;
 	print F $stdout;
 	close F;
 
 	Echolot::Tools::write_meta_information($file,
 		Expires => time + Echolot::Config::get()->{'buildkeys'}) or
-		cluck ("Error while writing meta information for $file"),
+		Echolot::Log::debug ("Error while writing meta information for $file."),
 		return 0;
 
 	return 1;
@@ -775,32 +774,32 @@ sub build_pgpring() {
 
 	my $keyids = {};
 	build_pgpring_type('cpunk-rsa', $GnuPG, $keyring, $keyids) or
-		cluck("build_pgpring_type failed"),
+		Echolot::Log::debug("build_pgpring_type failed."),
 		return undef;
 
 	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-rsa.asc', [ grep {$keyids->{$_}} keys %$keyids ]) or
-		cluck("build_pgpring_export failed"),
+		Echolot::Log::debug("build_pgpring_export failed."),
 		return undef;
 	
 	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'private_resultdir'}.'/pgp-rsa.asc', [ keys %$keyids ]) or
-		cluck("build_pgpring_export failed"),
+		Echolot::Log::debug("build_pgpring_export failed."),
 		return undef;
 	
 	build_pgpring_type('cpunk-dsa', $GnuPG, $keyring, $keyids) or
-		cluck("build_pgpring_type failed"),
+		Echolot::Log::debug("build_pgpring_type failed."),
 		return undef;
 
 	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-all.asc', [ grep {$keyids->{$_}} keys %$keyids ]) or
-		cluck("build_pgpring_export failed"),
+		Echolot::Log::debug("build_pgpring_export failed."),
 		return undef;
 	
 	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'private_resultdir'}.'/pgp-all.asc', [ keys %$keyids ]) or
-		cluck("build_pgpring_export failed"),
+		Echolot::Log::debug("build_pgpring_export failed."),
 		return undef;
 	
 
 	unlink ($keyring) or
-		cluck("Cannot unlink tmp keyring '$keyring'"),
+		Echolot::Log::warn("Cannot unlink tmp keyring '$keyring'."),
 		return undef;
 	unlink ($keyring.'~'); # gnupg does those evil backups
 };

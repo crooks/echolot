@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.44 2002/12/13 06:50:30 weasel Exp $
+# $Id: Config.pm,v 1.45 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -200,7 +200,7 @@ sub init($) {
 	};
 
 	die ("no Configuration file found\n") unless defined $configfile;
-	
+
 	{
 		local $/ = undef;
 		open(CONFIGCODE, $configfile) or
@@ -250,7 +250,6 @@ sub init($) {
 	for my $key (keys %$CONFIG) {
 		warn ("Config option $key is not defined\n") unless defined $CONFIG->{$key};
 	};
-
 };
 
 sub get() {

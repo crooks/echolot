@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.10 2003/01/13 00:33:14 weasel Exp $
+# $Id: CPunk.pm,v 1.11 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -17,19 +17,19 @@ This package provides functions for sending cypherpunk (type I) pings.
 =cut
 
 use strict;
-use Carp qw{cluck};
 use English;
 use GnuPG::Interface;
 use IO::Handle;
+use Echolot::Log;
 
 sub encrypt_to($$$$) {
 	my ($msg, $recipient, $keys, $pgp2compat) = @_;
 
 	(defined $keys->{$recipient}) or
-		cluck ("Key for recipient $recipient is not defined"),
+		Echolot::Log::warn("Key for recipient $recipient is not defined."),
 		return undef;
 	(defined $keys->{$recipient}->{'key'}) or
-		cluck ("Key->key for recipient $recipient is not defined"),
+		Echolot::Log::warn("Key->key for recipient $recipient is not defined."),
 		return undef;
 	my $keyring = Echolot::Config::get()->{'tmpdir'}.'/'.
 		Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.keyring';
@@ -66,12 +66,12 @@ sub encrypt_to($$$$) {
 	waitpid $pid, 0;
 
 	($stdout eq '') or
-		cluck("GnuPG returned something in stdout '$stdout' while adding key for '$recipient': So what?\n");
+		Echolot::Log::info("GnuPG returned something in stdout '$stdout' while adding key for '$recipient': So what?");
 	#($stderr eq '') or
-		#cluck("GnuPG returned something in stderr: '$stderr' while adding key for '$recipient'; returning\n"),
+		#Echolot::Log::warn("GnuPG returned something in stderr: '$stderr' while adding key for '$recipient'; returning."),
 		#return undef;
 	($status =~ /^^\[GNUPG:\] IMPORTED $recipient /m) or
-		cluck("GnuPG status '$status' didn't indicate key for '$recipient' was imported correctly. Returning\n"),
+		Echolot::Log::info("GnuPG status '$status' didn't indicate key for '$recipient' was imported correctly."),
 		return undef;
 
 
@@ -114,11 +114,11 @@ sub encrypt_to($$$$) {
 	$plaintextfile = Echolot::Config::get()->{'tmpdir'}.'/'.
 		Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.plaintext';
 	open (F, '>'.$plaintextfile) or
-		cluck("Cannot open $plaintextfile for writing: $!"),
+		Echolot::Log::warn("Cannot open $plaintextfile for writing: $!."),
 		return 0;
 	print (F $msg);
 	close (F) or
-		cluck("Cannot close $plaintextfile"),
+		Echolot::Log::warn("Cannot close $plaintextfile."),
 		return 0;
 	push @$command_args, $plaintextfile;
 
@@ -134,21 +134,21 @@ sub encrypt_to($$$$) {
 	waitpid $pid, 0;
 
 	#($stderr eq '') or
-		#cluck("GnuPG returned something in stderr: '$stderr' while encrypting to '$recipient'; returning"),
+		#Echolot::Log::warn("GnuPG returned something in stderr: '$stderr' while encrypting to '$recipient'."),
 		#return undef;
 	(($status =~ /^^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
 	 ($status =~ /^^\[GNUPG:\] END_ENCRYPTION\s/m)) or
-		cluck("GnuPG status '$status' didn't indicate message to '$recipient' was encrypted correctly (stderr: $stderr; args: ".join(' ', @$command_args)."). Returning\n"),
+		Echolot::Log::info("GnuPG status '$status' didn't indicate message to '$recipient' was encrypted correctly (stderr: $stderr; args: ".join(' ', @$command_args).")."),
 		return undef;
 
 	unlink ($keyring) or
-		cluck("Cannot unlink tmp keyring '$keyring'"),
+		Echolot::Log::warn("Cannot unlink tmp keyring '$keyring'."),
 		return undef;
 	unlink ($keyring.'~'); # gnupg does those evil backups
 
 	(defined $plaintextfile) and 
 		( unlink ($plaintextfile) or
-			cluck("Cannot unlink tmp keyring '$plaintextfile'"),
+			Echolot::Log::warn("Cannot unlink tmp keyring '$plaintextfile'."),
 			return undef);
 
 
@@ -156,16 +156,16 @@ sub encrypt_to($$$$) {
 
 	$plaintextfile .= '.asc';
 	open (F, '<'.$plaintextfile) or
-		cluck("Cannot open $plaintextfile for reading $!"),
+		Echolot::Log::warn("Cannot open $plaintextfile for reading: $!."),
 		return 0;
 	$result = join '', <F>;
 	close (F) or
-		cluck("Cannot close $plaintextfile"),
+		Echolot::Log::warn("Cannot close $plaintextfile."),
 		return 0;
 
 	(defined $plaintextfile) and 
 		( unlink ($plaintextfile) or
-			cluck("Cannot unlink tmp keyring '$plaintextfile'"),
+			Echolot::Log::warn("Cannot unlink tmp keyring '$plaintextfile'."),
 			return undef);
 
 	$result =~ s,^Version: .*$,Version: N/A,m;
@@ -186,7 +186,7 @@ sub ping($$$$$) {
 		if ($hop->{'encrypt'}) {
 			my $encrypted = encrypt_to($msg, $hop->{'keyid'}, $keys, $pgp2compat);
 			(defined $encrypted) or 
-				cluck("Encrypted is undefined"),
+				Echolot::Log::debug("Encrypted is undefined."),
 				return undef;
 			$msg = "::\n".
 				"Encrypted: PGP\n".

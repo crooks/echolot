@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.43 2003/01/03 00:28:54 weasel Exp $
+# $Id: File.pm,v 1.44 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -22,11 +22,11 @@ use strict;
 use Data::Dumper;
 use IO::Handle;
 use English;
-use Carp qw{cluck confess carp};
 use Fcntl ':flock'; # import LOCK_* constants
 #use Fcntl ':seek'; # import SEEK_* constants
 use POSIX; # import SEEK_* constants (older perls don't have SEEK_ in Fcntl)
 use Echolot::Tools;
+use Echolot::Log;
 
 =item B<new> (I<%args>)
 
@@ -118,16 +118,16 @@ sub metadata_open($) {
 
 	if ( -e $filename ) {
 		open($self->{'METADATA_FH'}, '+<' . $filename) or 
-			cluck("Cannot open $filename for reading: $!"),
+			Echolot::Log::warn("Cannot open $filename for reading: $!."),
 			return 0;
 	} else {
 		$self->{'METADATA_FILE_IS_NEW'} = 1;
 		open($self->{'METADATA_FH'}, '+>' . $filename) or 
-			cluck("Cannot open $filename for reading: $!"),
+			Echolot::Log::warn("Cannot open $filename for reading: $!."),
 			return 0;
 	};
 	flock($self->{'METADATA_FH'}, LOCK_EX) or
-		cluck("Cannot get exclusive lock on $filename: $!"),
+		Echolot::Log::warn("Cannot get exclusive lock on $filename: $!."),
 		return 0;
 	return 1;
 };
@@ -136,10 +136,10 @@ sub metadata_close($) {
 	my ($self) = @_;
 
 	flock($self->{'METADATA_FH'}, LOCK_UN) or
-		cluck("Error when releasing lock on metadata file: $!"),
+		Echolot::Log::warn("Error when releasing lock on metadata file: $!."),
 		return -1;
 	close($self->{'METADATA_FH'}) or
-		cluck("Error when closing metadata file: $!"),
+		Echolot::Log::warn("Error when closing metadata file: $!."),
 		return 0;
 	return 1;
 };
@@ -158,7 +158,7 @@ sub metadata_read($) {
 	} else {
 		$self->{'METADATA'} = ();
 		seek($self->{'METADATA_FH'}, 0, SEEK_SET) or
-			cluck("Cannot seek to start of metadata file: $!"),
+			Echolot::Log::warn("Cannot seek to start of metadata file: $!."),
 			return 0;
 		{
 			local $/ = undef;
@@ -177,7 +177,7 @@ sub metadata_read($) {
 			confess("Stored data lacks version header"),
 			return 0;
 		($self->{'METADATA'}->{'version'} == ($METADATA_VERSION)) or
-			cluck("Metadata version mismatch ($self->{'METADATA'}->{'version'} vs. $METADATA_VERSION)"),
+			Echolot::Log::warn("Metadata version mismatch ($self->{'METADATA'}->{'version'} vs. $METADATA_VERSION)."),
 			return 0;
 	};
 
@@ -195,16 +195,16 @@ sub metadata_write($) {
 	my $fh = $self->{'METADATA_FH'};
 
 	seek($fh, 0, SEEK_SET) or
-		cluck("Cannot seek to start of metadata file: $!"),
+		Echolot::Log::warn("Cannot seek to start of metadata file: $!."),
 		return 0;
 	truncate($fh, 0) or
-		cluck("Cannot truncate metadata file to zero length: $!"),
+		Echolot::Log::warn("Cannot truncate metadata file to zero length: $!."),
 		return 0;
 	print($fh "# vim:set syntax=perl:\n") or
-		cluck("Error when writing to metadata file: $!"),
+		Echolot::Log::warn("Error when writing to metadata file: $!."),
 		return 0;
 	print($fh $data) or
-		cluck("Error when writing to metadata file: $!"),
+		Echolot::Log::warn("Error when writing to metadata file: $!."),
 		return 0;
 	$fh->flush();
 
@@ -225,22 +225,22 @@ sub metadata_backup($) {
 	my $data = Data::Dumper->Dump( [ $self->{'METADATA'} ], [ 'METADATA' ] );
 	my $fh = new IO::Handle;
 	open ($fh, '>'.$filename) or
-		cluck("Cannot open $filename for writing: $!"),
+		Echolot::Log::warn("Cannot open $filename for writing: $!."),
 		return 0;
 	print($fh "# vim:set syntax=perl:\n") or
-		cluck("Error when writing to metadata file: $!"),
+		Echolot::Log::warn("Error when writing to metadata file: $!."),
 		return 0;
 	print($fh $data) or
-		cluck("Error when writing to metadata file: $!"),
+		Echolot::Log::warn("Error when writing to metadata file: $!."),
 		return 0;
 	$fh->flush();
 	close($fh) or
-		cluck("Error when closing metadata file: $!"),
+		Echolot::Log::warn("Error when closing metadata file: $!."),
 		return 0;
 	
 	if (Echolot::Config::get()->{'gzip'}) {
 		system(Echolot::Config::get()->{'gzip'}, $filename) and
-			cluck("Gziping $filename faild."),
+			Echolot::Log::warn("Gziping $filename failed."),
 			return 0;
 	};
 
@@ -254,16 +254,16 @@ sub pingdata_open_one($$$$) {
 	my ($self, $remailer_addr, $type, $key) = @_;
 	
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
-		cluck ("$remailer_addr does not exist in Metadata"),
+		Echolot::Log::cluck ("$remailer_addr does not exist in Metadata."),
 		return 0;
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}) or
-		cluck ("$remailer_addr has no keys in Metadata"),
+		Echolot::Log::cluck ("$remailer_addr has no keys in Metadata."),
 		return 0;
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}) or
-		cluck ("$remailer_addr type $type does not exist in Metadata"),
+		Echolot::Log::cluck ("$remailer_addr type $type does not exist in Metadata."),
 		return 0;
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}) or
-		cluck ("$remailer_addr type $type key $key does not exist in Metadata"),
+		Echolot::Log::cluck ("$remailer_addr type $type key $key does not exist in Metadata."),
 		return 0;
 	
 
@@ -278,17 +278,17 @@ sub pingdata_open_one($$$$) {
 		my $fh = new IO::Handle;
 		if ( -e $filename.'.'.$direction ) {
 			open($fh, '+<' . $filename.'.'.$direction) or 
-				cluck("Cannot open $filename.$direction for reading: $!"),
+				Echolot::Log::warn("Cannot open $filename.$direction for reading: $!."),
 				return 0;
 			$self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction} = $fh;
 		} else {
 			open($fh, '+>' . $filename.'.'.$direction) or 
-				cluck("Cannot open $filename.$direction for reading: $!"),
+				Echolot::Log::warn("Cannot open $filename.$direction for reading: $!."),
 				return 0;
 			$self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction} = $fh;
 		};
 		flock($fh, LOCK_EX) or
-			cluck("Cannot get exclusive lock on $remailer_addr $type $key $direction pings: $!"),
+			Echolot::Log::warn("Cannot get exclusive lock on $remailer_addr $type $key $direction pings: $!."),
 			return 0;
 	};
 
@@ -312,7 +312,7 @@ sub get_ping_fh($$$$$) {
 	my ($self, $remailer_addr, $type, $key, $direction) = @_;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
-		cluck ("$remailer_addr does not exist in Metadata"),
+		Echolot::Log::cluck("$remailer_addr does not exist in Metadata."),
 		return 0;
 	
 	my @pings;
@@ -322,7 +322,7 @@ sub get_ping_fh($$$$$) {
 		$self->pingdata_open_one($remailer_addr, $type, $key),
 		$fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
 		defined ($fh) or
-			cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings"),
+			Echolot::Log::warn ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings."),
 			return 0;
 
 	return $fh;
@@ -335,10 +335,10 @@ sub pingdata_close_one($$$$;$) {
 		my $fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
 
 		flock($fh, LOCK_UN) or
-			cluck("Error when releasing lock on $remailer_addr type $type key $key direction $direction pings: $!"),
+			Echolot::Log::warn("Error when releasing lock on $remailer_addr type $type key $key direction $direction pings: $!."),
 			return 0;
 		close ($fh) or
-				cluck("Error when closing $remailer_addr type $type key $key direction $direction pings: $!"),
+				Echolot::Log::warn("Error when closing $remailer_addr type $type key $key direction $direction pings: $!."),
 				return 0;
 
 		if ((defined $delete) && ($delete eq 'delete')) {
@@ -367,7 +367,7 @@ sub pingdata_close($) {
 		for my $type ( keys %{$self->{'PING_FHS'}->{$remailer_addr}} ) {
 			for my $key ( keys %{$self->{'PING_FHS'}->{$remailer_addr}->{$type}} ) {
 				$self->pingdata_close_one($remailer_addr, $type, $key) or
-					cluck("Error when calling pingdata_close_one with $remailer_addr type $type key $key"),
+					Echolot::Log::debug("Error when calling pingdata_close_one with $remailer_addr type $type key $key."),
 					return 0;
 			};
 		};
@@ -381,11 +381,11 @@ sub get_pings($$$$$) {
 	my @pings;
 
 	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, $direction) or
-		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings"),
+		Echolot::Log::warn ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings."),
 		return 0;
 
 	seek($fh, 0, SEEK_SET) or
-		cluck("Cannot seek to start of $remailer_addr type $type key $key direction $direction pings: $!"),
+		Echolot::Log::warn("Cannot seek to start of $remailer_addr type $type key $key direction $direction pings: $!."),
 		return 0;
 
 	if ($direction eq 'out') {
@@ -408,18 +408,17 @@ sub register_pingout($$$$) {
 	my ($self, $remailer_addr, $type, $key, $sent_time) = @_;
 	
 	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
-		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings"),
+		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings."),
 		return 0;
 
 	seek($fh, 0, SEEK_END) or
-		cluck("Cannot seek to end of $remailer_addr; type=$type; key=$key; out pings: $!"),
+		Echolot::Log::warn("Cannot seek to end of $remailer_addr; type=$type; key=$key; out pings: $!."),
 		return 0;
 	print($fh $sent_time."\n") or
-		cluck("Error when writing to $remailer_addr; type=$type; key=$key; out pings: $!"),
+		Echolot::Log::warn("Error when writing to $remailer_addr; type=$type; key=$key; out pings: $!."),
 		return 0;
 	$fh->flush();
-	print "registering pingout at $sent_time for $remailer_addr ($type; $key)\n"
-		if Echolot::Config::get()->{'verbose'};
+	Echolot::Log::info("registering pingout for $remailer_addr ($type; $key).");
 
 	return 1;
 };
@@ -428,48 +427,46 @@ sub register_pingdone($$$$$) {
 	my ($self, $remailer_addr, $type, $key, $sent_time, $latency) = @_;
 	
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
-		cluck ("$remailer_addr does not exist in Metadata"),
+		Echolot::Log::cluck ("$remailer_addr does not exist in Metadata."),
 		return 0;
 
 	my @outpings = $self->get_pings($remailer_addr, $type, $key, 'out');
 	my $origlen = scalar (@outpings);
 	@outpings = grep { $_ != $sent_time } @outpings;
 	($origlen == scalar (@outpings)) and
-		warn("No ping outstanding for $remailer_addr, $key, $sent_time\n"),
+		Echolot::Log::info("No ping outstanding for $remailer_addr, $key, ".(scalar localtime $sent_time)."."),
 		return 1;
 	
 	# write ping to done
 	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'done') or
-		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for done pings"),
+		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for done pings."),
 		return 0;
 	seek($fh, 0, SEEK_END) or
-		cluck("Cannot seek to end of $remailer_addr out pings: $!"),
+		Echolot::Log::warn("Cannot seek to end of $remailer_addr out pings: $!."),
 		return 0;
 	print($fh $sent_time." ".$latency."\n") or
-		cluck("Error when writing to $remailer_addr out pings: $!"),
+		Echolot::Log::warn("Error when writing to $remailer_addr out pings: $!."),
 		return 0;
 	$fh->flush();
 	
 	# rewrite outstanding pings
 	$fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
-		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings"),
+		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings."),
 		return 0;
 	seek($fh, 0, SEEK_SET) or
-		cluck("Cannot seek to start of outgoing pings file for remailer $remailer_addr; key=$key: $!"),
+		Echolot::Log::warn("Cannot seek to start of outgoing pings file for remailer $remailer_addr; key=$key: $!."),
 		return 0;
 	truncate($fh, 0) or
-		cluck("Cannot truncate outgoing pings file for remailer $remailer_addr; key=$key file to zero length: $!"),
+		Echolot::Log::warn("Cannot truncate outgoing pings file for remailer $remailer_addr; key=$key file to zero length: $!."),
 		return 0;
 	print($fh (join "\n", @outpings), (scalar @outpings ? "\n" : '') ) or
-		cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
+		Echolot::Log::warn("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!."),
 		return 0;
 	$fh->flush();
-	print "registering pingdone from $sent_time with latency $latency for $remailer_addr ($type; $key)\n"
-		if Echolot::Config::get()->{'verbose'};
+	Echolot::Log::info("registering pingdone from ".(scalar localtime $sent_time)." with latency $latency for $remailer_addr ($type; $key).");
 	
 	return 1;
 };
-
 
 
 
@@ -542,7 +539,7 @@ sub get_address($$) {
 	my ($self, $addr) = @_;
 
 	defined ($self->{'METADATA'}->{'addresses'}->{$addr}) or
-		cluck ("$addr does not exist in Metadata"),
+		Echolot::Log::cluck ("$addr does not exist in Metadata."),
 		return undef;
 	
 	my $result = {
@@ -582,8 +579,7 @@ sub add_address($$) {
 
 
 	# FIXME logging and such
-	print "Adding address $addr\n"
-		if Echolot::Config::get()->{'verbose'};
+	Echolot::Log::info("Adding address $addr.");
 	
 	my $remailer = {
 		id => $maxid + 1,
@@ -607,25 +603,24 @@ sub set_stuff($@) {
 	my $args = join(', ', @args);
 
 	defined ($addr) or
-		cluck ("Could not get address for '$args'"),
+		Echolot::Log::cluck ("Could not get address for '$args'."),
 		return 0;
 	defined ($setting) or
-		cluck ("Could not get setting for '$args'"),
+		Echolot::Log::cluck ("Could not get setting for '$args'."),
 		return 0;
 	
 	defined ($self->{'METADATA'}->{'addresses'}->{$addr}) or
-		cluck ("Address $addr does not exist"),
+		Echolot::Log::warn ("Address $addr does not exist."),
 		return 0;
 	
 
 	if ($setting =~ /^(pingit|fetch|showit)=(on|off)$/) {
 		my $option = $1;
 		my $value = $2;
-		print "Setting $option to $value for $addr\n"
-			if Echolot::Config::get()->{'verbose'};
+		Echolot::Log::info("Setting $option to $value for $addr");
 		$self->{'METADATA'}->{'addresses'}->{$addr}->{$option} = ($value eq 'on');
 	} else {
-		cluck ("Don't know what to do with '$setting' for $addr"),
+		Echolot::Log::warn ("Don't know what to do with '$setting' for $addr."),
 		return 0;
 	}
 
@@ -641,7 +636,7 @@ sub get_address_by_id($$) {
 		keys %{$self->{'METADATA'}->{'addresses'}};
 	return undef unless (scalar @addresses);
 	if (scalar @addresses >= 2) {
-		cluck("Searching for address by id '$id' gives more than one result");
+		Echolot::Log::cluck("Searching for address by id '$id' gives more than one result.");
 	};
 	my %return_data = %{$self->{'METADATA'}->{'addresses'}->{$addresses[0]}};
 	$return_data{'address'} = $addresses[0];
@@ -652,11 +647,11 @@ sub decrease_ttl($$) {
 	my ($self, $address) = @_;
 	
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
-		cluck ("$address does not exist in Metadata address list"),
+		Echolot::Log::cluck ("$address does not exist in Metadata address list."),
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} --;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'ttl timeout',
-		warn("Remailer $address disabled: ttl expired\n"),
+		Echolot::Log::info("Remailer $address disabled: ttl expired."),
 		$self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'} = Echolot::Config::get()->{'check_resurrection_ttl'}
 		if ($self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} <= 0);
 		# FIXME have proper logging
@@ -668,14 +663,14 @@ sub decrease_resurrection_ttl($$) {
 	my ($self, $address) = @_;
 	
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
-		cluck ("$address does not exist in Metadata address list"),
+		Echolot::Log::cluck ("$address does not exist in Metadata address list."),
 		return 0;
 	($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'ttl timeout') or
-		cluck ("$address is not in ttl timeout status"),
+		Echolot::Log::cluck ("$address is not in ttl timeout status."),
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'} --;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'dead',
-		warn("Remailer $address is dead\n"),
+		Echolot::Log::info("Remailer $address is dead."),
 		if ($self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'} <= 0);
 		# FIXME have proper logging
 	$self->commit();
@@ -686,12 +681,12 @@ sub restore_ttl($$) {
 	my ($self, $address) = @_;
 	
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
-		cluck ("$address does not exist in Metadata address list"),
+		Echolot::Log::cluck ("$address does not exist in Metadata address list."),
 		return 0;
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}->{'status'}) or
-		cluck ("$address does exist in Metadata address list but does not have status defined"),
+		Echolot::Log::cluck ("$address does exist in Metadata address list but does not have status defined."),
 		return 0;
-	warn("Remailer $address is alive and active again\n")
+	Echolot::Log::info("Remailer $address is alive and active again.")
 		unless ($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'active');
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} = Echolot::Config::get()->{'addresses_default_ttl'};
 	delete $self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'};
@@ -706,15 +701,16 @@ sub not_a_remailer($$) {
 	my ($self, $id) = @_;
 	
 	my $remailer = $self->get_address_by_id($id);
-    cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
+	defined $remailer or
+		Echolot::Log::cluck("No remailer found for id '$id'."),
+		return 0;
 	my $address = $remailer->{'address'};
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
-		cluck ("$address does not exist in Metadata address list"),
+		Echolot::Log::cluck ("$address does not exist in Metadata address list."),
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'}  = 'disabled by user reply: is not a remailer';
 
-	print "Setting $id, $address to disabled by user reply\n"
-		if Echolot::Config::get()->{'verbose'};
+	Echolot::Log::info("Setting $id, $address to disabled by user reply.");
 
 	$self->commit();
 	return 1;
@@ -744,20 +740,20 @@ sub set_caps($$$$$$;$) {
 	} else {
 		my $conf = $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'};
 		if ($conf->{'last_update'} >= $timestamp) {
-			warn ("Stored data is already newer for remailer $nick\n");
+			Echolot::Log::info("Stored data is already newer for remailer $nick.");
 			return 1;
 		};
 		$conf->{'last_update'} = $timestamp;
 		if ($conf->{'nick'} ne $nick) {
-			warn ($conf->{'nick'}." was renamed to $nick\n");
+			Echolot::Log::info($conf->{'nick'}." was renamed to $nick.");
 			$conf->{'nick'} = $nick;
 		};
 		if ($conf->{'capabilities'} ne $caps) {
-			warn ("$nick has a new caps string '$caps' old: '".$conf->{'capabilities'}."'\n");
+			Echolot::Log::info("$nick has a new caps string '$caps' old: '".$conf->{'capabilities'}."'.");
 			$conf->{'capabilities'} = $caps;
 		};
 		if ($conf->{'type'} ne $type) {
-			warn ("$nick has a new type string '$type'\n");
+			Echolot::Log::info("$nick has a new type string '$type'.");
 			$conf->{'type'} = $type;
 		};
 	};
@@ -775,7 +771,7 @@ sub set_key($$$$$$$$$) {
 	my ($self, $type, $nick, $address, $key, $keyid, $version, $caps, $summary, $timestamp) = @_;
 
 	(defined $address) or
-		cluck ("$address not defined in set_key");
+		Echolot::Log::cluck ("$address not defined in set_key.");
 	
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 		$self->{'METADATA'}->{'remailers'}->{$address} =
@@ -806,21 +802,21 @@ sub set_key($$$$$$$$$) {
 	} else {
 		my $keyref = $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}->{$keyid};
 		if ($keyref->{'last_update'} >= $timestamp) {
-			warn ("Stored data is already newer for remailer $nick\n");
+			Echolot::Log::info("Stored data is already newer for remailer $nick.");
 			return 1;
 		};
 		$keyref->{'last_update'} = $timestamp;
 		if ($keyref->{'nick'} ne $nick) {
-			warn ("$nick has a new key nick string '$nick' old: '".$keyref->{'nick'}."'\n");
+			Echolot::Log::info("$nick has a new key nick string '$nick' old: '".$keyref->{'nick'}."'.");
 			$keyref->{'nick'} = $nick;
 		};
 		if ($keyref->{'summary'} ne $summary) {
-			warn ("$nick has a new key summary string '$summary' old: '".$keyref->{'summary'}."'\n");
+			Echolot::Log::info("$nick has a new key summary string '$summary' old: '".$keyref->{'summary'}."'.");
 			$keyref->{'summary'} = $summary;
 		};
 		if ($keyref->{'key'} ne $key) {
-			#warn ("$nick has a new key string '$key' old: '".$keyref->{'key'}."' - This probably should not happen\n");
-			warn ("$nick has a new key string for same keyid $keyid\n");
+			#Echolot::Log::info("$nick has a new key string '$key' old: '".$keyref->{'key'}."' - This probably should not happen.");
+			Echolot::Log::info("$nick has a new key string for same keyid $keyid.");
 			$keyref->{'key'} = $key;
 		};
 	};
@@ -856,7 +852,7 @@ sub get_types($$) {
 	my ($self, $remailer) = @_;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
-		cluck ("$remailer does not exist in Metadata remailer list"),
+		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
 		return 0;
 
 	return () unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'};
@@ -868,7 +864,7 @@ sub has_type($$$) {
 	my ($self, $remailer, $type) = @_;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
-		cluck ("$remailer does not exist in Metadata remailer list"),
+		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
 		return 0;
 
 	return 0 unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'};
@@ -881,11 +877,11 @@ sub get_keys($$) {
 	my ($self, $remailer, $type) = @_;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
-		cluck ("$remailer does not exist in Metadata remailer list"),
+		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
 		return 0;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}) or
-		cluck ("$remailer does not have type '$type' in Metadata remailer list"),
+		Echolot::Log::cluck ("$remailer does not have type '$type' in Metadata remailer list."),
 		return 0;
 
 	my @keys = keys %{$self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}};
@@ -896,15 +892,15 @@ sub get_key($$$$) {
 	my ($self, $remailer, $type, $key) = @_;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
-		cluck ("$remailer does not exist in Metadata remailer list"),
+		Echolot::Log::cluck ("$remailer does not exist in Metadata remailer list."),
 		return 0;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}) or
-		cluck ("$remailer does not have type '$type' in Metadata remailer list"),
+		Echolot::Log::cluck ("$remailer does not have type '$type' in Metadata remailer list."),
 		return 0;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}) or
-		cluck ("$remailer does not have key '$key' in type '$type' in Metadata remailer list"),
+		Echolot::Log::cluck ("$remailer does not have key '$key' in type '$type' in Metadata remailer list."),
 		return 0;
 
 	my %result = (
@@ -945,8 +941,7 @@ sub expire($) {
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
 				if ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'last_update'} < $expire_keys) {
 					# FIXME logging and such
-					print "Expiring $remailer_addr, key, $type, $key\n"
-						if Echolot::Config::get()->{'verbose'};
+					Echolot::Log::info("Expiring $remailer_addr, key, $type, $key.");
 					$self->pingdata_close_one($remailer_addr, $type, $key, 'delete');
 					delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key};
 				};
@@ -976,33 +971,33 @@ sub expire($) {
 
 				# write ping to done
 				my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'done') or
-					cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for done pings"),
+					Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for done pings."),
 					return 0;
 				seek($fh, 0, SEEK_SET) or
-					cluck("Cannot seek to start of $remailer_addr out pings: $!"),
+					Echolot::Log::warn("Cannot seek to start of $remailer_addr out pings: $!."),
 					return 0;
 				truncate($fh, 0) or
-					cluck("Cannot truncate done pings file for remailer $remailer_addr; key=$key file to zero length: $!"),
+					Echolot::Log::warn("Cannot truncate done pings file for remailer $remailer_addr; key=$key file to zero length: $!."),
 					return 0;
 				for my $done (@done) {
 					print($fh $done->[0]." ".$done->[1]."\n") or
-						cluck("Error when writing to $remailer_addr out pings: $!"),
+						Echolot::Log::warn("Error when writing to $remailer_addr out pings: $!."),
 						return 0;
 				};
 				$fh->flush();
 
 				# rewrite outstanding pings
 				$fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
-					cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings"),
+					Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings."),
 					return 0;
 				seek($fh, 0, SEEK_SET) or
-					cluck("Cannot seek to start of outgoing pings file for remailer $remailer_addr; key=$key: $!"),
+					Echolot::Log::warn("Cannot seek to start of outgoing pings file for remailer $remailer_addr; key=$key: $!."),
 					return 0;
 				truncate($fh, 0) or
-					cluck("Cannot truncate outgoing pings file for remailer $remailer_addr; key=$key file to zero length: $!"),
+					Echolot::Log::warn("Cannot truncate outgoing pings file for remailer $remailer_addr; key=$key file to zero length: $!."),
 					return 0;
 				print($fh (join "\n", @out), (scalar @out ? "\n" : '') ) or
-					cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
+					Echolot::Log::warn("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!."),
 					return 0;
 				$fh->flush();
 			};
@@ -1017,13 +1012,12 @@ sub expire($) {
 sub delete_remailer($$) {
 	my ($self, $address) = @_;
 
-	print "Deleting remailer $address\n"
-		if Echolot::Config::get()->{'verbose'};
+	Echolot::Log::info("Deleting remailer $address.");
 
 	if (defined $self->{'METADATA'}->{'addresses'}->{$address}) {
 		delete $self->{'METADATA'}->{'addresses'}->{$address}
 	} else {
-		cluck("Remailer $address does not exist in addresses")
+		Echolot::Log::cluck("Remailer $address does not exist in addresses.")
 	};
 
 	if (defined $self->{'METADATA'}->{'remailers'}->{$address}) {
@@ -1045,14 +1039,13 @@ sub delete_remailer($$) {
 sub delete_remailercaps($$) {
 	my ($self, $address) = @_;
 
-	print "Deleting conf for remailer $address\n"
-		if Echolot::Config::get()->{'verbose'};
+	Echolot::Log::info("Deleting conf for remailer $address.");
 
 	if (defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 		delete $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'}
 			if defined $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'};
 	} else {
-		cluck("Remailer $address does not exist in remailers")
+		Echolot::Log::cluck("Remailer $address does not exist in remailers.")
 	};
 	$self->commit();
 	

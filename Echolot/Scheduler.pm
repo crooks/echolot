@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.13 2002/10/11 16:56:21 weasel Exp $
+# $Id: Scheduler.pm,v 1.14 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -20,8 +20,8 @@ the ping daemon.
 =cut
 
 use strict;
-use Carp qw{cluck confess};
 use English;
+use Echolot::Log;
 
 my $ORDER = 1;
 
@@ -48,7 +48,7 @@ it get's called 10 minutes after the hour.
 sub add($$$$$) {
 	my ($self, $name, $interval, $offset, $what) = @_;
 
-	confess("Must not add zero intervall for job $name")
+	Echolot::Log::logdie("Must not add zero intervall for job $name.")
 		unless $interval;
 
 	if (defined $self->{'tasks'}->{$name}) {
@@ -80,7 +80,7 @@ sub schedule($$$;$$) {
 	my ($self, $name, $reschedule, $for, $arguments) = @_;
 	
 	(defined $self->{'tasks'}->{$name}) or
-		cluck("Task $name is not defined"),
+		Echolot::Log::warn("Task $name is not defined."),
 		return 0;
 
 	my $interval = $self->{'tasks'}->{$name}->{'interval'};
@@ -123,16 +123,16 @@ sub run($) {
 	my ($self) = @_;
 
 	(defined $self->{'schedule'}->[0]) or
-		cluck("Scheduler is empty"),
+		Echolot::Log::warn("Scheduler is empty."),
 		return 0;
 
 	while(1) {
 		my $now = time();
 		my $task = $self->{'schedule'}->[0];
 		if ($task->{'start'} < $now) {
-			warn("Task $task->{'name'} could not be started on time\n");
+			Echolot::Log::warn("Task $task->{'name'} could not be started on time.");
 		} else {
-			print "zZzZZzz at $now\n" if Echolot::Config::get()->{'verbose'};
+			Echolot::Log::debug("zZzZZzz.");
 			$PROGRAM_NAME = "pingd [sleeping]";
 			sleep ($task->{'start'} - $now);
 		};
@@ -146,17 +146,17 @@ sub run($) {
 			my $name = $task->{'name'};
 			$PROGRAM_NAME = "pingd [executing $name]";
 			(defined $self->{'tasks'}->{$name}) or
-				warn("Task $task->{'name'} is not defined\n");
+				Echolot::Log::cluck("Task $task->{'name'} is not defined.");
 
 			my $what = $self->{'tasks'}->{$name}->{'what'};
-			print "Running $name at ".(time())." (scheduled for $now)\n" if Echolot::Config::get()->{'verbose'};
+			Echolot::Log::debug("Running $name (was scheduled for ".(time()-$now)." seconds ago).");
 			last if ($what eq 'exit');
 			&$what( $now, @{ $task->{'arguments'} } );
 			$self->schedule($name, 1, $now + $self->{'tasks'}->{$name}->{'interval'}) if
 				($task->{'reschedule'} && $self->{'tasks'}->{$name}->{'interval'} > 0);
 
 			(defined $self->{'schedule'}->[0]) or
-				cluck("Scheduler is empty"),
+				Echolot::Log::warn("Scheduler is empty."),
 				return 0;
 		} while ($now >= $self->{'schedule'}->[0]->{'start'});
 	};

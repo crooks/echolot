@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.11 2002/09/11 03:10:27 weasel Exp $
+# $Id: Commands.pm,v 1.12 2003/01/14 05:25:34 weasel Exp $
 #
 
 =pod
@@ -17,7 +17,7 @@ This package provides functions for sending out and receiving pings.
 =cut
 
 use strict;
-use Carp qw{cluck};
+use Echolot::Log;
 use Fcntl ':flock'; # import LOCK_* constants
 #use Fcntl ':seek'; # import SEEK_* constants
 use POSIX; # import SEEK_* constants (older perls don't have SEEK_ in Fcntl)
@@ -28,18 +28,18 @@ sub addCommand($) {
 
 	my $filename = Echolot::Config::get()->{'commands_file'};
 	open(FH, ">>$filename" ) or
-		cluck("Cannot open $filename for appending $!"),
+		Echolot::Log::warn("Cannot open $filename for appending $!."),
 		return 0;
 	flock(FH, LOCK_EX) or
-		cluck("Cannot get exclusive lock on $filename: $!"),
+		Echolot::Log::warn("Cannot get exclusive lock on $filename: $!."),
 		return 0;
 	
 	print FH $command,"\n";
 	
 	flock(FH, LOCK_UN) or
-		cluck("Cannot unlock $filename: $!");
+		Echolot::Log::warn("Cannot unlock $filename: $!.");
 	close(FH) or
-		cluck("Cannot close $filename: $!");
+		Echolot::Log::warn("Cannot close $filename: $!.");
 };
 
 sub processCommands($) {
@@ -52,10 +52,10 @@ sub processCommands($) {
 		return 1;
 	
 	open(FH, "+<$filename" ) or
-		cluck("Cannot open $filename for reading: $!"),
+		Echolot::Log::warn("Cannot open $filename for reading: $!."),
 		return 0;
 	flock(FH, LOCK_EX) or
-		cluck("Cannot get exclusive lock on $filename: $!"),
+		Echolot::Log::warn("Cannot get exclusive lock on $filename: $!."),
 		return 0;
 	
 
@@ -86,20 +86,20 @@ sub processCommands($) {
 		} elsif ($command eq 'deleteremailercaps') {
 			Echolot::Globals::get()->{'storage'}->delete_remailercaps(@args);
 		} else {
-			warn("Unkown command: $_\n");
+			Echolot::Log::warn("Unkown command: '$_'.");
 		};
 	};
 
 	seek(FH, 0, SEEK_SET) or
-		cluck("Cannot seek to start $filename $!"),
+		Echolot::Log::warn("Cannot seek to start '$filename': $!."),
 		return 0;
 	truncate(FH, 0) or
-		cluck("Cannot truncate $filename to zero length: $!"),
+		Echolot::Log::warn("Cannot truncate '$filename' to zero length: $!."),
 		return 0;
 	flock(FH, LOCK_UN) or
-		cluck("Cannot unlock $filename: $!");
+		Echolot::Log::warn("Cannot unlock '$filename': $!.");
 	close(FH) or
-		cluck("Cannot close $filename: $!");
+		Echolot::Log::warn("Cannot close '$filename': $!.");
 };
 
 1;

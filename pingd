@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.86 2003/01/13 14:29:15 weasel Exp $
+# $Id: pingd,v 1.87 2003/01/14 05:25:34 weasel Exp $
 #
 
 =pod
@@ -289,6 +289,7 @@ use Echolot::Pinger;
 use Echolot::Stats;
 use Echolot::Commands;
 use Echolot::Thesaurus;
+use Echolot::Log;
 use POSIX qw(setsid);
 
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
@@ -301,7 +302,7 @@ my $redirected_stdio = 0;
 
 sub setSigHandlers() {
 	$SIG{'HUP'} = sub {
-		print "Got SIGHUP. scheduling readcommands\n";
+		Echolot::Log::info("Got SIGHUP. scheduling readcommands");
 		Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', 0, time() );
 		if ($redirected_stdio) {
 			close STDOUT;
@@ -311,15 +312,15 @@ sub setSigHandlers() {
 		};
 	};
 	$SIG{'INT'} = sub {
-		print "Got SIGINT. scheduling exit\n";
+		Echolot::Log::info("Got SIGINT. scheduling exit");
 		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 	$SIG{'QUIT'} = sub {
-		print "Got SIGQUIT. scheduling exit\n";
+		Echolot::Log::info("Got SIGINT. scheduling exit");
 		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 	$SIG{'TERM'} = sub {
-		print "Got SIGTERM. scheduling exit\n";
+		Echolot::Log::info("Got SIGINT. scheduling exit");
 		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 };
@@ -448,10 +449,10 @@ sub pid_exists() {
 sub daemon_run($) {
 	my ($process) = @_;
 
-	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
+	Echolot::Log::logdie("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
 		if pid_exists();
 	open (PIDFILE, '>'.Echolot::Config::get()->{'pidfile'}) or
-		confess ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
+		Echolot::Log::logdie("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!");
 	print PIDFILE "$PROCESS_ID ".Echolot::Globals::get()->{'hostname'}." ".time()."\n";
 	close PIDFILE;
 
@@ -653,11 +654,14 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 } elsif ($COMMAND eq 'stop') {
 	daemon_stop();
 } elsif ($COMMAND eq 'start') {
+	# FIXME: remove stale pid files
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
 		if pid_exists();
+	Echolot::Log::init();
 	make_dirs();
 	if ($params->{'detach'}) {
 		print "Detaching.\n" unless ($params->{'quiet'});
+		Echolot::Log::debug("Detaching.");
 		exit(0) if (fork());
 		POSIX::setsid();
 		exit(0) if (fork());
@@ -665,9 +669,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 		open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
 		open (STDIN , "</dev/null") or die ("Cannot open /dev/null as STDIN\n");
 		$redirected_stdio = 1;
-		print "Startup at ".scalar localtime().".\n";
+		Echolot::Log::info "Starting up.";
 		daemon_run( $params->{'process'} );
-		print "done at ".scalar localtime().".\n";
+		Echolot::Log::info "Shutdown complete.";
 	} else {
 		daemon_run( $params->{'process'} );
 	};

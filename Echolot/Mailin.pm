@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.9 2002/10/11 16:58:06 weasel Exp $
+# $Id: Mailin.pm,v 1.10 2003/01/14 05:25:35 weasel Exp $
 #
 
 =pod
@@ -16,11 +16,10 @@ Echolot::Mailin - Incoming Mail Dispatcher for Echolot
 =cut
 
 use strict;
-use Carp qw{cluck};
 use English;
 use Echolot::Globals;
+use Echolot::Log;
 use Fcntl ':flock'; # import LOCK_* constants
-#use Fcntl ':seek'; # import SEEK_* constants
 use POSIX; # import SEEK_* constants (older perls don't have SEEK_ in Fcntl)
 
 
@@ -34,7 +33,7 @@ sub sane_move($$) {
 
 	my $link_success = link($from, $to);
 	$link_success or
-		cluck("Cannot link $from to $to: $!"),
+		Echolot::Log::warn("Cannot link $from to $to: $!."),
 		return 0;
 		#- Trying move"),
 		#rename($from, $to) or 
@@ -42,7 +41,7 @@ sub sane_move($$) {
 		#	return 0;
 			
 	$link_success && (unlink($from) or 
-		cluck("Cannot unlink $from: $!") );
+		Echolot::Log::warn("Cannot unlink $from: $!.") );
 	return 1;
 };
 
@@ -66,11 +65,11 @@ sub handle($) {
 	};
 
 	(defined $to) or
-		cluck("No To header found in mail"),
+		Echolot::Log::info("No To header found in mail."),
 		return 0;
 	
 	my $address_result = Echolot::Tools::verify_address_tokens($to) or
-		cluck("Verifying '$to' failed"),
+		Echolot::Log::debug("Verifying '$to' failed."),
 		return 0;
 		
 	my $type = $address_result->{'token'};
@@ -84,7 +83,7 @@ sub handle($) {
 
 	Echolot::Pinger::receive($body, $type, $timestamp), return 1 if ($type eq 'ping');
 
-	cluck("Didn't know what to do with '$to'"),
+	Echolot::Log::warn("Didn't know what to do with '$to'."),
 	return 0;
 };
 
@@ -92,12 +91,12 @@ sub handle_file($) {
 	my ($file) = @_;
 
 	open (FH, $file) or 
-		cluck("Cannot open file $file: $!"),
+		Echolot::Log::warn("Cannot open file $file: $!,"),
 		return 0;
 	my @lines = <FH>;
 	my $body = join('', <FH>);
 	close (FH) or
-		cluck("Cannot close file $file: $!");
+		Echolot::Log::warn("Cannot close file $file: $!.");
 
 	return handle(\@lines);
 };
@@ -110,10 +109,10 @@ sub read_mbox($) {
 	my $blank = 1;
 
 	open(FH, '+<'. $file) or
-		cluck("cannot open '$file': $!\n"),
+		Echolot::Log::warn("cannot open '$file': $!."),
 		return undef;
 	flock(FH, LOCK_EX) or
-		cluck("cannot gain lock on '$file': $!\n"),
+		Echolot::Log::warn("cannot gain lock on '$file': $!."),
 		return undef;
 
 	while(<FH>) {
@@ -129,13 +128,13 @@ sub read_mbox($) {
 	push(@mail, $mail) if scalar(@{$mail});
 
 	seek(FH, 0, SEEK_SET) or
-		cluck("cannot seek to start of '$file': $!\n"),
+		Echolot::Log::warn("cannot seek to start of '$file': $!."),
 		return undef;
 	truncate(FH, 0) or
-		cluck("cannot truncate '$file' to zero size: $!\n"),
+		Echolot::Log::warn("cannot truncate '$file' to zero size: $!."),
 		return undef;
 	flock(FH, LOCK_UN) or
-		cluck("cannot release lock on '$file': $!\n"),
+		Echolot::Log::warn("cannot release lock on '$file': $!."),
 		return undef;
 	close(FH);
 
@@ -150,21 +149,21 @@ sub read_maildir($) {
 	my @files;
 	for my $sub (qw{new cur}) {
 		opendir(DIR, $dir.'/'.$sub) or
-			cluck("Cannot open direcotry '$dir/$sub': $!"),
+			Echolot::Log::warn("Cannot open direcotry '$dir/$sub': $!."),
 			return 0;
 		push @files, map { $sub.'/'.$_ } grep { ! /^\./ } readdir(DIR);
 		closedir(DIR) or
-			cluck("Cannot close direcotry '$dir/$sub': $!");
+			Echolot::Log::warn("Cannot close direcotry '$dir/$sub': $!.");
 	};
 
 	for my $file (@files) {
 		$file =~ /^(.*)$/s or
-			confess("I really should match here. ('$file').");
+			Echolot::Log::confess("I really should match here. ('$file').");
 		$file = $1;
 
 		my $mail = [];
 		open(FH, $dir.'/'.$file) or
-			cluck("cannot open '$dir/$file': $!\n"),
+			Echolot::Log::warn("cannot open '$dir/$file': $!."),
 			return undef;
 		@$mail = <FH>;
 		close(FH);
@@ -174,7 +173,7 @@ sub read_maildir($) {
 
 	for my $file (@files) {
 		unlink $dir.'/'.$file or
-			cluck("cannot unlink '$dir/$file': $!\n");
+			Echolot::Log::warn("cannot unlink '$dir/$file': $!.");
 	};
 
 
@@ -186,7 +185,7 @@ sub storemail($$) {
 
 	my $tmpname = $path.'/tmp/'.make_sane_name();
 	open (F, '>'.$tmpname) or
-		cluck("Cannot open $tmpname: $!"),
+		Echolot::Log::warn("Cannot open $tmpname: $!."),
 		return undef;
 	print F join ('', @$mail);
 	close F;
@@ -214,9 +213,10 @@ sub process() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $mail (@$mails) {
 		unless (handle($mail)) {
-			my $name = make_sane_name();
-			storemail($mailerrordir, $mail) or
-				cluck("Could not store a mail");
+			Echolot::Log::info("Trashing mail with unknown destination (probably a bounce).");
+			#my $name = make_sane_name();
+			#storemail($mailerrordir, $mail) or
+			#	Echolot::Log::warn("Could not store a mail.");
 		};
 	};
 	Echolot::Globals::get()->{'storage'}->enable_commit();
