@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.18 2002/07/13 20:33:33 weasel Exp $
+# $Id: Stats.pm,v 1.19 2002/07/13 20:42:51 weasel Exp $
 #
 
 =pod
@@ -576,8 +576,8 @@ sub build_mixring() {
 
 
 
-sub build_pgpring_type($$$) {
-	my ($type, $GnuPG, $keyring) = @_;
+sub build_pgpring_type($$$$) {
+	my ($type, $GnuPG, $keyring, $keyids) = @_;
 	
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
 		next unless $remailer->{'showit'};
@@ -585,11 +585,13 @@ sub build_pgpring_type($$$) {
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, $type);
 
 		my %key;
+		my $final_keyid;
 		for my $keyid (Echolot::Globals::get()->{'storage'}->get_keys($addr, $type)) {
 			my %new_key = Echolot::Globals::get()->{'storage'}->get_key($addr, $type, $keyid);
 
 			if (!defined $key{'last_update'} || $key{'last_update'} < $new_key{'last_update'} ) {
 				%key = %new_key;
+				$final_keyid = $keyid;
 			};
 		};
 
@@ -629,14 +631,15 @@ sub build_pgpring_type($$$) {
 					cluck("GnuPG status '$status' didn't indicate key for '$addr' was imporeted correctly. Ignoring.\n");
 				};
 			};
+			push @$keyids, $final_keyid;
 		};
 	};
 	
 	return 1;
 };
 
-sub build_pgpring_export($$$) {
-	my ($GnuPG, $keyring, $file) = @_;
+sub build_pgpring_export($$$$) {
+	my ($GnuPG, $keyring, $file, $keyids) = @_;
 
 	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
 		= ( IO::Handle->new(),
@@ -652,7 +655,7 @@ sub build_pgpring_export($$$) {
 		);
 	my $pid = $GnuPG->wrap_call(
 		commands     => [ '--export' ],
-		command_args => [qw{--no-options --no-default-keyring --keyring}, $keyring ],
+		command_args => [qw{--no-options --no-default-keyring --keyring}, $keyring, @$keyids ],
 		handles      => $handles );
 	close($stdin_fh);
 
@@ -681,19 +684,20 @@ sub build_pgpring() {
 	        Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.keyring';
 	
 
-	build_pgpring_type('cpunk-rsa', $GnuPG, $keyring) or
+	my $keyids = [];
+	build_pgpring_type('cpunk-rsa', $GnuPG, $keyring, $keyids) or
 		cluck("build_pgpring_type failed"),
 		return undef;
 
-	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-rsa.asc') or
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-rsa.asc', $keyids) or
 		cluck("build_pgpring_export failed"),
 		return undef;
 	
-	build_pgpring_type('cpunk-dsa', $GnuPG, $keyring) or
+	build_pgpring_type('cpunk-dsa', $GnuPG, $keyring, $keyids) or
 		cluck("build_pgpring_type failed"),
 		return undef;
 
-	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-all.asc') or
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-all.asc', $keyids) or
 		cluck("build_pgpring_export failed"),
 		return undef;
 	

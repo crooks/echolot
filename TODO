@@ -1,9 +1,7 @@
-$Id: TODO,v 1.27 2002/07/12 00:40:13 weasel Exp $
+$Id: TODO,v 1.28 2002/07/13 20:42:51 weasel Exp $
 
 for 2.0:
  document configuration options
- seperate keys in remailer-key reply if they share the same armore (cmeclex is
-   the only one doing this. AARG)
 
 can be done later, nice if for 2.0:
  getkeyconf command could take option:  address [address ...]
@@ -14,3 +12,5 @@ can be done later, nice if for 2.0:
  rotate secret
  get rid of dependency on mix
  get rid of dependency on gnupg
+ seperate keys in remailer-key reply if they share the same armore (cmeclex is
+   the only one doing this. AARG)
