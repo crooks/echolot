@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.2 2002/06/11 09:54:17 weasel Exp $
+# $Id: Tools.pm,v 1.3 2002/06/18 17:20:34 weasel Exp $
 #
 
 =pod
@@ -110,7 +110,6 @@ sub send_message(%) {
 	if (defined $args{'Token'}) {
 		$args{'From'} = make_address( $args{'Token'} );
 	} else {
-		cluck ("Sending messages without tokens?");
 		$args{'From'} =
 			Echolot::Config::get()->{'my_localpart'}.
 			'@'.
@@ -118,13 +117,15 @@ sub send_message(%) {
 	};
 	$args{'Subject'} = 'none' unless (defined $args{'Subject'});
 	
-	my $message = "To: $args{'To'}\n";
-	$message .= "From: $args{'From'}\n";
-	$message .= "Subject: $args{'Subject'}\n";
-	$message .= "\n".$args{'Body'};
-	
-	my @lines = split (/\n/, $message);
-	my $mail = new Mail::Internet ( \@lines );
+	my $head = new Mail::Header;
+	$head->add ( 'To', $args{'To'} );
+	$head->add ( 'From', $args{'From'} );
+	$head->add ( 'Subject', $args{'Subject'} );
+
+	my @lines = map { $_."\n" } split (/\r?\n/, $args{'Body'});
+	my $mail = new Mail::Internet (
+		Header => $head,
+		Body => \@lines );
 
 	$mail->smtpsend( Host => Echolot::Config::get()->{'smarthost'} );
 };
