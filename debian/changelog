@@ -1,3 +1,11 @@
+echolot (2.0.4-1) unstable; urgency=low
+
+  * New upstream version.
+  * Now that mixmaster got added to the main archive, finally upload
+    Echolot to Debian as well (closes: #164459).
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 16 Oct 2002 10:25:41 +0200
+
 echolot (2.0.3-3) unstable; urgency=low
 
   * Remove Suggests: procmail.
