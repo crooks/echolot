@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.7 2002/09/05 15:12:01 weasel Exp $
+# $Id: CPunk.pm,v 1.8 2003/01/02 20:04:50 weasel Exp $
 #
 
 =pod
@@ -85,8 +85,7 @@ sub encrypt_to($$$$) {
 
 
 	$GnuPG->options->hash_init(
-		armor   => 1,
-		recipients => [ $recipient ] );
+		armor   => 1 );
 
 	( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
 		= ( IO::Handle->new(),
@@ -100,8 +99,7 @@ sub encrypt_to($$$$) {
 		stderr     => $stderr_fh,
 		status     => $status_fh
 		);
-	my $command_args = [qw{--no-options --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring];
-	#my $command_args = [qw{--no-default-keyring --always-trust --compress-algo 1 --load-extension idea --rfc1991 --cipher-algo IDEA  --keyring}, $keyring];
+	my $command_args = [qw{--no-options --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
 	my $plaintextfile;
 	if ($pgp2compat) {
 		#pgp2compat requires files, cannot use stdin
@@ -118,12 +116,8 @@ sub encrypt_to($$$$) {
 
 
 		push @$command_args, qw{--pgp2}, $plaintextfile;
-		#push @$command_args, qw{--load-extension idea --pgp2}, $plaintextfile;
-		#push @$command_args, qw{--pgp2}, $plaintextfile;
 	} else {
-		#push @$command_args, qw{ --pgp6 };
-		#push @$command_args, qw{--disable-mdc --no-force-v4-certs --no-comment --escape-from --force-v3-sigs --no-ask-sig-expire --no-ask-cert-expire --digest-algo MD5 --compress-algo 1 --cipher-algo 3DES };
-		#push @$command_args, qw{--rfc1991  --no-openpgp --disable-mdc  --no-force-v4-certs  --no-comment --escape-from    --force-v3-sigs   --no-ask-sig-expire --no-ask-cert-expire --digest-algo MD5 --compress-algo 1};
+		# nothing here ATM.
 	};
 		
 
