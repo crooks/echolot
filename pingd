@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.106 2003/06/06 10:18:23 weasel Exp $
+# $Id: pingd,v 1.107 2003/06/06 10:29:05 weasel Exp $
 #
 
 =pod
@@ -342,11 +342,11 @@ sub setSigHandlers() {
 	};
 	$SIG{'QUIT'} = sub {
 		Echolot::Log::info("Got SIGQUIT. scheduling exit.");
-		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, 0) );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, 0 );
 	};
 	$SIG{'TERM'} = sub {
 		Echolot::Log::info("Got SIGTERM. scheduling exit.");
-		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, 0) );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, 0 );
 	};
 	$SIG{'PIPE'} = sub {
 		Echolot::Log::error("Got SIGPIPE");
