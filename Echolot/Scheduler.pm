@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.3 2002/06/11 11:06:32 weasel Exp $
+# $Id: Scheduler.pm,v 1.4 2002/06/13 15:27:25 weasel Exp $
 #
 
 =pod
@@ -123,6 +123,7 @@ sub run($) {
 		if ($task->{'start'} < $now) {
 			warn("Task $task->{'name'} could not be started on time\n");
 		} else {
+			print "zZzZZzz at $now\n";
 			sleep ($task->{'start'} - $now);
 		};
 
