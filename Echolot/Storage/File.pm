@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.21 2002/07/03 00:56:02 weasel Exp $
+# $Id: File.pm,v 1.22 2002/07/03 01:01:51 weasel Exp $
 #
 
 =pod
@@ -530,12 +530,20 @@ sub add_address($$) {
 	my ($self, $addr) = @_;
 	
 	my @all_addresses = $self->get_addresses();
-	my $maxid = 0;
-	for my $addr (@all_addresses) {
-		if ($addr->{'id'} > $maxid) {
-			$maxid = $addr->{'id'};
+	my $maxid = $self->{'METADATA'}->{'addresses_maxid'};
+	unless (defined $maxid) {
+		for my $addr (@all_addresses) {
+			if ($addr->{'id'} > $maxid) {
+				$maxid = $addr->{'id'};
+			};
 		};
 	};
+
+
+
+	# FIXME logging and such
+	print "Adding address $addr\n"
+		if Echolot::Config::get()->{'verbose'};
 	
 	my $remailer = {
 		id => $maxid + 1,
@@ -545,12 +553,8 @@ sub add_address($$) {
 		pingit => Echolot::Config::get()->{'ping_new'},
 		showit => Echolot::Config::get()->{'show_new'},
 	};
-	
-	# FIXME logging and such
-	print "Adding address $addr\n"
-		if Echolot::Config::get()->{'verbose'};
-
 	$self->{'METADATA'}->{'addresses'}->{$addr} = $remailer;
+	$self->{'METADATA'}->{'addresses_maxid'} = $maxid+1;
 	$self->commit();
 
 	return 1;
@@ -911,8 +915,9 @@ sub expire($) {
 		};
 	};
 
-
-
+	$self->commit();
+	
+	return 1;
 };
 
 sub delete_remailer($$) {
@@ -936,9 +941,11 @@ sub delete_remailer($$) {
 		};
 
 		delete $self->{'METADATA'}->{'remailers'}->{$address}
-	} else {
-		cluck("Remailer $address does not exist in addresses")
 	};
+
+	$self->commit();
+	
+	return 1;
 };
 
 
