@@ -1,3 +1,12 @@
+echolot (2.1.7-1) unstable; urgency=low
+
+  * New upstream version:
+    - remove debconf stuff.
+    - create echolot group in proper gid space.
+    - modify init script to allow 'enable' and 'disable' command.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 14 Nov 2004 23:33:41 +0100
+
 echolot (2.1.6-2) unstable; urgency=low
 
   * Add disable and enable to allowed commands in init script.

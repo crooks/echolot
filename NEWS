@@ -2,6 +2,7 @@ Changes in version       -
 	* debian: Add disable and enable to allowed commands in init
 	  script
 	* debian: Create echolot user group in proper gid space.
+	* debian: remove debconf stuff.
 
 Changes in version 2.1.6 - 2004-08-07
 	* Catch a possible use of undefined values in a log trace() call.
