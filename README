@@ -1,4 +1,4 @@
-$Id: README,v 1.39 2003/01/14 07:32:58 weasel Exp $
+$Id: README,v 1.40 2003/02/22 21:01:30 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -311,5 +311,6 @@ ACKNOWLEDGEMENTS
 ----------------
 	Orange Admin for contributing ideas and templates
 	Lucky Green for (re)writing docs
-	All the testers of Echolot.
+	BiKiKii Admin for valuable feedback
+	All testers of Echolot.
 	The FSF for savanna.gnu.org.
