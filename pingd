@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.61 2002/08/12 03:28:06 weasel Exp $
+# $Id: pingd,v 1.62 2002/08/12 03:35:58 weasel Exp $
 #
 
 =pod
@@ -489,11 +489,6 @@ sub make_dirs() {
 	for my $dir (
 		Echolot::Config::get()->{'resultdir'},
 		Echolot::Config::get()->{'thesaurusdir'},
-		Echolot::Config::get()->{'private_resultdir'},
-		Echolot::Config::get()->{'gnupghome'},
-		Echolot::Config::get()->{'mixhome'},
-		Echolot::Config::get()->{'tmpdir'},
-		Echolot::Config::get()->{'storage'}->{'File'}->{'basedir'}
 	) {
 		if ( ! -d $dir ) {
 			mkdir ($dir, 0755) or
@@ -501,6 +496,11 @@ sub make_dirs() {
 		};
 	};
 	my @dirs = (
+		Echolot::Config::get()->{'private_resultdir'},
+		Echolot::Config::get()->{'gnupghome'},
+		Echolot::Config::get()->{'mixhome'},
+		Echolot::Config::get()->{'tmpdir'},
+		Echolot::Config::get()->{'storage'}->{'File'}->{'basedir'},
 		Echolot::Config::get()->{'mailerrordir'},
 		Echolot::Config::get()->{'mailerrordir'}.'/cur',
 		Echolot::Config::get()->{'mailerrordir'}.'/tmp',

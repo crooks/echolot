@@ -18,7 +18,7 @@ chown echolot.adm /var/log/echolot/echolot.log
 chmod 640 /var/log/echolot/echolot.log
 # and /var/lib/echolot
 if ( ! dpkg-statoverride --list /var/lib/echolot > /dev/null ); then
-	dpkg-statoverride --update --add root echolot 02770 /var/lib/echolot
+	dpkg-statoverride --update --add root echolot 02775 /var/lib/echolot
 fi
 # and /var/run/echolot
 if ( ! dpkg-statoverride --list /var/run/echolot > /dev/null ); then

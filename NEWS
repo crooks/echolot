@@ -5,6 +5,7 @@ Changes in version
 	* Config option mailindir was renamed to mailin. You now
 	  can also point it to a mbox format mailbox.
 	* Have --quiet.
+	* Stricter permissions for most newly created directories (go-rwx).
 
 Changes in version 2.0beta25 - 2002-08-10
 	* Produce echolot.html, an index file for echolot results.
