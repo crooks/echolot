@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.6 2003/03/02 19:44:50 weasel Exp $
+# $Id: Fromlines.pm,v 1.7 2003/03/02 19:46:29 weasel Exp $
 #
 
 =pod
@@ -59,7 +59,7 @@ sub build_fromlines() {
 			};
 			my $types_from;
 			for my $frominfo (sort keys %$from_types) {
-				my $types = join ", ", sort { $a cmp $b } @{$from_types->{$frominfo}};
+				my $types = join "<BR>", sort { $a cmp $b } @{$from_types->{$frominfo}};
 				$types_from->{$types} = $frominfo;
 			};
 			my @types_from = map {
