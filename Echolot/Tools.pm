@@ -318,7 +318,7 @@ sub readwrite_gpg($$$$$) {
 	my ($stdout, $stderr, $status) = ("", "", "");
 
 	my ($readyr, $readyw, $written);
-	while ($sout->count() > 0) {
+	while ($sout->count() > 0 || (defined($sin) && ($sin->count() > 0))) {
 		Echolot::Log::trace("select waiting for ".($sout->count())." fds.");
 		($readyr, $readyw, undef) = IO::Select::select($sout, $sin, undef, 42);
 		Echolot::Log::trace("ready: write: ".(scalar @$readyw)."; read: ".(scalar @$readyr));
