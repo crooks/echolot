@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.4 2002/06/18 17:22:28 weasel Exp $
+# $Id: Stats.pm,v 1.5 2002/06/20 04:29:06 weasel Exp $
 #
 
 =pod
@@ -22,7 +22,7 @@ use warnings;
 use Carp qw{cluck};
 
 use constant DAYS => 12;
-use constant SECS_PER_DAY => 30 * 60;
+use constant SECS_PER_DAY => 3 * 60 * 60;
 #use constant DAYS => 12;
 #use constant SECS_PER_DAY => 24 * 60 * 60;
 
@@ -129,7 +129,8 @@ sub build_list2_reliabilitystr($) {
 	for my $day (0 .. DAYS - 1) {
 		substr($str, DAYS - 1 - $day, 1) =
 			(defined $rel->[$day]) ?
-				(($rel->[$day] == 1) ?
+				(($rel->[$day] >= 0.9999) ?
+				#(($rel->[$day] == 1) ?
 				'+' :
 				(int ($rel->[$day]*10)))
 			: '?';
