@@ -317,14 +317,17 @@ sub readwrite_gpg($$$$$) {
 
 	my ($stdout, $stderr, $status) = ("", "", "");
 
-	my ($readyr, $readyw, $written);
+	my ($readyr, $readyw);
 	while ($sout->count() > 0 || (defined($sin) && ($sin->count() > 0))) {
 		Echolot::Log::trace("select waiting for ".($sout->count())." fds.");
 		($readyr, $readyw, undef) = IO::Select::select($sout, $sin, undef, 42);
 		Echolot::Log::trace("ready: write: ".(scalar @$readyw)."; read: ".(scalar @$readyr));
 		for my $wfd (@$readyw) {
 			Echolot::Log::trace("writing to $wfd.");
-			$written = $wfd->syswrite($in, length($in) - $offset, $offset);
+			my $written = 0;
+			if ($offset != length($in)) {
+				$written = $wfd->syswrite($in, length($in) - $offset, $offset);
+			}
 			unless (defined ($written)) {
 				Echolot::Log::warn("Error while writing to GnuPG: $!");
 				close $wfd;
