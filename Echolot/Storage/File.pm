@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.35 2002/07/13 20:35:50 weasel Exp $
+# $Id: File.pm,v 1.36 2002/07/13 21:11:52 weasel Exp $
 #
 
 =pod
@@ -664,10 +664,17 @@ sub restore_ttl($$) {
 sub not_a_remailer($$) {
 	my ($self, $id) = @_;
 	
-	my $address = $self->get_address_by_id($id);
-    cluck("No remailer found for id '$id'"), return 0 unless defined $address;
+	my $remailer = $self->get_address_by_id($id);
+    cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
+	my $address = $remailer->{'address'};
+	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
+		cluck ("$address does not exist in Metadata address list"),
+		return 0;
+	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'}  = 'disabled by user reply: is not a remailer';
 
-	delete $self->{'METADATA'}->{'addresses'}->{$address}->{'disabled by user reply: is not a remailer'};
+	print "Setting $id, $address to disabled by user reply\n"
+		if Echolot::Config::get()->{'verbose'};
+
 	$self->commit();
 	return 1;
 };
@@ -888,8 +895,6 @@ sub expire($) {
 	my $expire_pings = $now - Echolot::Config::get()->{'expire_pings'};
 
 	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
-		next unless ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'status'} eq 'active');
-
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
 				if ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'last_update'} < $expire_keys) {
@@ -911,7 +916,8 @@ sub expire($) {
 			   ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'last_update'} < $expire_conf) &&
 			   ! ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}->{'dont_expire'}));
 
-		$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'status'} = 'expired'
+		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr},
+			next
 			unless ( defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'conf'}) ||
 			         defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}));
 
