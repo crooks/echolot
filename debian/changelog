@@ -1,3 +1,11 @@
+echolot (2.0.8-1) unstable; urgency=medium
+
+  * New upstream version.
+    Fixes evil bug where pingd receives SIGPIPE because GnuPG already exited
+    because of unuseable keys.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 13 Jan 2003 15:25:27 +0100
+
 echolot (2.0.7-1) unstable; urgency=low
 
   * New upstream version.
