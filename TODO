@@ -1,6 +1,7 @@
-$Id: TODO,v 1.32 2002/07/16 00:13:27 weasel Exp $
+$Id: TODO,v 1.33 2002/07/16 03:02:01 weasel Exp $
 
 for 2.0:
+ Why does austria perform that bad with mix pings.
 
 can be done later, nice if for 2.0:
  getkeyconf command could take option:  address [address ...]
