@@ -1,4 +1,4 @@
-$Id: TODO,v 1.50 2003/02/18 06:38:05 weasel Exp $
+$Id: TODO,v 1.51 2003/02/24 16:22:14 weasel Exp $
 
 Legend:
         - Not done
@@ -7,8 +7,6 @@ Legend:
         o Done
         D Deferred
         X Abandoned
-
- - Print summary to log daily
 
 can be done later:
  - have different stats philosophies (pessimist, optimist..)
