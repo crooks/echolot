@@ -1,3 +1,6 @@
+Changes in version     5 - 2004-     
+	* Catch a possible use of undefined values in a log trace() call.
+
 Changes in version 2.1.5 - 2004-06-22
 	* Fix use of an illegal filedescriptor when we know of a remailer,
 	  but do not have keys for it yet/anymore.
