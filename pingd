@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.11 2002/07/02 17:17:56 weasel Exp $
+# $Id: pingd,v 1.12 2002/07/02 23:54:20 weasel Exp $
 #
 
 =pod
@@ -17,6 +17,8 @@ pingd - echolot ping daemon
 =item B<pingd> B<start>
 
 =item B<pingd> B<stop>
+
+=item B<pingd> B<process>
 
 =item B<pingd> B<add> I<address> [I<address> ...]
 
@@ -53,6 +55,12 @@ Start the ping daemon.
 =item B<stop>
 
 Send the running pingd process a SIGTERM.
+
+=item B<process>
+
+Sends a HUP signal to the daemon which instructs it to process the commands.
+
+For other affects of sending the HUP Signal see the SIGNALS section below.
 
 =item B<add> I<address> [I<address> ...]
 
@@ -98,11 +106,36 @@ Verbose mode. Causes B<pingd> to print debugging messages about its progress.
 
 Print a short help and exit sucessfully.
 
+=item --hup
+
+Usefull only when passwd with the B<add> or B<set> command.
+
+Sends a HUP signal to the daemon which instructs it to process the commands
+after adding the command to the task list.
+
+=item --detach
+
+Usefull only when passwd with the B<start> command.
+
+Tell B<pingd> to detach.
+
 =back
 
 =head1 FILES
 
 F<pingd.conf>
+
+=head1 SIGNALS
+
+On B<SIGINT>, B<SIGQUIT>, and B<SIGTERM> B<pingd> will schedule an exist
+for after the current actions are finished or immediatly if no actions are
+currently beeing processed. It will then write all metadata and metadata to
+disk and close all files cleanly before exiting.
+
+On B<SIGHUP> <pingd> will execute any pending commands from the commands file
+(B<commands.txt> per default).  It also closes and reopens the file 'output'
+which is used for stdout and stderr in case the daemon was told to detach.
+This can be used if you want to rotate that file.
 
 =head1 AUTHOR
 
@@ -139,11 +172,18 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
 my $scheduler;
+my $redirected_stdio = 0;
 
 sub setSigHandlers() {
 	$SIG{'HUP'} = sub {
 		print "Got SIGINT. scheduling readcommands\n";
 		$scheduler->schedule('readcommands', time() );
+		if ($redirected_stdio) {
+			close STDOUT;
+			close STDERR;
+			open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
+			open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
+		};
 	};
 	$SIG{'INT'} = sub {
 		print "Got SIGINT. scheduling exit\n";
@@ -159,6 +199,8 @@ sub setSigHandlers() {
 	};
 };
 
+
+
 sub commit_prospective_address() {
 	Echolot::Globals::get()->{'storage'}->commit_prospective_address();
 };
@@ -169,69 +211,55 @@ sub expire() {
 
 
 
-#Echolot::Mailin::process();
-#Echolot::Pinger::send_pings();
-#Echolot::Mailin::process();
-#Echolot::Conf::send_requests();
-#Echolot::Stats::build();
 
+sub command_add(@) {
+	my @argv = @_;
 
-
-my $params;
-Getopt::Long::config('bundling');
-if (!GetOptions (
-	'help'    =>  \$params->{'help'},
-	'verbose' =>  \$params->{'verbose'}
-	)) {
-	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
-};
-if ($params->{'help'}) {
-    print ("Usage: $PROGRAM_NAME [options]\n"); #FIXME
-    exit 0;
-};
-
-my $COMMAND = shift @ARGV;
-die ("command required\n") unless defined $COMMAND;
-
-
-Echolot::Config::init( $params );
-chdir( Echolot::Config::get()->{'homedir'} );
-Echolot::Globals::init();
-
-
-if ($COMMAND eq 'add') {
-	die ("add requires argument <address>\n") unless scalar @ARGV;
+	die ("add requires argument <address>\n") unless scalar @argv;
 	my @addresses;
-	for my $address (@ARGV) {
+	for my $address (@argv) {
 		die ("argument <address> is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
 		push @addresses, $address;
 	};
 	for my $address (@addresses) {
 		Echolot::Commands::addCommand("add $address");
 	};
-	# FIXME send hup
-} elsif ($COMMAND eq 'set') {
+};
+
+sub command_set(@) {
+	my @argv = @_;
+
 	my @settings;
-	while (scalar @ARGV && $ARGV[0] =~ /^(showit|pingit|fetch)=(on|off)$/) {
-		push @settings, $ARGV[0];
-		shift @ARGV;
+	while (scalar @argv && $argv[0] =~ /^(showit|pingit|fetch)=(on|off)$/) {
+		push @settings, $argv[0];
+		shift @argv;
 	};
 
 	my @addresses;
-	for my $address (@ARGV) {
+	for my $address (@argv) {
 		die ("argument $address is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
 		push @addresses, $address;
 	};
 
-	for my $address (@ARGV) {
+	for my $address (@argv) {
 		for my $setting (@settings) {
 			Echolot::Commands::addCommand("set $address $setting");
 		};
 	};
-	# FIXME send hup
-} elsif ($COMMAND eq 'stop') {
-	die ("stop not implemented yet");
-} elsif ($COMMAND eq 'start') {
+};
+
+sub pid_exists() {
+	return (-e Echolot::Config::get()->{'pidfile'});
+};
+
+sub daemon_run() {
+	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
+		if pid_exists();
+	open (PIDFILE, '>'.Echolot::Config::get()->{'pidfile'}) or
+		carp ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
+	print PIDFILE "$PROCESS_ID ".Echolot::Globals::get()->{'hostname'}." ".time()."\n";
+	close PIDFILE;
+
 	Echolot::Globals::initStorage();
 	setSigHandlers();
 
@@ -251,6 +279,96 @@ if ($COMMAND eq 'add') {
 
 	Echolot::Globals::get()->{'storage'}->commit();
 	Echolot::Globals::get()->{'storage'}->finish();
+
+	unlink (Echolot::Config::get()->{'pidfile'}) or
+		cluck ("Cannot unlink pidfile ".Echolot::Config::get()->{'pidfile'});
+};
+
+sub send_sig($) {
+	my ($sig) = @_;
+
+	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' does exist\n")
+		unless pid_exists();
+	open (PIDFILE, '<'.Echolot::Config::get()->{'pidfile'}) or
+		carp ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
+	my $line = <PIDFILE>;
+	close PIDFILE;
+
+	my ($pid, $host, $time) = $line =~ /^(\d+) \s+ (\S+) \s+ (\d+) \s* $/x or
+		carp ("Cannot parse pidfile '$line'\n");
+	my $sent = kill $sig, $pid;
+	($sent == 1) or
+		carp ("Did not send signal $sig to exactly one process but $sent. (pidfile reads $line)\n");
+};
+
+sub daemon_hup() {
+	send_sig(1);
+};
+
+sub daemon_stop() {
+	send_sig(15);
+};
+
+
+my $params;
+Getopt::Long::config('bundling');
+if (!GetOptions (
+	'help'    =>  \$params->{'help'},
+	'verbose' =>  \$params->{'verbose'},
+	'hup'     =>  \$params->{'hup'},
+	'detach'  =>  \$params->{'detach'},
+	)) {
+	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
+};
+if ($params->{'help'}) {
+    print ("Usage: $PROGRAM_NAME [options]\n"); #FIXME
+    exit 0;
+};
+
+my $COMMAND = shift @ARGV;
+die ("command required\n") unless defined $COMMAND;
+
+
+Echolot::Config::init( $params );
+chdir( Echolot::Config::get()->{'homedir'} );
+Echolot::Globals::init();
+
+
+if ($COMMAND eq 'add') {
+	command_add(@ARGV);
+	if ($params->{'hup'} && pid_exists()) {
+		daemon_hup()
+	} else {
+		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+	};
+} elsif ($COMMAND eq 'set') {
+	command_set(@ARGV);
+	if ($params->{'hup'} && pid_exists()) {
+		daemon_hup()
+	} else {
+		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+	};
+} elsif ($COMMAND eq 'process') {
+	daemon_hup();
+} elsif ($COMMAND eq 'stop') {
+	daemon_stop();
+} elsif ($COMMAND eq 'start') {
+	if ($params->{'detach'}) {
+		print "Detaching.\n";
+		unless (fork()) {
+			close STDOUT;
+			close STDERR;
+			open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
+			open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
+			close STDIN;
+			$redirected_stdio = 1;
+			print "Startup at ".scalar localtime()."\n";
+			daemon_run();
+			print "done.\n";
+		};
+	} else {
+		daemon_run();
+	};
 } elsif ($COMMAND eq 'dumpconf') {
 	Echolot::Config::dump();
 } elsif ($COMMAND eq 'convert') {

@@ -1,7 +1,5 @@
 for 2.0:
  make setup easy/document setup
- have reload command and send HUP
- have stop command
 
 for later:
  rotate secret
