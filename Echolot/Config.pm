@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.61 2003/02/20 19:39:03 weasel Exp $
+# $Id: Config.pm,v 1.62 2003/02/28 18:02:31 weasel Exp $
 #
 
 =pod
@@ -111,6 +111,7 @@ sub init($) {
 		chainping_grace             => 1.5, # don't count pings sent no longer than 1.5 * (lat1 + lat2) ago
 		chainping_update            => 4*60*60, # chain stats should never be older than 4 hours
 		chainping_minsample         => 3, # have at least sent 3 pings before judging any chain
+		chainping_allbad_factor     => 0.5, # at least 50% of possible chains (A x) need to fail for (A *) to be listed in broken chains
 
 		addresses_default_ttl       => 5, # getkeyconf seconds (days)
 		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)

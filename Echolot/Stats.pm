@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.51 2003/02/20 17:02:38 weasel Exp $
+# $Id: Stats.pm,v 1.52 2003/02/28 18:02:31 weasel Exp $
 #
 
 =pod
@@ -476,6 +476,54 @@ sub build_rems($) {
 	return \@rems;
 };
 
+sub compress_broken_chain($@) {
+	my ($num, @list) = @_;
+
+	my %unique = ();
+	@list = sort { $a cmp $b} grep { ! $unique{$_}++; } @list;
+
+	my %bad_left;
+	my %bad_right;
+	for my $chain (@list) {
+		chomp;
+		my ($left, $right) = $chain =~ m/\((\S+) \s (\S+)\)/x or
+			Echolot::Log::warn("Could not parse bad chain '$chain'."),
+			next;
+		$bad_right{$right}++;
+		$bad_right{$right} += $num if ($left  eq '*');
+		$bad_left {$left }++;
+		$bad_left {$left } += $num if ($right eq '*');
+	};
+
+
+	my $threshold = $num * Echolot::Config::get()->{'chainping_allbad_factor'};
+	my @result = ();
+	for my $key (keys %bad_right) {
+		delete $bad_right{$key}, next if $bad_right{$key} < $threshold;
+		push @result, "(* $key)";
+	};
+	for my $key (keys %bad_left) {
+		delete $bad_left{$key}, next if $bad_left{$key} < $threshold;
+		push @result, "($key *)";
+	};
+
+	for my $chain (@list) {
+		chomp;
+		my ($left, $right) = $chain =~ m/\((\S+) \s (\S+)\)/x or
+			# Echolot::Log::warn("Could not parse bad chain '$chain'."),    -- don't warn again
+			push(@result, $chain),
+			next;
+		next if defined $bad_right{$right};
+		next if defined $bad_left {$left };
+		push(@result, $chain),
+	};
+
+	%unique = ();
+	@result = sort { $a cmp $b} grep { ! $unique{$_}++; } @result;
+
+	return @list;
+};
+
 sub find_broken_chains($$$) {
 	my ($chaintype, $rems, $hard) = @_;
 
@@ -560,11 +608,8 @@ sub find_broken_chains($$$) {
 	push @pub,  map { $_->{'chain'} } grep { $_->{'public'} } @{ $BROKEN_CHAINS{$chaintype} };
 	push @priv, map { $_->{'chain'} }                         @{ $BROKEN_CHAINS{$chaintype} };
 
-	my %unique;
-	%unique = ();
-	my $pub  = join "\n", sort { $a cmp $b} grep { ! $unique{$_}++; } @pub;
-	%unique = ();
-	my $priv = join "\n", sort { $a cmp $b} grep { ! $unique{$_}++; } @priv;
+	my $pub = join "\n", compress_broken_chain(scalar @$rems, @pub);
+	my $priv = join "\n", compress_broken_chain(scalar @$rems, @priv);
 
 	return ($pub, $priv);
 };

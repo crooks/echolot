@@ -701,6 +701,12 @@ declaring a chain broken.
 
 	Default: 'chainping_minsample' => 3, # have at least sent 3 pings before judging any chain
 
+=item B<chainping_allbad_factor>
+
+How many chains C<(A x)> must be bad before C<(A *)> is listed.
+The amount is given as factor of all available remailers.
+
+	Default: chainping_allbad_factor => 0.5, # at least 50% of possible chains (A x) need to fail for (A *) to be listed in broken chains
 
 =back
 
