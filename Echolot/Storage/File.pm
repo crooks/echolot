@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.14 2002/07/02 13:57:09 weasel Exp $
+# $Id: File.pm,v 1.15 2002/07/02 14:15:55 weasel Exp $
 #
 
 =pod
@@ -531,7 +531,7 @@ sub add_address($$) {
 	};
 	
 	# FIXME logging and such
-	print "Adding address $addr\n" if
+	print "Adding address $addr\n"
 		if Echolot::Config::get()->{'verbose'};
 
 	$self->{'METADATA'}->{'addresses'}->{$addr} = $remailer;
