@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.15 2003/06/06 10:15:02 weasel Exp $
+# $Id: Scheduler.pm,v 1.16 2003/06/06 11:50:30 weasel Exp $
 #
 
 =pod
@@ -102,7 +102,7 @@ sub schedule($$$;$$) {
 			$for += $interval;
 			$cnt ++;
 		};
-		Echolot::Log::debug("Skipping n runs of $name.") if $cnt;
+		Echolot::Log::debug("Skipping $cnt runs of $name.") if $cnt;
 	};
 
 	$arguments = [] unless defined $arguments;
