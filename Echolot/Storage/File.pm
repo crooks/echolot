@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.23 2002/07/03 01:06:13 weasel Exp $
+# $Id: File.pm,v 1.24 2002/07/03 01:07:16 weasel Exp $
 #
 
 =pod
@@ -532,6 +532,7 @@ sub add_address($$) {
 	my @all_addresses = $self->get_addresses();
 	my $maxid = $self->{'METADATA'}->{'addresses_maxid'};
 	unless (defined $maxid) {
+		$maxid = 0;
 		for my $addr (@all_addresses) {
 			if ($addr->{'id'} > $maxid) {
 				$maxid = $addr->{'id'};
