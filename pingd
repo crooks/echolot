@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.107 2003/06/06 10:29:05 weasel Exp $
+# $Id: pingd,v 1.108 2003/06/06 10:36:23 weasel Exp $
 #
 
 =pod
@@ -555,6 +555,7 @@ sub daemon_run($) {
 	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}               , 0, 1, \&expire );
 	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf_interval'}  , 0, 0, \&Echolot::Conf::send_requests );
 	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'}   , 0, 0, \&Echolot::Conf::check_resurrection );
+	$scheduler->add('cleanup_tmp'         , Echolot::Config::get()->{'cleanup_tmpdir'}       , 0, 1, \&Echolot::Tools::cleanup_tmp );
 
 	$scheduler->add('summary'             , Echolot::Config::get()->{'summary'}              , 0, 1, \&Echolot::Report::print_summary );
 

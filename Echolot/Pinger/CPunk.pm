@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.19 2003/02/22 19:08:55 weasel Exp $
+# $Id: CPunk.pm,v 1.20 2003/06/06 10:36:23 weasel Exp $
 #
 
 =pod
@@ -150,8 +150,8 @@ sub encrypt_to($$$$) {
 	unlink ($keyring.'~'); # gnupg does those evil backups
 
 	(defined $plaintextfile) and 
-		( unlink ($plaintextfile) or
-			Echolot::Log::warn("Cannot unlink tmp keyring '$plaintextfile'."),
+		(unlink ($plaintextfile) or
+			Echolot::Log::warn("Cannot unlink tmp plaintextfile '$plaintextfile'."),
 			return undef);
 
 
@@ -167,8 +167,8 @@ sub encrypt_to($$$$) {
 		return 0;
 
 	(defined $plaintextfile) and 
-		( unlink ($plaintextfile) or
-			Echolot::Log::warn("Cannot unlink tmp keyring '$plaintextfile'."),
+		(unlink ($plaintextfile) or
+			Echolot::Log::warn("Cannot unlink tmp plaintextfile '$plaintextfile'."),
 			return undef);
 
 	$result =~ s,^Version: .*$,Version: N/A,m;

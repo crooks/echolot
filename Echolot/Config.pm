@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.62 2003/02/28 18:02:31 weasel Exp $
+# $Id: Config.pm,v 1.63 2003/06/06 10:36:23 weasel Exp $
 #
 
 =pod
@@ -124,6 +124,7 @@ sub init($) {
 		expire_thesaurus            => 21*24*60*60, # 21 days
 		expire_chainpings           => 12*24*60*60, # 12 days
 		expire_fromlines            => 5*24*60*60, # 5 days
+		cleanup_tmpdir              => 24*60*60, # daily
 
 		random_garbage              => 8192,
 

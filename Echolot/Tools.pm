@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.22 2003/06/06 09:32:37 weasel Exp $
+# $Id: Tools.pm,v 1.23 2003/06/06 10:36:23 weasel Exp $
 #
 
 =pod
@@ -363,6 +363,20 @@ sub read_file($;$) {
 	return $result;
 };
 
+sub cleanup_tmp() {
+	my $tmpdir = Echolot::Config::get()->{'tmpdir'};
+
+	opendir(DIR, $tmpdir) or
+		Echolot::Log::warn("Could not open '$tmpdir': $!."),
+		return undef;
+	my @files = grep { ! /^[.]/ } readdir(DIR);
+	closedir(DIR);
+
+	for my $file (@files) {
+		unlink($tmpdir.'/'.$file) or
+			Echolot::Log::warn("Could not unlink '$tmpdir/$file': $!.");
+	};
+};
 
 1;
 
