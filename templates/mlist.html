@@ -2,7 +2,7 @@
 <head>
 	<title>Mixmaster Remailers [<TMPL_VAR NAME="SITE_NAME">]</title>
 	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
-	<!-- $Id: mlist.html,v 1.9 2002/08/14 22:54:20 weasel Exp $ -->
+	<!-- $Id: mlist.html,v 1.10 2002/09/12 15:41:49 weasel Exp $ -->
 </head>
 <body>
 <h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
@@ -14,7 +14,7 @@
 Available Stats:
 <table border=1>
 <tr>
-<TMPL_IF NAME="seperate_rlist">
+<TMPL_IF NAME="separate_rlist">
   <th colspan=4>Cypherpunk (Type I)</th>
 <TMPL_ELSE>
   <th>Cypherpunk (Type I)</th> 
@@ -26,7 +26,7 @@ Available Stats:
 </tr>
 <tr>
   <td><a href="rlist.html">v1</a></td>
-<TMPL_IF NAME="seperate_rlist">
+<TMPL_IF NAME="separate_rlist">
   <td><a href="rlist-rsa.html">(rsa)</a></td>
   <td><a href="rlist-dsa.html">(dsa)</a></td>
   <td><a href="rlist-clear.html">(cleartext)</a></td>
@@ -38,7 +38,7 @@ Available Stats:
 </tr>
 <tr>
   <td><a href="rlist2.html">v2</a></td>
-<TMPL_IF NAME="seperate_rlist">
+<TMPL_IF NAME="separate_rlist">
   <td><a href="rlist2-rsa.html">(rsa)</a></td>
   <td><a href="rlist2-dsa.html">(dsa)</a></td>
   <td><a href="rlist2-clear.html">(cleartext)</a></td>

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.38 2002/09/05 15:12:09 weasel Exp $
+$Id: TODO,v 1.39 2002/09/12 15:41:49 weasel Exp $
 
 for 2.0:
  fix bugs
@@ -11,6 +11,6 @@ can be done later, nice if for 2.0:
  rotate secret
  get rid of dependency on mix
  get rid of dependency on gnupg
- seperate keys in remailer-key reply if they share the same armor (cmeclex is
+ separate keys in remailer-key reply if they share the same armor (cmeclex is
    the only one doing this. AARG)
  query other stat pages for new remailers

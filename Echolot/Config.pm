@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.39 2002/08/14 22:54:20 weasel Exp $
+# $Id: Config.pm,v 1.40 2002/09/12 15:41:49 weasel Exp $
 #
 
 =pod
@@ -75,7 +75,7 @@ sub init($) {
 		show_new                    => 1,
 
 		# Statistics Generation
-		seperate_rlists             => 0,
+		separate_rlists             => 0,
 		combined_list               => 0,
 		thesaurus                   => 1,
 		stats_sort_by_latency       => 0,
@@ -161,13 +161,13 @@ sub init($) {
 
 		remailerxxxtext => "Hello,\n".
 			"\n".
-			"This message requests remailer configation data. The pinging software thinks\n".
+			"This message requests remailer configuration data. The pinging software thinks\n".
 			"<TMPL_VAR NAME=\"address\"> is a remailer. Either it has been told so by the\n".
 			"maintainer of the pinger or it found the address in a remailer-conf or\n".
 			"remailer-key reply of some other remailer.\n".
 			"\n".
 			"If this is _not_ a remailer, you can tell this pinger that and it will stop\n".
-			"sending you those requests immediatly (otherwise it will try a few more times).\n".
+			"sending you those requests immediately (otherwise it will try a few more times).\n".
 			"Just reply and make sure the following is the first line of your message:\n".
 			"	not a remailer\n".
 			"\n".
@@ -206,6 +206,20 @@ sub init($) {
 	}
 	
 
+	for my $key (keys %$CONFIG) {
+		warn("Unkown option: $key\n") unless (exists $DEFAULT->{$key});
+	};
+	# Work around spelling bug until 2.0rc3
+	if (exists $CONFIG->{'seperate_rlists'}) {
+		if (exists  $CONFIG->{'separate_rlists'}) {
+			warn ("seperate_rlists has been superseded by separate_rlists.");
+		} else {
+			warn ("seperate_rlists has been superseded by separate_rlists, please change it in your config file.\n");
+			$CONFIG->{'separate_rlists'} = $CONFIG->{'seperate_rlists'};
+		};
+		delete $CONFIG->{'seperate_rlists'};
+	}
+
 	for my $key (keys %$DEFAULT) {
 		$CONFIG->{$key} = $DEFAULT->{$key} unless defined $CONFIG->{$key};
 	};
@@ -215,6 +229,7 @@ sub init($) {
 	for my $key (keys %$CONFIG) {
 		warn ("Config option $key is not defined\n") unless defined $CONFIG->{$key};
 	};
+
 };
 
 sub get() {

@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.33 2002/09/05 15:12:01 weasel Exp $
+# $Id: Stats.pm,v 1.34 2002/09/12 15:41:49 weasel Exp $
 #
 
 =pod
@@ -510,12 +510,12 @@ sub build_lists() {
 	$stats{'cpunk_total'} = scalar @$pubrems;
 	$stats{'cpunk_98'} = scalar grep { $_->{'stats'}->{'avr_reliability'} >= 0.98 } @$pubrems;
 	$addresses{$_->{'address'}}=1 for @$pubrems;
-	if (Echolot::Config::get()->{'combined_list'} && ! Echolot::Config::get()->{'seperate_rlists'}) {
+	if (Echolot::Config::get()->{'combined_list'} && ! Echolot::Config::get()->{'separate_rlists'}) {
 		$clist->{'cpunk'} = $rems;
 		$pubclist->{'cpunk'} = $pubrems; $pubrems = undef;
 	};
 
-	if (Echolot::Config::get()->{'seperate_rlists'}) {
+	if (Echolot::Config::get()->{'separate_rlists'}) {
 		$rems = build_rems(['cpunk-rsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
 		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});

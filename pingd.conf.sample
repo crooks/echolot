@@ -11,7 +11,7 @@ $CONFIG = {
 
             #'mixmaster'        => '/home/pinger/Mix/mix',
 
-            'seperate_rlists'  => 0,
+            'separate_rlists'  => 0,
             'combined_list'    => 0,
           };
 1;

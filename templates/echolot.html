@@ -2,7 +2,7 @@
 <head>
 	<title>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</title>
 	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
-	<!-- $Id: echolot.html,v 1.8 2002/09/10 20:44:45 weasel Exp $ -->
+	<!-- $Id: echolot.html,v 1.9 2002/09/12 15:41:49 weasel Exp $ -->
 </head>
 <body>
 <h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
@@ -33,7 +33,7 @@ over 98.0% in terms of overall reliability.
 </tr>
 <tr>
   <td><a href="rlist.html"><code>rlist.html</code></a>
-<TMPL_IF NAME="seperate_rlist">
+<TMPL_IF NAME="separate_rlist">
      <SMALL>
      (<a href="rlist-rsa.html">rsa</a>,
       <a href="rlist-dsa.html">dsa</a>,
@@ -48,7 +48,7 @@ over 98.0% in terms of overall reliability.
 </tr>
 <tr>
   <td><a href="rlist2.html"><code>rlist2.html</code></a>
-<TMPL_IF NAME="seperate_rlist">
+<TMPL_IF NAME="separate_rlist">
      <SMALL>
 		 (<a href="rlist2-rsa.html">rsa</a>,
       <a href="rlist2-dsa.html">dsa</a>,
@@ -71,7 +71,7 @@ over 98.0% in terms of overall reliability.
 </tr>
 <tr>
   <td><a href="rlist.txt"><code>rlist.txt</code></a>
-<TMPL_IF NAME="seperate_rlist">
+<TMPL_IF NAME="separate_rlist">
      <SMALL>
      (<a href="rlist-rsa.txt">rsa</a>,
       <a href="rlist-dsa.txt">dsa</a>,
@@ -86,7 +86,7 @@ over 98.0% in terms of overall reliability.
 </tr>
 <tr>
   <td><a href="rlist2.txt"><code>rlist2.txt</code></a>
-<TMPL_IF NAME="seperate_rlist">
+<TMPL_IF NAME="separate_rlist">
      <SMALL>
 		 (<a href="rlist2-rsa.txt">rsa</a>,
       <a href="rlist2-dsa.txt">dsa</a>,

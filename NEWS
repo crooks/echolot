@@ -7,6 +7,8 @@ Changes in version 2.0rc3
 	  to front page.
 	* Add sendpings command.
 	* Have install-perl-modules tool.
+	* Spelling fixes.
+	* seperate_rlists was renamed to separate_rlists.
 
 Changes in version 2.0rc2 - 2002-09-08
 	* Reopen stdin to /dev/null instead of closing it to avoid

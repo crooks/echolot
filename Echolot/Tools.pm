@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.9 2002/09/03 17:14:27 weasel Exp $
+# $Id: Tools.pm,v 1.10 2002/09/12 15:41:49 weasel Exp $
 #
 
 =pod
@@ -198,7 +198,7 @@ sub write_HTML_file($$;$%) {
 	$template->param ( %templateparams );
 	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
 	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
-	$template->param ( seperate_rlist => Echolot::Config::get()->{'seperate_rlists'} );
+	$template->param ( separate_rlist => Echolot::Config::get()->{'separate_rlists'} );
 	$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
 	$template->param ( thesaurus => Echolot::Config::get()->{'thesaurus'} );
 	$template->param ( version => Echolot::Globals::get()->{'version'} );
