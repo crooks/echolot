@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.35 2002/08/10 01:36:47 weasel Exp $
+# $Id: Config.pm,v 1.36 2002/08/11 14:20:15 weasel Exp $
 #
 
 =pod
@@ -33,6 +33,8 @@ The configuration file is searched in those places in that order:
 
 =item /etc/pingd.conf
 
+=item /etc/echolot.conf
+
 =back
 
 =cut
@@ -54,7 +56,8 @@ sub init($) {
 		  $ENV{'HOME'}.'/echolot/pingd.conf',
 		  $ENV{'HOME'}.'/pingd.conf',
 		  $ENV{'HOME'}.'/.pingd.conf',
-		  '/etc/pingd.conf' );
+		  '/etc/pingd.conf',
+		  '/etc/echolot.conf' );
 	  
 	my $DEFAULT;
 	$DEFAULT = {
