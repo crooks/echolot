@@ -1,6 +1,6 @@
-Changes in version 
+Changes in version 2.0.3 - 2002-10-12
 	* Set program name according to current action.
-	* Fix a typo that showed up in perl 5.0005_02 (had a , instead or a .
+	* Fix a typo that showed up in perl 5.0005_02 (had a , instead of a .
 	  in an open() when reading mboxen as input).
 
 Changes in version 2.0.2 - 2002-09-21
