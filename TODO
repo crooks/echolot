@@ -3,7 +3,6 @@ for 2.0:
  make a private [rm]list showing all remailers
  ping cpunk without pgponly in clear too
  configure pinging options (i.e. cpunkt-{rsa,dsa,none}, mix)
- add showconf command
 
 for later:
  rotate secret

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.9 2002/07/02 17:03:12 weasel Exp $
+# $Id: pingd,v 1.10 2002/07/02 17:12:45 weasel Exp $
 #
 
 =pod
@@ -21,6 +21,8 @@ pingd - echolot ping daemon
 =item B<pingd> B<add> I<address> [I<address> ...]
 
 =item B<pingd> B<set> option=value [option=value..] I<address> [I<address> ...]
+
+=item B<pingd> B<dumpconf>
 
 =back
 
@@ -80,9 +82,21 @@ either B<on> or B<off>.
 
 =back
 
+=item B<dumpconf>
+
+Dumps the current configuration to standard output.
+
 =head1 OPTIONS
 
-none
+=over
+
+=item --verbose
+
+Verbose mode. Causes B<pingd> to print debugging messages about its progress.
+
+=item --help
+
+Print a short help and exit sucessfully.
 
 =back
 
@@ -237,6 +251,8 @@ if ($COMMAND eq 'add') {
 
 	Echolot::Globals::get()->{'storage'}->commit();
 	Echolot::Globals::get()->{'storage'}->finish();
+} elsif ($COMMAND eq 'dumpconf') {
+	Echolot::Config::dump();
 } elsif ($COMMAND eq 'convert') {
 	Echolot::Globals::initStorage();
 	setSigHandlers();
