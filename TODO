@@ -1,4 +1,4 @@
-$Id: TODO,v 1.63 2003/07/10 02:57:36 weasel Exp $
+$Id: TODO,v 1.64 2003/08/17 09:13:20 weasel Exp $
 
 Legend:
         - Not done
@@ -11,6 +11,8 @@ Legend:
  - updated information with from lines
  - have a timeout on GPG calls
  - optionally log messages wich raise problems
+ - close and open files instead of keeping all the files open
+ - make 'not a remailer' check not that strict
 
 
 can be done later:
