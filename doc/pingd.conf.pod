@@ -413,6 +413,11 @@ After how long to expire header From: lines.
 	Default: 'expire_fromlines' => 5*24*60*60, # 5 days
 	Example: 'expire_fromlines' => 7*24*60*60, # 1 week
 
+=item B<cleanup_tmpdir> [seconds]
+
+How often to clean cruft from the temp directory.
+	Default: 'cleanup_tmpdir'   => 24*60*60, # daily
+
 =item B<metadata_backup> [seconds]
 
 How often to make backups of metadata and rotate them. If gzip is set, backups
