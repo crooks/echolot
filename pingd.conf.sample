@@ -20,8 +20,19 @@ $CONFIG = {
 
   # Name of the mixmaster executable. If it is not in your PATH make
   # sure to include path information.
-
 	#'mixmaster'        => '/home/pinger/Mix/mix',
+
+  # The recipient_delimiter parameter specifies the separator between user names
+  # and address extensions (user+foo).
+  #
+  # If it is an empty string Echolot does not make use of user defined mailboxes
+  # but rather encodes the message type et al in a Comment/Realname part of an
+  # address.
+  #
+  # The use of recipient_delimiter is strongly recommended if your MTA setup
+  # supports it.
+	'recipient_delimiter'    => '+',
+	#'recipient_delimiter'    => '',
 
   # Also build separate rlists with data from only DSA pings, only RSA
   # pings and only unencrypted pings.
