@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.16 2003/02/16 10:07:27 weasel Exp $
+# $Id: Tools.pm,v 1.17 2003/02/16 10:20:10 weasel Exp $
 #
 
 =pod
@@ -315,7 +315,7 @@ sub make_garbage() {
 		Echolot::Log::warn("Cannot open $file: $!."),
 		return "";
 	my $random = '';
-	my $want = rand(int(Echolot::Config::get()->{'random_garbage'} / 2));
+	my $want = int(rand(int(Echolot::Config::get()->{'random_garbage'} / 2)));
 	my $i = 0;
 	while ($want > 0) {
 		my $buf;
