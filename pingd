@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.21 2002/07/07 01:11:59 weasel Exp $
+# $Id: pingd,v 1.22 2002/07/10 11:49:41 weasel Exp $
 #
 
 =pod
@@ -205,8 +205,6 @@ Please report them at E<lt>URL:http://savannah.gnu.org/bugs/?group=echolotE<gt>
 =cut
 
 use strict;
-use XML::Parser;
-use XML::Dumper;
 use Getopt::Long;
 use English;
 use Carp;

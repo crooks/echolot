@@ -1,0 +1,14 @@
+#!/usr/bin/perl -w
+
+use strict;
+use XML::Parser;
+use XML::Dumper;
+use Data::Dumper;
+
+
+my $parser = new XML::Parser(Style => 'Tree');
+my $tree = $parser->parse( join ('', <stdin>) );
+my $dump = new XML::Dumper;
+my $CONFIG = $dump->xml2pl($tree);
+
+print Data::Dumper->Dump([ $CONFIG ], [ $ARGV[0] ]);

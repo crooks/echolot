@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.17 2002/07/07 01:12:00 weasel Exp $
+# $Id: Config.pm,v 1.18 2002/07/10 11:49:41 weasel Exp $
 #
 
 =pod
@@ -39,9 +39,8 @@ The configuration file is searched in those places in that order:
 
 use strict;
 use warnings;
-use XML::Parser;
-use XML::Dumper;
 use Carp;
+use English;
 
 my $CONFIG;
 
@@ -138,10 +137,15 @@ sub init($) {
 	die ("no Configuration file found\n") unless defined $configfile;
 	
 	{
-		my $parser = new XML::Parser(Style => 'Tree');
-		my $tree = $parser->parsefile($configfile);
-		my $dump = new XML::Dumper;
-		$CONFIG = $dump->xml2pl($tree);
+		local $/ = undef;
+		open(CONFIGCODE, $configfile) or
+			carp("Could not open configfile '$configfile': $!");
+		my $config_code = <CONFIGCODE>;
+		close (CONFIGCODE);
+		($config_code) = $config_code =~ /^(.*)$/s;
+		eval ($config_code);
+		($EVAL_ERROR) and
+			carp("Evaling config code from '$configfile' returned error: $EVAL_ERROR");
 	}
 	
 	for my $key (keys %$DEFAULT) {
@@ -160,17 +164,7 @@ sub get() {
 };
 
 sub dump() {
-	# FIXME XML::Dumper bug workaround
-	# There is a bug in pl2xml that changes data passed (cf. Debian Bug #148969 and #148970
-	# at http://bugs.debian.org/148969 and http://bugs.debian.org/148970
-	require Data::Dumper;
-	my $storedata;
-	eval ( Data::Dumper->Dump( [ $CONFIG ], [ 'storedata' ] ));
-
-	my $dump = new XML::Dumper;
-	my $data = $dump->pl2xml($storedata);
-
-	print $data;
+	print Data::Dumper->Dump( [ $CONFIG ], [ 'CONFIG' ] );
 };
 
 1;

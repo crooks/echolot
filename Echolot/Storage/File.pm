@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.27 2002/07/07 01:12:00 weasel Exp $
+# $Id: File.pm,v 1.28 2002/07/10 11:49:41 weasel Exp $
 #
 
 =pod
@@ -20,8 +20,7 @@ This package provides several functions for data storage for echolot.
 
 use strict;
 use warnings;
-use XML::Parser;
-use XML::Dumper;
+use Data::Dumper;
 use IO::Handle;
 use English;
 use Carp qw{cluck confess};
@@ -163,11 +162,14 @@ sub metadata_read($) {
 		seek($self->{'METADATA_FH'}, 0, SEEK_SET) or
 			cluck("Cannot seek to start of metadata file: $!"),
 			return 0;
-		eval {
-			my $parser = new XML::Parser(Style => 'Tree');
-			my $tree = $parser->parse( $self->{'METADATA_FH'} );
-			my $dump = new XML::Dumper;
-			$self->{'METADATA'} = $dump->xml2pl($tree);
+		{
+			local $/ = undef;
+			my $fh = $self->{'METADATA_FH'};
+			my $metadata_code = <$fh>;
+			($metadata_code) = $metadata_code =~ /^(.*)$/s;
+			my $METADATA;
+			eval ($metadata_code);
+			$self->{'METADATA'} = $METADATA;
 		};
 		$EVAL_ERROR and
 			cluck("Error when reading from metadata file: $EVAL_ERROR"),
@@ -191,15 +193,7 @@ sub metadata_read($) {
 sub metadata_write($) {
 	my ($self) = @_;
 
-	# FIXME XML::Dumper bug workaround
-	# There is a bug in pl2xml that changes data passed (cf. Debian Bug #148969 and #148970
-	# at http://bugs.debian.org/148969 and http://bugs.debian.org/148970
-	require Data::Dumper;
-	my $storedata;
-	eval ( Data::Dumper->Dump( [ $self->{'METADATA'} ], [ 'storedata' ] ));
-
-	my $dump = new XML::Dumper;
-	my $data = $dump->pl2xml($storedata);
+	my $data = Data::Dumper->Dump( [ $self->{'METADATA'} ], [ 'METADATA' ] );
 	my $fh = $self->{'METADATA_FH'};
 
 	seek($fh, 0, SEEK_SET) or
