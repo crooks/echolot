@@ -1,3 +1,7 @@
+Changes in version 2.0beta12 - 2002-07-11
+	* Cut strings when they do not fit in the table formats
+	* Sort type2.list/pubring.mix
+
 Changes in version 2.0beta11 - 2002-07-11
 	* Don't run in Taint mode anymore per default.
 	  If you still want it, trimm your PATH to something acceptable
