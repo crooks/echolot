@@ -1,8 +1,9 @@
 echolot (000.2.0beta26-2) unstable; urgency=low
 
-  * Set the mixmaster binary path
+  * Set the mixmaster binary path.
+  * Use --quiet when starting echolot.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 13 Aug 2002 02:46:03 +0200
+ -- Peter Palfrader <weasel@debian.org>  Tue, 13 Aug 2002 02:46:20 +0200
 
 echolot (000.2.0beta26-1) unstable; urgency=low
 

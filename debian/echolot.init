@@ -103,7 +103,7 @@ start)
 		--quiet \
 		--pidfile $PIDFILE \
 		--chuid $USER:$GROUP \
-		--exec $DAEMON -- --detach $VERBOSE start
+		--exec $DAEMON -- --detach $VERBOSE --quiet start
 	echo "$NAME."
 	;;
 
