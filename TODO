@@ -1,4 +1,4 @@
-$Id: TODO,v 1.54 2003/04/29 16:31:21 weasel Exp $
+$Id: TODO,v 1.55 2003/06/06 09:33:38 weasel Exp $
 
 Legend:
         - Not done
@@ -8,6 +8,7 @@ Legend:
         D Deferred
         X Abandoned
 
+ - --verbose doesn't gain that much anymore.  update README.
  - normal distribution is plain out wrong for latency
    - change to median for the latency column
    - assumption on whether a ping is lost should be
@@ -15,6 +16,7 @@ Legend:
      to quantiles
  - updated information with from lines
  - fix pingtcl to wait for pingd to shut down
+      (like the Debian package already does)
  - optimize chain pinger:
    cache callids in chainpinging - md5 is not that cheap
  - debian init script mag setremaielrcaps nicht
@@ -23,6 +25,9 @@ Legend:
 	Tue 21:02:36 <mike_lap> caps '{lcs}' is not a valid remailer caps line
  - list middleman only optionally in Fromlines
  - check behaviour if we lag behind schedule
+   - some events can't be missed (there's no point in scheduling 20 buildstats)
+     some can't (pinging)
+ - clean up tmp files
 
 
 can be done later:
