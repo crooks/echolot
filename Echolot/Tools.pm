@@ -278,27 +278,39 @@ sub make_gpg_fds() {
 sub readwrite_gpg($$$$$) {
 	my ($in, $inputfd, $stdoutfd, $stderrfd, $statusfd) = @_;
 	local $INPUT_RECORD_SEPARATOR = undef;
-	my $s = IO::Select->new();
+	my $sout = IO::Select->new();
+	my $sin = IO::Select->new();
+	my $offset = 0;
 
+	$inputfd->blocking(0);
 	$stdoutfd->blocking(0);
 	$statusfd->blocking(0);
 	$stderrfd->blocking(0);
-	$s->add($stdoutfd);
-	$s->add($stderrfd);
-	$s->add($statusfd);
+	$sout->add($stdoutfd);
+	$sout->add($stderrfd);
+	$sout->add($statusfd);
+	$sin->add($inputfd);
 
 	my ($stdout, $stderr, $status) = ("", "", "");
 
-	print $inputfd $in; close $inputfd;
+	my ($readyr, $readyw, $written);
+	while ($sout->count() > 0) {
+		($readyr, $readyw, undef) = IO::Select::select($sout, $sin, undef, 42);
+		foreach my $wfd (@$readyw) {
+			$written = $wfd->syswrite($in, length($in) - $offset, $offset);
+			$offset += $written;
+			if ($offset == length($in)) {
+				close $wfd;
+				$sin->remove($wfd);
+				$sin = undef;
+			}
+		}
 
-	my @ready;
-	while ($s->count() > 0) {
-		@ready = $s->can_read(42);
-		next unless (scalar(@ready)); # Wait some more.
+		next unless (defined(@$readyr)); # Wait some more.
 
-		for my $rfd (@ready) {
+		for my $rfd (@$readyw) {
 			if ($rfd->eof) {
-				$s->remove($rfd);
+				$sout->remove($rfd);
 				close($rfd);
 				next;
 			}
@@ -317,7 +329,7 @@ sub readwrite_gpg($$$$$) {
 		}
 	}
 	return ($stdout, $stderr, $status);
-}
+};
 
 sub crypt_symmetrically($$) {
 	my ($msg, $direction) = @_;
