@@ -1,6 +1,10 @@
 Changes in version 
 	* Have echolot version in stats HTML pages
 	* Random documentation fixes
+	* Make it run with older perls (5.005_03 is tested)
+          - always pass two arguments to mkdir()
+	  - import SEEK_ constants from POSIX rather than Fcntl
+	  - do not use warnings
 
 Changes in version 2.0beta14 - 2002-07-16
 	* Added commands buildstats buildkeys and buildthesaurus
