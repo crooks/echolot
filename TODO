@@ -1,4 +1,4 @@
-$Id: TODO,v 1.51 2003/02/24 16:22:14 weasel Exp $
+$Id: TODO,v 1.52 2003/02/24 16:23:10 weasel Exp $
 
 Legend:
         - Not done
@@ -9,6 +9,8 @@ Legend:
         X Abandoned
 
 can be done later:
+ - ping mail2news gates
+ - ping remailer -> usenet, summarize from lines
  - have different stats philosophies (pessimist, optimist..)
  - allow capsstring overrides/additions
  - check gnupg version number on startup
