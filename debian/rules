@@ -38,9 +38,9 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	tar c --exclude CVS --exclude .cvsignore Echolot   | tar xv -C $(CURDIR)/debian/echolot/usr/share/perl5/
-	tar c --exclude CVS --exclude .cvsignore lib       | tar xv -C $(CURDIR)/debian/echolot/usr/share/perl5/
-	tar c --exclude CVS --exclude .cvsignore templates | tar xv -C $(CURDIR)/debian/echolot/etc/echolot
+	tar c        --exclude CVS --exclude .cvsignore Echolot   | tar xv -C $(CURDIR)/debian/echolot/usr/share/perl5/
+	tar c -C lib --exclude CVS --exclude .cvsignore .         | tar xv -C $(CURDIR)/debian/echolot/usr/share/perl5/
+	tar c        --exclude CVS --exclude .cvsignore templates | tar xv -C $(CURDIR)/debian/echolot/etc/echolot
 	install -m 755 pingd $(CURDIR)/debian/echolot/usr/bin/
 	install -m 644 debian/pingd.conf $(CURDIR)/debian/echolot/etc/echolot
 
