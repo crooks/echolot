@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.10 2003/01/14 05:25:35 weasel Exp $
+# $Id: Mix.pm,v 1.11 2003/01/14 06:04:37 weasel Exp $
 #
 
 =pod
@@ -61,6 +61,7 @@ sub ping($$$$) {
 	print (F "PUBRING         pubring.mix\n");
 	print (F "TYPE2LIST       type2.list\n");
 	print (F "SENDMAIL        $sendmail -f $address -t\n");
+	print (F "VERBOSE         0\n");
 	close (F) or
 		Echolot::Log::warn("Cannot close $mixcfg: $!."),
 		return 0;
