@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.18 2002/07/16 02:48:57 weasel Exp $
+# $Id: Conf.pm,v 1.19 2002/07/17 16:50:04 weasel Exp $
 #
 
 =pod
@@ -14,6 +14,11 @@ Echolot::Conf - remailer Configuration/Capabilities
 
 This package provides functions for requesting, parsing, and analyzing
 remailer-conf and remailer-key replies.
+
+=head1 CAVEATS
+
+When parsing OpenPGP keys only the address of the primary user id is taken into
+account (This is the one with the latest self signature I think).
 
 =cut
 
