@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.1 2002/06/05 04:05:40 weasel Exp $
+# $Id: Scheduler.pm,v 1.2 2002/06/11 10:16:38 weasel Exp $
 #
 
 =pod
@@ -21,7 +21,7 @@ the ping daemon.
 
 use strict;
 use warnings;
-use Carp gw{cluck};
+use Carp qw{cluck};
 
 my $ORDER = 1;
 
