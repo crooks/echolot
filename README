@@ -47,6 +47,8 @@ o Create a mixmaster client installation in ~pinger/Mix echolot needs to
   file, the public mixmaster keyring, and type2.list.  Don't bother
   putting current keyrings there.
 
+o copy all echolot files and directories to ~pinger/echolot
+
 o Check the homedir setting and set sitename in pingd.conf.
 
 o Set my_localpart and my_domain in pingd.conf to the appropriate values
@@ -59,15 +61,15 @@ o Make sure your MTA supports user defined mailboxes. so that
   If you use another character instead or + to indicate a user defined
   extension set recipient_delimiter accordingly in pingd.conf.
 
-o Mail should be delivered to /home/pinger/mail which must be a Maildir
-  mailbox, i.e there are 3 directories: /home/pinger/mail/tmp,
-  /home/pinger/mail/cur and /home/pinger/mail/new. Qmail, postfix and
-  procmail can do this.
+o Mail should be delivered to /home/pinger/echolot/mail which must be a Maildir
+  mailbox, i.e there are 3 directories: /home/pinger/echolot/mail/tmp,
+  /home/pinger/echolot/mail/cur and /home/pinger/echolot/mail/new. Qmail,
+  postfix and procmail can do this.
 
   Example snipped for procmail:
 
   :0
-  $HOME/mail/
+  $HOME/echolot/mail/
   
   (the trailing slash is important!)
 
