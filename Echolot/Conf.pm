@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.25 2002/08/18 06:18:00 weasel Exp $
+# $Id: Conf.pm,v 1.26 2002/08/23 06:03:56 weasel Exp $
 #
 
 =pod
@@ -54,11 +54,18 @@ sub send_requests($;$) {
 		next unless ($remailer->{'status'} eq 'active');
 		next unless ($remailer->{'fetch'});
 		my $address = $remailer->{'address'};
-		next if ($which ne 'all' && $which ne $address );
+
+		next unless (
+			$which eq 'all' ||
+			$which eq $address ||
+			$which eq '');
 
 		for my $type (qw{conf key help stats adminkey}) {
 
-			next if ($which ne $address && $this_call_id ne (Echolot::Tools::makeShortNumHash($address.$type) % $send_every_n_calls));
+			next unless (
+				$which eq $address ||
+				$which eq 'all' ||
+				($which eq '' && $this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type) % $send_every_n_calls)));
 
 			print "Sending $type requests to ".$address."\n"
 				if Echolot::Config::get()->{'verbose'};
