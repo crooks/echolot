@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.1 2002/07/06 00:50:27 weasel Exp $
+# $Id: Thesaurus.pm,v 1.2 2002/07/06 14:08:05 weasel Exp $
 #
 
 =pod
@@ -47,14 +47,14 @@ sub build_thesaurus() {
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday)
 			= gmtime($mtime);
 
-		my $date = sprintf("%04d-%02d-%02d %02d:%02d",
-			$year+1900, $mon+1, $mday,
-			$hour, $min);
+		my $date = sprintf("%04d-%02d-%02d", $year+1900, $mon+1, $mday);
+		my $time = sprintf("%02d:%02d", $hour, $min);
 
 
 		$data->{$remailer->{'address'}}->{$what} = {
 			'href' => $filename,
 			'date' => $date,
+			'time' => $time,
 		};
 	};
 
@@ -72,19 +72,24 @@ sub build_thesaurus() {
 	print F "<tr><tr><th>nick</th><th>Address</th><th>conf</th><th>help</th><th>key</th><th>stats</th><th>adminkey</th></tr>\n";
 
 	for my $addr (sort { $data->{$a}->{'nick'} cmp $data->{$b}->{'nick'} } keys (%$data)) {
-		printf F "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
+		printf F '<tr><td>%s</td><td>%s</td><td align="center">%s</td><td align="center">%s</td><td align="center">%s</td><td align="center">%s</td><td align="center">%s</td></tr>'."\n",
 			$data->{$addr}->{'nick'},
 			$addr,
 			defined ($data->{$addr}->{'conf'}) ?
-				sprintf('<a href="%s">%s</a>', $data->{$addr}->{'conf'}->{'href'}, $data->{$addr}->{'conf'}->{'date'}) : 'N/A',
+				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'conf'}->{'href'}, $data->{$addr}->{'conf'}->{'date'},
+				                                                                         $data->{$addr}->{'conf'}->{'time'}) : 'N/A',
 			defined ($data->{$addr}->{'help'}) ?
-				sprintf('<a href="%s">%s</a>', $data->{$addr}->{'help'}->{'href'}, $data->{$addr}->{'help'}->{'date'}) : 'N/A',
+				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'help'}->{'href'}, $data->{$addr}->{'help'}->{'date'},
+				                                                                         $data->{$addr}->{'help'}->{'time'}) : 'N/A',
 			defined ($data->{$addr}->{'key'}) ?
-				sprintf('<a href="%s">%s</a>', $data->{$addr}->{'key'}->{'href'}, $data->{$addr}->{'key'}->{'date'}) : 'N/A',
+				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'key'}->{'href'}, $data->{$addr}->{'key'}->{'date'},
+				                                                                        $data->{$addr}->{'key'}->{'time'}) : 'N/A',
 			defined ($data->{$addr}->{'stats'}) ?
-				sprintf('<a href="%s">%s</a>', $data->{$addr}->{'stats'}->{'href'}, $data->{$addr}->{'stats'}->{'date'}) : 'N/A',
+				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'stats'}->{'href'}, $data->{$addr}->{'stats'}->{'date'},
+				                                                                          $data->{$addr}->{'stats'}->{'time'}) : 'N/A',
 			defined ($data->{$addr}->{'adminkey'}) ?
-				sprintf('<a href="%s">%s</a>', $data->{$addr}->{'adminkey'}->{'href'}, $data->{$addr}->{'adminkey'}->{'date'}) : 'N/A';
+				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'adminkey'}->{'href'}, $data->{$addr}->{'adminkey'}->{'date'},
+				                                                                             $data->{$addr}->{'adminkey'}->{'time'}) : 'N/A',
 	};
 	print F '</table></body>';
 	close (F);
