@@ -286,6 +286,8 @@ sub readwrite_gpg($$$$$) {
 	my $sin = IO::Select->new();
 	my $offset = 0;
 
+	Echolot::Log::debug("input is $inputfd; output is $stdoutfd; err is $stderrfd; status is ".(defined $statusfd ? $statusfd : 'undef').".");
+
 	$inputfd->blocking(0);
 	$stdoutfd->blocking(0);
 	$statusfd->blocking(0) if defined $statusfd;
@@ -294,8 +296,6 @@ sub readwrite_gpg($$$$$) {
 	$sout->add($stderrfd);
 	$sout->add($statusfd) if defined $statusfd;
 	$sin->add($inputfd);
-
-	Echolot::Log::debug("input is $inputfd; output is $stdoutfd; err is $stderrfd; status is ".(defined $statusfd ? $statusfd : 'undef').".");
 
 	my ($stdout, $stderr, $status) = ("", "", "");
 
