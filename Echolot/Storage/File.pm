@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.38 2002/07/16 02:59:17 weasel Exp $
+# $Id: File.pm,v 1.39 2002/08/21 20:10:51 weasel Exp $
 #
 
 =pod
@@ -731,6 +731,9 @@ sub set_caps($$$$$$;$) {
 
 sub set_key($$$$$$$$$) {
 	my ($self, $type, $nick, $address, $key, $keyid, $version, $caps, $summary, $timestamp) = @_;
+
+	(defined $address) or
+		cluck ("$address not defined in set_key");
 	
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 		$self->{'METADATA'}->{'remailers'}->{$address} =
@@ -739,7 +742,8 @@ sub set_key($$$$$$$$$) {
 			};
 	} else {
 		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
-			if ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired');
+			if (!defined ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'}) ||
+			   ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired'));
 	};
 
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}) {
