@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.16 2003/02/22 15:11:27 weasel Exp $
+# $Id: Chain.pm,v 1.17 2003/06/09 18:57:41 weasel Exp $
 #
 
 =pod
@@ -106,27 +106,6 @@ sub do_chainping($$$$$$$) {
 	return 1;
 };
 
-sub remailer_supports_chaintype($$) {
-	my ($address, $type) = @_;
-
-	my %supports = map { $_ => 1} Echolot::Globals::get()->{'storage'}->get_types($address);
-	for my $type (@{Echolot::Config::get()->{'which_chainpings'}->{$type}}) {
-		return $type if $supports{$type};
-	};
-	return 0;
-};
-sub get_latest_key($$) {
-	my ($address, $type) = @_;
-
-	my $latest = 0;
-	my $chosen = undef;
-	for my $keyid (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
-		my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
-		$chosen = $keyid, $latest = $key{'last_update'} if $latest < $key{'last_update'};
-	};
-	return $chosen;
-};
-
 sub send_pings($;$$) {
 	return 1 unless Echolot::Config::get()->{'do_chainpings'};
 
@@ -150,23 +129,40 @@ sub send_pings($;$$) {
 	my $session_id_ic = int ($scheduled_for / ($call_intervall * $send_every_n_calls_ic));
 
 	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
-	for my $rem1 (@remailers) {
-		next unless $rem1->{'pingit'};
-		my $addr1 = $rem1->{'address'};
+	for my $chaintype (keys %{Echolot::Config::get()->{'which_chainpings'}}) {
 
-		next unless (
-			$which1 eq 'all' ||
-			$which1 eq $addr1 ||
-			$which1 eq '');
+		my @thisrems;
+		for my $rem (@remailers) {
+			next unless $rem->{'pingit'};
+			my $addr = $rem->{'address'};
+			my $type;
+			my %supports = map { $_ => 1 } Echolot::Globals::get()->{'storage'}->get_types($addr);
+			for my $thistype (@{Echolot::Config::get()->{'which_chainpings'}->{$chaintype}}) {
+				$type = $thistype, last if $supports{$chaintype};
+			};
+			next unless $type;
+			my $key;
+			my $latest = 0;
+			for my $keyid (Echolot::Globals::get()->{'storage'}->get_keys($addr, $type)) {
+				my %key = Echolot::Globals::get()->{'storage'}->get_key($addr, $type, $keyid);
+				$key = $keyid, $latest = $key{'last_update'} if $latest < $key{'last_update'};
+			};
+			push @thisrems, { addr => $addr, type => $type, key => $key };
+		};
 
-		for my $chaintype (keys %{Echolot::Config::get()->{'which_chainpings'}}) {
-			my $type1 = remailer_supports_chaintype($addr1, $chaintype);;
-			next unless $type1;
-			my $key1 = get_latest_key($addr1, $type1);
+		for my $rem1 (@thisrems) {
+			my $addr1 = $rem1->{'addr'};
 
-			for my $rem2 (@remailers) {
-				next unless $rem2->{'pingit'};
-				my $addr2 = $rem2->{'address'};
+			next unless (
+				$which1 eq 'all' ||
+				$which1 eq $addr1 ||
+				$which1 eq '');
+
+			my $type1 = $rem1->{'type'};
+			my $key1  = $rem1->{'key'};
+
+			for my $rem2 (@thisrems) {
+				my $addr2 = $rem2->{'addr'};
 				next if $rem1 eq $rem2 && (! ($which1 eq $addr2 && $which2 eq $addr2));
 
 				next unless (
@@ -174,10 +170,8 @@ sub send_pings($;$$) {
 					$which2 eq $addr2 ||
 					$which2 eq '');
 
-				my $type2 = remailer_supports_chaintype($addr2, $chaintype);;
-				next unless $type2;
-				my $key2 = get_latest_key($addr2, $type2);
-
+				my $type2 = $rem2->{'type'};
+				my $key2  = $rem2->{'key'};
 
 				my $call_id    = Echolot::Tools::makeShortNumHash($addr1.$addr2.$chaintype.$session_id   ) % $send_every_n_calls;
 				my $call_id_ic = Echolot::Tools::makeShortNumHash($addr1.$addr2.$chaintype.$session_id_ic) % $send_every_n_calls_ic;
