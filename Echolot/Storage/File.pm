@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.32 2002/07/11 17:42:48 weasel Exp $
+# $Id: File.pm,v 1.33 2002/07/11 23:20:54 weasel Exp $
 #
 
 =pod
@@ -67,14 +67,11 @@ sub new {
 
 	$self->delay_commit();
 	$self->metadata_open() or
-		cluck ('Opening Metadata  failed. Exiting'),
-		exit 1;
+		confess ('Opening Metadata  failed. Exiting');
 	$self->metadata_read() or
-		cluck ('Reading Metadata from Storage failed. Exiting'),
-		exit 1;
+		confess ('Reading Metadata from Storage failed. Exiting');
 	$self->pingdata_open() or
-		cluck ('Opening Ping files failed. Exiting'),
-		exit 1;
+		confess ('Opening Ping files failed. Exiting');
 	$self->enable_commit();
 	
 	return $self;
