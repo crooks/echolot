@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.38 2003/02/16 09:09:57 weasel Exp $
+# $Id: Conf.pm,v 1.39 2003/05/21 00:28:35 weasel Exp $
 #
 
 =pod
@@ -303,6 +303,9 @@ sub parse_mix_key($$$) {
 
 	for my $keyid (keys %mixmasters) {
 		my $remailer_address = $mixmasters{$keyid}->{'address'};
+		(defined $mixmasters{$keyid}->{'nick'}) or
+			Echolot::Log::info("Could not parse a remailer-key reply."),
+			next;
 		(defined $mixmasters{$keyid}->{'nick'} && ! defined $mixmasters{$keyid}->{'key'}) and
 			Echolot::Log::info("Mixmaster key header without key in reply from $remailer_address."),
 			next;
