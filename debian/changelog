@@ -1,8 +1,9 @@
-echolot (2.0.5-3notyet) unstable; urgency=low
+echolot (2.0.6-1) unstable; urgency=low
 
+  * New upstream version.
   * Fixed init.d script: s,devnull,dev/null,
 
- -- Peter Palfrader <weasel@debian.org>  Thu,  5 Dec 2002 10:21:29 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 18 Dec 2002 18:36:05 +0100
 
 echolot (2.0.5-2) unstable; urgency=low
 
