@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.11 2003/02/03 20:10:05 weasel Exp $
+# $Id: Mailin.pm,v 1.12 2003/02/14 05:12:50 weasel Exp $
 #
 
 =pod
@@ -82,6 +82,7 @@ sub handle($) {
 	Echolot::Conf::remailer_adminkey($body, $type, $timestamp), return 1 if ($type =~ /^adminkey\./);
 
 	Echolot::Pinger::receive($body, $type, $timestamp), return 1 if ($type eq 'ping');
+	Echolot::Chain($body, $type, $timestamp), return 1 if ($type eq 'chainping');
 
 	Echolot::Log::warn("Didn't know what to do with '$to'."),
 	return 0;
