@@ -1,0 +1,108 @@
+#!/bin/sh
+#
+# pingcntl: echolot control + wrapper
+# Written by admin@arancio.net, peter@palfrader.org
+
+set -e
+
+################################################################
+# You perhaps want to change those items
+
+BASEDIR=/home/weasel/projects/echolot/devel/echolot
+USER=weasel
+VERBOSE=0
+
+# You probably don't want to mess with stuff below this line
+################################################################
+
+PINGD="./pingd"
+CHECKULIMIT=1
+CHECKUID=1
+
+# Check for evil ulimits
+if [ "$CHECKULIMIT" -gt "0" ];
+	FDs=`ulimit -n`
+	HFDs=`ulimit -H -n`
+	if [ "$FDs" -lt "512" ]; then
+		if [ "$HFDs" -lt "512" ]; then
+			echo "Hardlimit for open File Descriptors is less than 512." >&2
+			echo "Please consider raising it." >&2
+			if [ "$FDs" -lt "$HFDs" ]; then
+				echo "Raising it to $HFDs" >&2
+				ulimit -n $HFDs
+			fi
+		else
+			if [ "$HFDs" -lt "1024" ]; then
+				FDs=$HFDs
+			else
+				FDs=1024
+			fi
+			echo "Softlimit for open File Descriptors is less than 512." >&2
+			echo "Raising it to $FDs" >&2
+			ulimit -n $FDs
+		fi
+	fi
+fi
+
+
+# Check for right User
+SU=""
+if [ "$CHECKUID" -gt "0" ];
+	CUID=`id -u`
+	CUIDNAME=`id -nu`
+	if [ "$CUIDNAME" = "$USER" ]; then
+		SU=""
+	elif [ "$CUID" = "0" ]; then
+		SU="su $USER -c"
+	else
+		echo "You are neither $USER nor root. Aborting." >&2
+		exit 1;
+	fi
+fi
+
+# set VERBOSE
+if [ $VERBOSE -gt 0 ]; then
+	VERBOSE="--verbose"
+else
+	VERBOSE=""
+fi
+
+
+cd $BASEDIR
+
+case $1 in
+
+start)
+	echo -n "Starting Echolot: pingd" 
+	$SU $PINGD --detach $VERBOSE start
+	echo "."
+	;;
+
+stop)
+	echo -n "Stopping Echolot: pingd" 
+ 	$SU $PINGD stop
+	echo "."
+	;;
+
+reload|force-reload|restart)
+	$0 stop
+	sleep 10
+	$0 start
+	;;
+process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|buildstats|buildkeys|buildthesaurus|dumpconf)
+	echo "Running pingd $1..."
+	$SU $PINGD "$@"
+	echo "done."
+	;;
+*)
+	echo "Usage: $0 (start|stop|reload|force-reload|restart)" >&2
+	echo "       $0 <COMMAND> [parameters]" >&2
+	echo "See the pingd(1) manual page for valid commands" >&2
+	exit 1
+	;;
+esac
+
+exit 0
+
+# vim:set ts=2:
+# vim:set shiftwidth=2:

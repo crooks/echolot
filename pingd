@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.50 2002/07/29 13:36:20 weasel Exp $
+# $Id: pingd,v 1.51 2002/08/02 02:20:47 weasel Exp $
 #
 
 =pod
@@ -251,7 +251,7 @@ use Echolot::Thesaurus;
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0beta19';
+my $VERSION = '2.0beta20';
 
 
 my $redirected_stdio = 0;
@@ -516,6 +516,22 @@ if ($params->{'help'}) {
     print ("See man pingd or perldoc pingd for more info.\n");
     print ("echolot $VERSION - (c) 2002 Peter Palfrader <peter\@palfrader.org>\n");
     print ("http://savannah.gnu.org/projects/echolot/\n");
+	print ("\n");
+	print ("Commands:\n");
+	print ("  start      starts echolot pingd\n");
+	print ("             signals pingd to ... \n");
+	print ("  stop               ... shutdown\n");
+	print ("  process            ... reopen outfile and process commands\n");
+	print ("  add                ... add a remailer address\n");
+	print ("  delete             ... delete a remailer address\n");
+	print ("  set                ... set remailer options\n");
+	print ("  setremailercaps    ... set remailer capabilities manually\n");
+	print ("  deleteremailercaps ... delete remailer capabilities manually\n");
+	print ("  getkeyconf         ... request remailer-xxx data immediatly\n");
+	print ("  buildstats         ... build remailer stats immediatly\n");
+	print ("  buildkeys          ... buid keyrings immediatly\n");
+	print ("  buildthesaurus     ... build thesaurus immediatly\n");
+	print ("  dumpconf   dump configuration\n");
     exit 0;
 };
 if ($params->{'version'}) {

@@ -1,4 +1,9 @@
-$Id: README,v 1.22 2002/07/22 02:18:30 weasel Exp $
+$Id: README,v 1.23 2002/08/02 02:20:47 weasel Exp $
+#####################################################################
+##  R E A D M E   F O R   E C H O L O T   ###########################
+#####################################################################
+
+| Echolot, das: German, sonic depth finder
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -11,8 +16,8 @@ Additionally it collects configuration parameters and keys of all
 remailers and offers them in a format readable by remailer clients.
 
 
-This is echolot2. Besides the name, author and purpose this has nothing
-to do with echolot1. It's written from scratch.
+This is Echolot2. Besides the name, author and purpose this has nothing
+to do with Echolot1. It's written from scratch.
 
 LICENSE
 -------
@@ -45,7 +50,7 @@ o Create a new unix user named »pinger« (You can actually use any name
 o Make sure you have the perl libraries mentioned above and GnuPG
   installed properly.
 
-o Copy all echolot files and directories to ~pinger/echolot
+o Copy all Echolot files and directories to ~pinger/Echolot
 
 o Copy/Rename the pingd.conf.sample file to pingd.conf.
 
@@ -66,10 +71,10 @@ o If the GnuPG executable »gpg« is not in your PATH, set
 
 o Set my_localpart and my_domain in pingd.conf to the appropriate values
   for your pinger. Mail to my_localpart@my_domain needs to reach
-  echolot.
+  Echolot.
 
 o Make sure your MTA supports user defined mailboxes. so that
-  my_localpart+anything@my_domain also reaches echolot.
+  my_localpart+anything@my_domain also reaches Echolot.
               ^^^^^^^^^
   If you use another character instead of + to indicate a user defined
   extension set recipient_delimiter accordingly in pingd.conf.
@@ -117,6 +122,11 @@ o »./pingd --detach --verbose start«
 o You can tail the output file to get the debugging output:
   »tail -f output«
 
+o In the tools directory you find the »pingctl« wrapper for Echolot.
+  It takes care of checking ulimits, userid and cd'ing to the right
+  directory. If you want you can install it as an init script in
+  /etc/init.d or similar and link it from the runlevel directories
+  if your init is SysV style.
 
 
 CONFIGURATION
@@ -133,7 +143,7 @@ After changing pingd.conf you need to restart pingd.
 CAVEATS
 -------
 
-- echolot will keep open all ping and metadata files. This means it needs quite
+- Echolot will keep open all ping and metadata files. This means it needs quite
   a few file descriptors (about 2 * total keys or 6 to 8 * remailers + some for
   perl).  If you have a very strict ulimit for open files you need to increase it.
   Something like 512 should be plenty.
@@ -142,3 +152,12 @@ CAVEATS
 
 Please report bugs and feature requests at
 http://savannah.gnu.org/bugs/?group=echolot
+
+The Echolot homepage is at
+http://www.palfrader.org/echolot/
+
+ACKNOWLEDGEMENTS
+----------------
+	Orange Admin for contributing ideas and templates
+	The FSF for savanna.gnu.org.
+	All testers of Echolot.

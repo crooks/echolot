@@ -1,3 +1,8 @@
+Changes in version 2.0beta20 - 2002-08-02
+	* Added pingctl wrapper to tools.
+	* echolot --help now gives a brief list of commands.
+	* Added acknowledgements.
+
 Changes in version 2.0beta19 - 2002-07-29
 	* Build keyrings in results.private too
 
