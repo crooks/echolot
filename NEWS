@@ -5,6 +5,11 @@ Changes in
 	* Catch SIGPIPE.
 	* Document thesaurusindexfile.
 	* Minor documentation fixes.
+	* Exit immediatly after the current running task, even if we have a
+	  backlog.
+	* If we run late we should now drop actions where it does not hurt.
+	* Remove random command invocation via pingctr/init script.  People
+	  should just call pingd directly.
 
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.
