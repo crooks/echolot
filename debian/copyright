@@ -31,7 +31,7 @@ Peter J. Acklam <pjacklam@online.no>:
 
  - Math::SpecFun::Erf
  - Statistics::Distrib::Normal
- 
+
 Those modules may be distributed under the same terms as Perl itself (the GNU
 General Public License and the Artistic License).
 

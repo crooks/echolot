@@ -48,7 +48,7 @@ install: build
 binary-indep: build install
 	dh_testdir
 	dh_testroot
-	dh_installdebconf	
+	dh_installdebconf
 	dh_installdocs
 	dh_installmenu
 	dh_installlogrotate
@@ -65,7 +65,7 @@ binary-indep: build install
 	dh_md5sums
 	dh_builddeb
 
-binary-arch: 
+binary-arch:
 # We have nothing to do by default.
 
 binary: binary-indep binary-arch
