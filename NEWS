@@ -8,6 +8,8 @@ Changes in version       - 2004
 	  manually.
 	* Remove get_remailers since get_addresses does almost the same.
 	* Make sure we do not create empty key hashes in metadata.
+	* gpg interaction cleanup, move a lot of duplicated code to
+	  Echolot::Tools.
 
 Changes in version 2.1.3 - 2004-04-20
 	* Improvements to pingd.conf(5) by Colin.

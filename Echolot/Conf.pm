@@ -25,7 +25,6 @@ account (This is the one with the latest self signature I think).
 use strict;
 use Echolot::Log;
 use GnuPG::Interface;
-use IO::Handle;
 
 
 sub is_not_a_remailer($) {
@@ -361,19 +360,7 @@ sub parse_cpunk_key($$$) {
 	                          (?:[a-zA-Z0-9+\/=]*\r?\n)+
 	                          -----END \s PGP \s PUBLIC \s KEY \s BLOCK-----$/xmg );
 	for my $key (@pgp_keys) {
-		my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
-			= ( IO::Handle->new(),
-				IO::Handle->new(),
-				IO::Handle->new(),
-				IO::Handle->new(),
-			);
-		my $handles = GnuPG::Handles->new (
-			stdin      => $stdin_fh,
-			stdout     => $stdout_fh,
-			stderr     => $stderr_fh,
-			status     => $status_fh
-			);
-
+		my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 		my $pid = $GnuPG->wrap_call(
 			commands     => [qw{--with-colons}],
 			command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode}],

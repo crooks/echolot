@@ -18,6 +18,7 @@ Echolot::Tools - Tools for echolot
 use strict;
 use HTML::Template;
 use Digest::MD5 qw{};
+use IO::Handle;
 use GnuPG::Interface;
 use Echolot::Log;
 
@@ -263,8 +264,15 @@ sub write_HTML_file($$;$%) {
 	return 1;
 };
 
-
-
+sub make_gpg_fds() {
+	my %fds = (
+		stdin => IO::Handle->new(),
+		stdout => IO::Handle->new(),
+		stderr => IO::Handle->new(),
+		status => IO::Handle->new() );
+	my $handles = GnuPG::Handles->new( %fds );
+	return ($fds{'stdin'}, $fds{'stdout'}, $fds{'stderr'}, $fds{'status'}, $handles);
+};
 
 sub crypt_symmetrically($$) {
 	my ($msg, $direction) = @_;
@@ -281,18 +289,7 @@ sub crypt_symmetrically($$) {
 	$GnuPG->options->meta_interactive( 0 );
 	$GnuPG->passphrase( Echolot::Globals::get()->{'storage'}->get_secret() );
 
-	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
-		= ( IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		);
-	my $handles = GnuPG::Handles->new (
-		stdin      => $stdin_fh,
-		stdout     => $stdout_fh,
-		stderr     => $stderr_fh,
-		status     => $status_fh
-		);
+	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = make_gpg_fds();
 	my $pid = 
 		$direction eq 'encrypt' ?
 			$GnuPG->encrypt_symmetrically( handles      => $handles ) :

@@ -856,18 +856,7 @@ sub build_pgpring_type($$$$) {
 
 		# only if we have a conf
 		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
-			my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
-				= ( IO::Handle->new(),
-				IO::Handle->new(),
-				IO::Handle->new(),
-				IO::Handle->new(),
-				);
-			my $handles = GnuPG::Handles->new (
-				stdin      => $stdin_fh,
-				stdout     => $stdout_fh,
-				stderr     => $stderr_fh,
-				status     => $status_fh
-				);
+			my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 			my $pid = $GnuPG->wrap_call(
 				commands     => [ '--import' ],
 				command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
@@ -901,18 +890,7 @@ sub build_pgpring_type($$$$) {
 sub build_pgpring_export($$$$) {
 	my ($GnuPG, $keyring, $file, $keyids) = @_;
 
-	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
-		= ( IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		);
-	my $handles = GnuPG::Handles->new (
-		stdin      => $stdin_fh,
-		stdout     => $stdout_fh,
-		stderr     => $stderr_fh,
-		status     => $status_fh
-		);
+	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 	my $pid = $GnuPG->wrap_call(
 		commands     => [ '--export' ],
 		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --keyring}, $keyring, @$keyids ],

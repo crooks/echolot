@@ -19,7 +19,6 @@ This package provides functions for sending cypherpunk (type I) pings.
 use strict;
 use English;
 use GnuPG::Interface;
-use IO::Handle;
 use Echolot::Log;
 
 sub encrypt_to($$$$) {
@@ -40,18 +39,7 @@ sub encrypt_to($$$$) {
 		homedir => Echolot::Config::get()->{'gnupghome'} );
 	$GnuPG->options->meta_interactive( 0 );
 
-	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
-		= ( IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		);
-	my $handles = GnuPG::Handles->new (
-		stdin      => $stdin_fh,
-		stdout     => $stdout_fh,
-		stderr     => $stderr_fh,
-		status     => $status_fh
-		);
+	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 	my $pid = $GnuPG->wrap_call(
 		commands     => [ '--import' ],
 		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
@@ -87,18 +75,7 @@ sub encrypt_to($$$$) {
 	$GnuPG->options->hash_init(
 		armor   => 1 );
 
-	( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
-		= ( IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		IO::Handle->new(),
-		);
-	$handles = GnuPG::Handles->new (
-		stdin      => $stdin_fh,
-		stdout     => $stdout_fh,
-		stderr     => $stderr_fh,
-		status     => $status_fh
-		);
+	( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 	my $command_args = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --textmode --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
 	my $plaintextfile;
 
