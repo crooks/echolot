@@ -1,6 +1,8 @@
 Changes in version
 	* Work around a bug that let pingd die in certain random cases when
 	  dealing with unuseable PGP keys (like expired keys).
+	  Talk with Frank Tobin from GnuPG::Interface fame led to the diagnosis
+	  that pingd gets a SIGPIPE since the GnuPG process already exited.
 	* Removed a dupped line from v2legend.
 	* Allow periods in hostname.
 	* Don't use GnuPG::Interface's recipients when encrypting any more as
