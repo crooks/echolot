@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.10 2003/01/14 05:25:35 weasel Exp $
+# $Id: Mailin.pm,v 1.11 2003/02/03 20:10:05 weasel Exp $
 #
 
 =pod
@@ -150,7 +150,7 @@ sub read_maildir($) {
 	for my $sub (qw{new cur}) {
 		opendir(DIR, $dir.'/'.$sub) or
 			Echolot::Log::warn("Cannot open direcotry '$dir/$sub': $!."),
-			return 0;
+			return undef;
 		push @files, map { $sub.'/'.$_ } grep { ! /^\./ } readdir(DIR);
 		closedir(DIR) or
 			Echolot::Log::warn("Cannot close direcotry '$dir/$sub': $!.");
