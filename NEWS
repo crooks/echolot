@@ -1,4 +1,4 @@
-Changes in version
+Changes in version 2.0beta16 - 2002-07-17
 	* Do not send all pings for the same remailer at the same time
 	* The cheap hashing function that was used for determining when to ping
 	  was replaced by md5. The local secret also is an input to the

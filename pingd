@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.45 2002/07/17 17:53:44 weasel Exp $
+# $Id: pingd,v 1.46 2002/07/17 19:16:06 weasel Exp $
 #
 
 =pod
@@ -251,7 +251,7 @@ use Echolot::Thesaurus;
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0beta15';
+my $VERSION = '2.0beta16';
 
 
 my $redirected_stdio = 0;
