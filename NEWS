@@ -1,3 +1,10 @@
+Changes in version
+	* Allow for inclusion of broken chain reports and same operator/machine
+	  lists in stats pages. Broken chain reports are not generated
+	  automatically; this is planned for a later release.  For now you need
+	  to supply this information in the files broken1.txt, broken2.txt, and
+	  sameop.txt.
+
 Changes in version 2.0beta17 -  2002-07-22
 	* You no longer need an extra Mixmaster installation for your pinger.
 	  Echolot can make use of any Mixmaster binary you alread have

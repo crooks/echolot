@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.31 2002/07/22 02:18:30 weasel Exp $
+# $Id: Config.pm,v 1.32 2002/07/23 00:30:11 weasel Exp $
 #
 
 =pod
@@ -111,6 +111,9 @@ sub init($) {
 		mixhome                     => 'mixhome',
 		mixmaster                   => 'mix',
 		tmpdir                      => 'tmp',
+		broken1                     => 'broken1.txt',
+		broken2                     => 'broken2.txt',
+		sameop                      => 'sameop.txt',
 
 		commands_file               => 'commands.txt',
 		pidfile                     => 'pingd.pid',

@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.23 2002/07/22 02:18:30 weasel Exp $
+# $Id: Stats.pm,v 1.24 2002/07/23 00:30:11 weasel Exp $
 #
 
 =pod
@@ -256,6 +256,20 @@ sub calculate($$) {
 	};
 };
 
+sub read_file($;$) {
+	my ($name, $fail_ok) = @_;
+
+	unless (open (F, $name)) {
+		cluck("Could not open '$name': $!") unless ($fail_ok);
+		return undef;
+	};
+	local $/ = undef;
+	my $result = <F>;
+	close (F);
+
+	return $result;
+};
+
 sub write_file($$;$) {
 	my ($filebasename, $html_template, $output) = @_;
 
@@ -293,10 +307,14 @@ sub write_file($$;$) {
 	return 1;
 };
 
-sub build_mlist1($$;$) {
-	my ($rems, $filebasename, $html_template) = @_;
+sub build_mlist1($$$$$;$) {
+	my ($rems, $broken1, $broken2, $sameop, $filebasename, $html_template) = @_;
 
 	my $output = '';
+	$output .= sprintf "\nGroups of remailers sharing a machine or operator:\n$sameop\n" if (defined $sameop);
+	$output .= sprintf "\nBroken type-I remailer chains:\n$broken1\n" if (defined $broken1);
+	$output .= sprintf "\nBroken type-II remailer chains:\n$broken2\n" if (defined $broken2);
+
 	$output .= sprintf "Last update: %s\n", makeDate();
 	$output .= sprintf "mixmaster           history  latency  uptime\n";
 	$output .= sprintf "--------------------------------------------\n";
@@ -315,17 +333,17 @@ sub build_mlist1($$;$) {
 	return 1;
 };
 
-sub build_rlist1($$;$) {
-	my ($rems, $filebasename, $html_template) = @_;
+sub build_rlist1($$$$$;$) {
+	my ($rems, $broken1, $broken2, $sameop, $filebasename, $html_template) = @_;
 
 	my $output = '';
 	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
 		$output .= $remailer->{'caps'}."\n"
 	}
 
-	#$output .= sprintf "Groups of remailers sharing a machine or operator:\n\n";
-	#$output .= sprintf "Broken type-I remailer chains:\n\n";
-	#$output .= sprintf "Broken type-II remailer chains:\n\n";
+	$output .= sprintf "\nGroups of remailers sharing a machine or operator:\n$sameop\n" if (defined $sameop);
+	$output .= sprintf "\nBroken type-I remailer chains:\n$broken1\n" if (defined $broken1);
+	$output .= sprintf "\nBroken type-II remailer chains:\n$broken2\n" if (defined $broken2);
 
 	$output .= sprintf "\n";
 	$output .= sprintf "Last update: %s\n", makeDate();
@@ -349,8 +367,8 @@ sub build_rlist1($$;$) {
 };
 
 
-sub build_list2($$;$) {
-	my ($rems, $filebasename, $html_template) = @_;
+sub build_list2($$$$$;$) {
+	my ($rems, $broken1, $broken2, $sameop, $filebasename, $html_template) = @_;
 
 	my $output = '';
 
@@ -369,9 +387,9 @@ sub build_list2($$;$) {
 			build_list2_capsstr($remailer->{'caps'});
 	};
 
-	#$output .= sprintf "Groups of remailers sharing a machine or operator:\n\n";
-	#$output .= sprintf "Broken type-I remailer chains:\n\n";
-	#$output .= sprintf "Broken type-II remailer chains:\n\n";
+	$output .= sprintf "\nGroups of remailers sharing a machine or operator:\n$sameop\n" if (defined $sameop);
+	$output .= sprintf "\nBroken type-I remailer chains:\n$broken1\n" if (defined $broken1);
+	$output .= sprintf "\nBroken type-II remailer chains:\n$broken2\n" if (defined $broken2);
 
 	$output .= sprintf "\n\n\nRemailer-Capabilities:\n\n";
 	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
@@ -384,8 +402,8 @@ sub build_list2($$;$) {
 	return 1;
 };
 
-sub build_clist($$;$) {
-	my ($remhash, $filebasename, $html_template) = @_;
+sub build_clist($$$$$;$) {
+	my ($remhash, $broken1, $broken2, $sameop, $filebasename, $html_template) = @_;
 
 	my $output = '';
 
@@ -414,9 +432,9 @@ sub build_clist($$;$) {
 		};
 	};
 
-	#$output .= sprintf "Groups of remailers sharing a machine or operator:\n\n";
-	#$output .= sprintf "Broken type-I remailer chains:\n\n";
-	#$output .= sprintf "Broken type-II remailer chains:\n\n";
+	$output .= sprintf "\nGroups of remailers sharing a machine or operator:\n$sameop\n" if (defined $sameop);
+	$output .= sprintf "\nBroken type-I remailer chains:\n$broken1\n" if (defined $broken1);
+	$output .= sprintf "\nBroken type-II remailer chains:\n$broken2\n" if (defined $broken2);
 
 	$output .= sprintf "\n\n\nRemailer-Capabilities:\n\n";
 	for my $nick (sort {$a cmp $b} keys %$all) {
@@ -474,12 +492,17 @@ sub build_lists() {
 	my $pubclist;
 	my $rems;
 	my $pubrems;
+
+	my $broken1 = read_file( Echolot::Config::get()->{'broken1'}, 1);
+	my $broken2 = read_file( Echolot::Config::get()->{'broken2'}, 1);
+	my $sameop = read_file( Echolot::Config::get()->{'sameop'}, 1);
+
 	$rems = build_rems(['mix']);
 	@$pubrems = grep { $_->{'showit'} } @$rems;
-	build_mlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist');
-	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2');
-	build_mlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', Echolot::Config::get()->{'templates'}->{'mlist'});
-	build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
+	build_mlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist');
+	build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2');
+	build_mlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', Echolot::Config::get()->{'templates'}->{'mlist'});
+	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
 	if (Echolot::Config::get()->{'combined_list'}) {
 		$clist->{'mix'} = $rems;
 		$pubclist->{'mix'} = $pubrems; $pubrems = undef;
@@ -487,10 +510,10 @@ sub build_lists() {
 
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
 	@$pubrems = grep { $_->{'showit'} } @$rems;
-	build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist');
-	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2');
-	build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', Echolot::Config::get()->{'templates'}->{'rlist'});
-	build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
+	build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist');
+	build_list2( $rems,$broken1, $broken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2');
+	build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', Echolot::Config::get()->{'templates'}->{'rlist'});
+	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
 	if (Echolot::Config::get()->{'combined_list'} && ! Echolot::Config::get()->{'seperate_rlists'}) {
 		$clist->{'cpunk'} = $rems;
 		$pubclist->{'cpunk'} = $pubrems; $pubrems = undef;
@@ -499,10 +522,10 @@ sub build_lists() {
 	if (Echolot::Config::get()->{'seperate_rlists'}) {
 		$rems = build_rems(['cpunk-rsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
-		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
-		build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
-		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
+		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
+		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
+		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
+		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-rsa'} = $rems;
 			$pubclist->{'cpunk-rsa'} = $pubrems; $pubrems = undef;
@@ -510,10 +533,10 @@ sub build_lists() {
 
 		$rems = build_rems(['cpunk-dsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
-		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
-		build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
-		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
+		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
+		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
+		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
+		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-dsa'} = $rems;
 			$pubclist->{'cpunk-dsa'} = $pubrems; $pubrems = undef;
@@ -521,18 +544,18 @@ sub build_lists() {
 
 		$rems = build_rems(['cpunk-clear']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
-		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
-		build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
-		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
+		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
+		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
+		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
+		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-clear'} = $rems;
 			$pubclist->{'cpunk-clear'} = $pubrems; $pubrems = undef;
 		};
 	};
 	if (Echolot::Config::get()->{'combined_list'}) {
-		build_clist( $clist, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
-		build_clist( $pubclist, Echolot::Config::get()->{'resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
+		build_clist( $clist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
+		build_clist( $pubclist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
 	};
 };
 

@@ -434,6 +434,35 @@ As long as it exists pingd refuses to start up in daemon mode.
 
 	Default: 'pidfile' => 'pingd.pid',
 
+=item B<broken1>
+
+File listing broken type I remailer chains. If it does not exist, the part is
+skipped in generated stats. Otherwise its content is copied in verbatim.
+
+	Default: 'broken1' => 'broken1.txt',
+		(havenco cmeclax)
+		(frog3 nycrem)
+
+=item B<broken2>
+
+File listing broken type II remailer chains. If it does not exist, the part is
+skipped in generated stats. Otherwise its content is copied in verbatim.
+
+	Default: 'broken2' => 'broken2.txt',
+	Example conent:
+		(freedom lcs)
+		(* xganon)
+
+=item B<sameop>
+
+File listing remailers that have the same operator or share a machine or other
+important infrastructure.  If it does not exist, the part is skipped in
+generated stats. Otherwise its content is copied in verbatim.
+
+	Default: 'sameop' => 'sameop.txt',
+	Example conent:
+		(xganon2 xganon)
+		(cracker redneck)
 =back
 
 
