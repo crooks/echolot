@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.57 2003/06/06 11:27:59 weasel Exp $
+# $Id: Stats.pm,v 1.58 2003/06/09 22:52:51 weasel Exp $
 #
 
 =pod
@@ -186,11 +186,12 @@ sub build_list2_capsstr($) {
 
 sub median($) {
 	my ($arr) = @_;
+
 	my $cnt = scalar @$arr;
 	if ($cnt == 0) {
 		return undef;
 	} elsif ($cnt % 2 == 0) {
-		return ($arr->[ int(($cnt - 1 ) / 2) ] + $arr->[ int($cnt / 2) ] ) / 2;
+		return (($arr->[ int(($cnt - 1 ) / 2) ] + $arr->[ int($cnt / 2) ] ) / 2);
 	} else {
 		return $arr->[ int(($cnt - 1 ) / 2) ];
 	};
@@ -201,7 +202,7 @@ sub percentile($$) {
 
 	my $num = scalar @$lats;
 	my $i;
-	for (my $i=0; $i < $num; $i++) {
+	for ($i=0; $i < $num; $i++) {
 		last if $lat < $lats->[$i];
 	}
 	return ($num - $i) / $num;
@@ -242,7 +243,7 @@ sub calculate($$) {
 	my $latency_median = median (\@latency_total);
 	my @latency_median_day;
 	for ( 0 .. $STATS_DAYS - 1 ) {
-		@{$latency_day[$_]} = sort { $a <=> $b } $latency_day[$_];
+		@{$latency_day[$_]} = defined $latency_day[$_] ? (sort { $a <=> $b } @{$latency_day[$_]}) : ();
 		$latency_median_day[$_] = median ( $latency_day[$_] );
 	}
 
@@ -265,7 +266,7 @@ sub calculate($$) {
 	return {
 		avr_latency     => $latency_median,
 		avr_reliability => $received_total,
-		latency_day     => \@latency_day,
+		latency_day     => \@latency_median_day,
 		reliability_day => \@received_day
 	};
 };
