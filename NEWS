@@ -15,9 +15,12 @@ Changes in version
 	  new options:
 	     - do_chainpings (default: 1)
 	       Whether to do chain pinging.
-	   Several settings control the details of chain pinging.  You
-	   probably don't want or need to tweak them. See pingd.conf(5)
-	   for details.
+	     - show_chainpings (default: 1)
+	       Whether to show the result of our chain pinging in the
+	       public stats.
+	   Several other settings control the details of chain pinging.
+	   You probably don't want or need to tweak them. See
+	   the pingd.conf(5) manual page for details.
 
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.

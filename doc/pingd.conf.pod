@@ -645,6 +645,12 @@ This produces a non-trivial amount of traffic.
 
 	Default: 'do_chainpings' => 1,
 
+=item B<show_chainpings> [bool]
+
+Show the results of our chainpinging in public stats.
+
+	Default: 'show_chainpings' => 1,
+
 =item B<chainping_fudge>
 
 Which factor of messages may get lost in addition to the guessed loss

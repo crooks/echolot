@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.45 2003/02/16 14:11:02 weasel Exp $
+# $Id: Stats.pm,v 1.46 2003/02/16 14:40:43 weasel Exp $
 #
 
 =pod
@@ -577,15 +577,19 @@ sub build_lists() {
 	my $mixrems = build_rems(['mix']);
 	my $cpunkrems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
 	if (Echolot::Config::get()->{'do_chainpings'}) {
-		$broken1 = find_broken_chains('cpunk', $cpunkrems, $broken1);
-		$broken2 = find_broken_chains('mix', $mixrems, $broken2);
+		$privbroken1 = find_broken_chains('cpunk', $cpunkrems, $broken1);
+		$privbroken2 = find_broken_chains('mix', $mixrems, $broken2);
+	};
+	if (Echolot::Config::get()->{'show_chainpings'}) {
+		$broken1 = $privbroken1;
+		$broken2 = $privbroken2;
 	};
 
 	$rems = $mixrems;
 	$mixrems = undef;
 	@$pubrems = grep { $_->{'showit'} } @$rems;
-	build_mlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist', 'mlist');
-	build_list2( $rems, 2, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2', 'mlist2');
+	build_mlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist', 'mlist');
+	build_list2( $rems, 2, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2', 'mlist2');
 	build_mlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', 'mlist');
 	build_list2( $pubrems, 2, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', 'mlist2');
 	$stats{'mix_total'} = scalar @$pubrems;
@@ -599,8 +603,8 @@ sub build_lists() {
 	$rems = $cpunkrems;
 	$cpunkrems = undef;
 	@$pubrems = grep { $_->{'showit'} } @$rems;
-	build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist', 'rlist');
-	build_list2( $rems, 1, $broken1, $broken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2', 'rlist2');
+	build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist', 'rlist');
+	build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2', 'rlist2');
 	build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', 'rlist');
 	build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', 'rlist2');
 	$stats{'cpunk_total'} = scalar @$pubrems;
@@ -614,8 +618,8 @@ sub build_lists() {
 	if (Echolot::Config::get()->{'separate_rlists'}) {
 		$rems = build_rems(['cpunk-rsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
-		build_list2( $rems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
+		build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
+		build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
 		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
 		build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
 		if (Echolot::Config::get()->{'combined_list'}) {
@@ -625,8 +629,8 @@ sub build_lists() {
 
 		$rems = build_rems(['cpunk-dsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
-		build_list2( $rems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
+		build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
+		build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
 		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
 		build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
 		if (Echolot::Config::get()->{'combined_list'}) {
@@ -636,8 +640,8 @@ sub build_lists() {
 
 		$rems = build_rems(['cpunk-clear']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', 'rlist-clear');
-		build_list2( $rems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
+		build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', 'rlist-clear');
+		build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
 		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', 'rlist-clear');
 		build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
 		if (Echolot::Config::get()->{'combined_list'}) {
@@ -646,8 +650,8 @@ sub build_lists() {
 		};
 	};
 	if (Echolot::Config::get()->{'combined_list'}) {
-		build_clist( $clist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', 'clist');
-		build_clist( $pubclist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', 'clist');
+		build_clist( $clist, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', 'clist');
+		build_clist( $pubclist, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', 'clist');
 	};
 
 	$stats{'unique_addresses'} = scalar keys %addresses;
