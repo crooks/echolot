@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.4 2002/07/07 00:42:46 weasel Exp $
+# $Id: Thesaurus.pm,v 1.5 2002/07/07 01:12:00 weasel Exp $
 #
 
 =pod
@@ -34,7 +34,7 @@ sub build_thesaurus() {
 	closedir(DIR);
 
 
-	my $exire_date = time() - Echolot::Config::get()->{'expire_thesaurus'};
+	my $expire_date = time() - Echolot::Config::get()->{'expire_thesaurus'};
 
 	my $data;
 	for my $filename (@files) {

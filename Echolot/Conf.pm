@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.13 2002/07/06 18:34:01 weasel Exp $
+# $Id: Conf.pm,v 1.14 2002/07/07 01:12:00 weasel Exp $
 #
 
 =pod
@@ -61,6 +61,26 @@ sub send_requests() {
 	};
 	Echolot::Globals::get()->{'storage'}->enable_commit();
 };
+
+sub check_resurrection() {
+	Echolot::Globals::get()->{'storage'}->delay_commit();
+	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
+		next unless ($remailer->{'status'} eq 'ttl timeout');
+		next unless ($remailer->{'fetch'});
+		next unless ($remailer->{'resurrection_ttl'});
+		print "Sending requests to ".$remailer->{'address'}." to check for resurrection\n"
+			if Echolot::Config::get()->{'verbose'};
+		for my $type (qw{conf key help stats adminkey}) {
+			Echolot::Tools::send_message(
+				'To' => $remailer->{'address'},
+				'Subject' => 'remailer-'.$type,
+				'Token' => $type.'.'.$remailer->{'id'})
+		};
+		Echolot::Globals::get()->{'storage'}->decrease_resurrection_ttl($remailer->{'address'});
+	};
+	Echolot::Globals::get()->{'storage'}->enable_commit();
+};
+
 
 sub remailer_caps($$$;$) {
 	my ($conf, $token, $time, $dontexpire) = @_;

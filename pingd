@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.20 2002/07/06 23:22:25 weasel Exp $
+# $Id: pingd,v 1.21 2002/07/07 01:11:59 weasel Exp $
 #
 
 =pod
@@ -367,6 +367,7 @@ sub daemon_run() {
 	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'} , 0, \&commit_prospective_address );
 	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}             , 0, \&expire );
 	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf'}         , 0, \&Echolot::Conf::send_requests );
+	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'} , 0, \&Echolot::Conf::check_resurrection );
 
 	$scheduler->run();
 

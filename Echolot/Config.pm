@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.16 2002/07/07 00:42:46 weasel Exp $
+# $Id: Config.pm,v 1.17 2002/07/07 01:12:00 weasel Exp $
 #
 
 =pod
@@ -61,7 +61,8 @@ sub init($) {
 		recipient_delimiter         => '+',
 		dev_random                  => '/dev/random',
 		hash_len                    => 8,
-		addresses_default_ttl       => 5, # days
+		addresses_default_ttl       => 5, # getkeyconf seconds (days)
+		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
 		smarthost                   => 'localhost',
 		mailindir                   => 'mail',
 		mailerrordir                => 'mail-errors',
@@ -79,6 +80,7 @@ sub init($) {
 		commitprospectives          => 8*60*60, # commit prospective addresses every 8 hours
 		expire                      => 24*60*60, # daily
 		getkeyconf                  => 24*60*60, # daily
+		check_resurrection          => 7*24*60*60, # weekly
 		build_thesaurus             => 60*60, # hourly
 		
 		resultdir                   => 'results',

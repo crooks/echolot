@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.26 2002/07/03 12:09:03 weasel Exp $
+# $Id: File.pm,v 1.27 2002/07/07 01:12:00 weasel Exp $
 #
 
 =pod
@@ -523,6 +523,7 @@ sub get_address($$) {
 		id      => $self->{'METADATA'}->{'addresses'}->{$addr}->{'id'},
 		address => $_,
 		fetch   => $self->{'METADATA'}->{'addresses'}->{$addr}->{'fetch'},
+		resurrection_ttl => $self->{'METADATA'}->{'addresses'}->{$addr}->{'resurrection_ttl'},
 	};
 
 	return $result;
@@ -627,8 +628,27 @@ sub decrease_ttl($$) {
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} --;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'ttl timeout',
-		warn("Remailer $address disabled: ttl expired\n")
+		warn("Remailer $address disabled: ttl expired\n"),
+		$self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'} = Echolot::Config::get()->{'check_resurrection_ttl'}
 		if ($self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} <= 0);
+		# FIXME have proper logging
+	$self->commit();
+	return 1;
+};
+
+sub decrease_resurrection_ttl($$) {
+	my ($self, $address) = @_;
+	
+	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
+		cluck ("$address does not exist in Metadata address list"),
+		return 0;
+	($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'ttl timeout') or
+		cluck ("$address is not in ttl timeout status"),
+		return 0;
+	$self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'} --;
+	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'dead',
+		warn("Remailer $address is dead\n"),
+		if ($self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'} <= 0);
 		# FIXME have proper logging
 	$self->commit();
 	return 1;
@@ -640,9 +660,13 @@ sub restore_ttl($$) {
 	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
 		cluck ("$address does not exist in Metadata address list"),
 		return 0;
+	warn("Remailer $address is alive and active again\n")
+		unless ($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'active');
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} = Echolot::Config::get()->{'addresses_default_ttl'};
+	delete $self->{'METADATA'}->{'addresses'}->{$address}->{'resurrection_ttl'};
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'active' if
-		($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'ttl timeout');
+		($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'ttl timeout' ||
+		 $self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'dead');
 	$self->commit();
 	return 1;
 };
