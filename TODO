@@ -1,9 +1,10 @@
-$Id: TODO,v 1.39 2002/09/12 15:41:49 weasel Exp $
+$Id: TODO,v 1.40 2002/09/12 23:16:44 weasel Exp $
 
 for 2.0:
- fix bugs
+ test for another week or so
 
 can be done later, nice if for 2.0:
+ real logs
  detect broken chains
  ping nymservers
  chain preload and postload
