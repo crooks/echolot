@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.25 2002/07/13 23:37:55 weasel Exp $
+# $Id: Config.pm,v 1.26 2002/07/16 00:09:28 weasel Exp $
 #
 
 =pod
@@ -57,25 +57,26 @@ sub init($) {
 
 	my $DEFAULT;
 	$DEFAULT = {
+		# System Specific Options
 		recipient_delimiter         => '+',
 		dev_random                  => '/dev/random',
-		hash_len                    => 8,
-		addresses_default_ttl       => 5, # getkeyconf seconds (days)
-		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
 		sendmail                    => '/usr/sbin/sendmail',
-		mailindir                   => 'mail',
-		mailerrordir                => 'mail-errors',
+
+		# Magic Numbers
+		hash_len                    => 8,
+
+		# New Remailers
 		fetch_new                   => 1,
 		ping_new                    => 1,
 		show_new                    => 1,
 
+		# Statistics Generation
 		seperate_rlists             => 0,
 		combined_list               => 0,
 		thesaurus                   => 1,
 
+		# Timers and Counters
 		processmail                 => 60,   # process incomng mail every minute
-		pinger_interval             => 5*60, # send out pings every 5 minutes
-		ping_every_nth_time         => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
 		buildstats                  => 5*60, # build statistics every 5 minutes
 		buildkeys                   => 8*60*60, # build keyring every 8 hours
 		buildthesaurus              => 60*60, # hourly
@@ -83,21 +84,33 @@ sub init($) {
 		expire                      => 24*60*60, # daily
 		getkeyconf                  => 24*60*60, # daily
 		check_resurrection          => 7*24*60*60, # weekly
+
+		pinger_interval             => 5*60, # send out pings every 5 minutes
+		ping_every_nth_time         => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
+
+		addresses_default_ttl       => 5, # getkeyconf seconds (days)
+		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
+		prospective_addresses_ttl   => 5*24*60*60, # 5 days
+		reliable_auto_add_min       => 3, # 3 remailes need to list new address
 		
+		expire_keys                 => 5*24*60*60, # 5 days
+		expire_confs                => 5*24*60*60, # 5 days
+		expire_pings                => 12*24*60*60, # 12 days
+		expire_thesaurus            => 21*24*60*60, # 21 days
+
+		# Directories and files
+		mailindir                   => 'mail',
+		mailerrordir                => 'mail-errors',
 		resultdir                   => 'results',
 		thesaurusdir                => 'results/thesaurus',
 		thesaurusindexfile          => 'results/thesaurus/index.html',
 		private_resultdir           => 'results.private',
 		gnupghome                   => 'gnupg',
 		tmpdir                      => 'tmp',
-		prospective_addresses_ttl   => 432000, # 5 days
-		reliable_auto_add_min       => 3, # 3 remailes need to list new address
+
 		commands_file               => 'commands.txt',
 		pidfile                     => 'pingd.pid',
-		expire_keys                 => 5*24*60*60, # 5 days
-		expire_confs                => 5*24*60*60, # 5 days
-		expire_pings                => 12*24*60*60, # 12 days
-		expire_thesaurus            => 21*24*60*60, # 21 days
+
 		storage                     => {
 			backend                 	=> 'File',
 			File                    	=> {
@@ -146,6 +159,7 @@ sub init($) {
 		my_domain                   => undef,
 		operator_address            => undef,
 		sitename                    => undef,
+		'Pinger::Mix'               => undef,
 		verbose                     => 0
 	};
 
