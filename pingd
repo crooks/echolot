@@ -1,0 +1,40 @@
+#!/usr/bin/perl -wT
+
+# (c) 2002 Peter Palfrader <peter@palfrader.org>
+# $Id: pingd,v 1.1 2002/06/05 04:05:40 weasel Exp $
+#
+
+use strict;
+use XML::Parser;
+use XML::Dumper;
+use Getopt::Long;
+use lib '.';
+use Echolot::Config;
+use Echolot::Globals;
+use Echolot::Storage::File;
+#use Echolot::Scheduler;
+use Echolot::Conf;
+use Echolot::Mailin;
+
+$ENV{'PATH'} = '/bin:/usr/bin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+Echolot::Config::init();
+Echolot::Globals::init();
+
+#my $storage = new Echolot::Storage::File ( datadir => 'data' );
+#my $conf = new Echolot::Conf( storage => $storage );
+
+#$conf->send_requests();
+ 
+#my @addr = $storage->get_query_addresses();
+
+require Data::Dumper;
+print Data::Dumper->Dump([Echolot::Globals::get()]);
+#Echolot::Conf::send_requests();
+Echolot::Mailin::process();
+
+#$storage->commit();
+
+
+# vim: set ts=4 shiftwidth=4:

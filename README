@@ -1,0 +1,28 @@
+Echolot is a Pinger for anonymous remailers.
+
+A Pinger in the context of anonymous remailers is a program that regularily
+sends messages through remailers to check their reliability. It then
+calculates reliability statistics which are used by remailer clients to
+choose the chain of remailers to use.
+
+Additionally it collects configuration parameters and keys of all remailers
+and offers them in a format readable by remailer clients.
+
+
+This is echolot2. Besides the name, author and purpose this has nothing to do
+with echolot1. It's written from scratch.
+
+LICENSE
+-------
+Please see the file named "LICENSE".
+
+
+REQUIREMENTS
+------------
+FIXME
+
+
+SETUP
+-----
+FIXME
+
