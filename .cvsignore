@@ -8,5 +8,6 @@ gnupghome
 mixhome
 output
 pingd.pid
+pingd.log
 commands.txt
 pingd.conf
