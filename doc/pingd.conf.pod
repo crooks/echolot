@@ -529,4 +529,12 @@ real values.
 
 =back
 
+=head1 AUTHOR
+
+Peter Palfrader E<lt>peter@palfrader.orgE<gt>
+
+=head1 BUGS
+
+Please report them at E<lt>URL:http://savannah.gnu.org/bugs/?group=echolotE<gt>
+
 =cut
