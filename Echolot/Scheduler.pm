@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.12 2002/08/23 07:54:53 weasel Exp $
+# $Id: Scheduler.pm,v 1.13 2002/10/11 16:56:21 weasel Exp $
 #
 
 =pod
@@ -21,6 +21,7 @@ the ping daemon.
 
 use strict;
 use Carp qw{cluck confess};
+use English;
 
 my $ORDER = 1;
 
@@ -132,6 +133,7 @@ sub run($) {
 			warn("Task $task->{'name'} could not be started on time\n");
 		} else {
 			print "zZzZZzz at $now\n" if Echolot::Config::get()->{'verbose'};
+			$PROGRAM_NAME = "pingd [sleeping]";
 			sleep ($task->{'start'} - $now);
 		};
 
@@ -142,6 +144,7 @@ sub run($) {
 		do {
 			$task = shift @{ $self->{'schedule'} };
 			my $name = $task->{'name'};
+			$PROGRAM_NAME = "pingd [executing $name]";
 			(defined $self->{'tasks'}->{$name}) or
 				warn("Task $task->{'name'} is not defined\n");
 

@@ -1,3 +1,6 @@
+Changes in version 
+	* Set program name according to current action.
+
 Changes in version 2.0.2 - 2002-09-21
 	* Die immeditatly if there is no Version information in metadata.
 	* Make regular backups of metadata and rotate them properly.
