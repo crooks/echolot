@@ -94,7 +94,7 @@ reload|force-reload|restart)
 	sleep 10
 	$0 start
 	;;
-process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|buildstats|buildkeys|buildthesaurus|dumpconf)
+process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|buildstats|buildkeys|buildthesaurus|buildfromlines|dumpconf)
 	echo "Running pingd $1..."
 	if [ ! -z "$SU" ]; then
 		$SU "$PINGD \"$@\""
