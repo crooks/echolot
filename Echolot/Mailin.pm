@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.5 2002/07/11 17:45:59 weasel Exp $
+# $Id: Mailin.pm,v 1.6 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -16,7 +16,6 @@ Echolot::Mailin - Incoming Mail Dispatcher for Echolot
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use English;
 use Echolot::Globals;

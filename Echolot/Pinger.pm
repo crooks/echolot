@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.11 2002/07/02 18:15:26 weasel Exp $
+# $Id: Pinger.pm,v 1.12 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -17,7 +17,6 @@ This package provides functions for sending out and receiving pings.
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use English;
 use Echolot::Pinger::Mix;

@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.3 2002/07/03 00:28:02 weasel Exp $
+# $Id: Mix.pm,v 1.4 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -17,7 +17,6 @@ This package provides functions for sending mixmaster (type II) pings.
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use English;
 

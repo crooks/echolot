@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.6 2002/07/13 23:37:55 weasel Exp $
+# $Id: Commands.pm,v 1.7 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -17,10 +17,9 @@ This package provides functions for sending out and receiving pings.
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use Fcntl ':flock'; # import LOCK_* constants
-use Fcntl ':seek'; # import LOCK_* constants
+use Fcntl ':seek'; # import SEEK_* constants
 use English;
 
 sub addCommand($) {

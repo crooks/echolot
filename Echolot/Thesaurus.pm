@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.8 2002/07/15 20:18:29 weasel Exp $
+# $Id: Thesaurus.pm,v 1.9 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -17,7 +17,6 @@ This package provides necessary functions for the thesaurus.
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use English;
 use HTML::Template;

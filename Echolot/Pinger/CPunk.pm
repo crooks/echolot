@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.4 2002/07/02 18:03:55 weasel Exp $
+# $Id: CPunk.pm,v 1.5 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -17,7 +17,6 @@ This package provides functions for sending cypherpunk (type I) pings.
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use English;
 use GnuPG::Interface;

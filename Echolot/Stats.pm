@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.20 2002/07/16 00:53:33 weasel Exp $
+# $Id: Stats.pm,v 1.21 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -18,7 +18,6 @@ and keyrings.
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 
 use constant DAYS => 12;

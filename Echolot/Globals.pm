@@ -1,7 +1,7 @@
 package Echolot::Globals;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Globals.pm,v 1.3 2002/07/16 00:53:33 weasel Exp $
+# $Id: Globals.pm,v 1.4 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -15,7 +15,6 @@ Echolot::Globals - echolot global variables
 =cut
 
 use strict;
-use warnings;
 use Carp;
 
 my $GLOBALS;

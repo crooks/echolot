@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.17 2002/07/13 20:45:39 weasel Exp $
+# $Id: Conf.pm,v 1.18 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -18,7 +18,6 @@ remailer-conf and remailer-key replies.
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use GnuPG::Interface;
 use IO::Handle;

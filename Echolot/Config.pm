@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.27 2002/07/16 00:21:04 weasel Exp $
+# $Id: Config.pm,v 1.28 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -38,7 +38,6 @@ The configuration file is searched in those places in that order:
 =cut
 
 use strict;
-use warnings;
 use Carp;
 use English;
 

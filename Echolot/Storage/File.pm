@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.36 2002/07/13 21:11:52 weasel Exp $
+# $Id: File.pm,v 1.37 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -19,13 +19,12 @@ This package provides several functions for data storage for echolot.
 =cut
 
 use strict;
-use warnings;
 use Data::Dumper;
 use IO::Handle;
 use English;
 use Carp qw{cluck confess carp};
 use Fcntl ':flock'; # import LOCK_* constants
-use Fcntl ':seek'; # import LOCK_* constants
+use Fcntl ':seek'; # import SEEK_* constants
 use Echolot::Tools;
 
 =item B<new> (I<%args>)

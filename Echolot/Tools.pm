@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.5 2002/07/10 22:16:12 weasel Exp $
+# $Id: Tools.pm,v 1.6 2002/07/16 02:48:57 weasel Exp $
 #
 
 =pod
@@ -16,7 +16,6 @@ Echolot::Tools - Tools for echolot
 =cut
 
 use strict;
-use warnings;
 use Carp qw{cluck};
 use Digest::MD5 qw{};
 
