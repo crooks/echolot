@@ -1,5 +1,8 @@
 for 2.0:
  make setup easy/document setup
+ only ping remailers if pingit is set
+ only show remailers if showit is set
+ make a private [rm]list showing all remailers
 
 for later:
  rotate secret
