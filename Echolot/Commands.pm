@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.3 2002/07/02 17:03:13 weasel Exp $
+# $Id: Commands.pm,v 1.4 2002/07/03 00:54:40 weasel Exp $
 #
 
 =pod
@@ -67,6 +67,10 @@ sub processCommands($) {
 			Echolot::Globals::get()->{'storage'}->add_address(@args);
 		} elsif ($command eq 'set') {
 			Echolot::Globals::get()->{'storage'}->set_stuff(@args);
+		} elsif ($command eq 'getkeyconf') {
+			Echolot::Globals::get()->{'scheduler'}->schedule('getkeyconf', time() );
+		} elsif ($command eq 'delete') {
+			Echolot::Globals::get()->{'storage'}->delete_remailer(@args);
 		} else {
 			warn("Unkown command: $_\n");
 		};

@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.19 2002/07/03 00:36:14 weasel Exp $
+# $Id: File.pm,v 1.20 2002/07/03 00:54:40 weasel Exp $
 #
 
 =pod
@@ -914,6 +914,30 @@ sub expire($) {
 
 
 };
+
+sub delete_remailer($$) {
+	my ($self, $address) = @_;
+
+	unless (defined $self->{'METADATA'}->{'addresses'}->{$address}) {
+		delete $self->{'METADATA'}->{'addresses'}->{$address}
+	} else {
+		cluck("Remailer $address does not exist in addresses")
+	};
+
+	unless (defined $self->{'METADATA'}->{'remailers'}->{$address}) {
+
+		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}} ) {
+			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}} ) {
+				$self->pingdata_close_one($address, $type, $key, 'delete');
+			};
+		};
+
+		delete $self->{'METADATA'}->{'remailers'}->{$address}
+	} else {
+		cluck("Remailer $address does not exist in addresses")
+	};
+};
+
 
 
 # sub convert($) {

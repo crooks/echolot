@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.13 2002/07/03 00:29:02 weasel Exp $
+# $Id: pingd,v 1.14 2002/07/03 00:54:40 weasel Exp $
 #
 
 =pod
@@ -22,7 +22,11 @@ pingd - echolot ping daemon
 
 =item B<pingd> B<add> I<address> [I<address> ...]
 
+=item B<pingd> B<delete> I<address> [I<address> ...]
+
 =item B<pingd> B<set> option=value [option=value..] I<address> [I<address> ...]
+
+=item B<pingd> B<getkeyconf>
 
 =item B<pingd> B<dumpconf>
 
@@ -67,6 +71,11 @@ For other affects of sending the HUP Signal see the SIGNALS section below.
 Add I<address> to the list of remailers to query for
 keys and confs.
 
+=item B<delete> I<address> [I<address> ...]
+
+Delete I<address> from the list of remailers to query for
+keys and confs. Delete all statistics and key for that remailer.
+
 =item B<set> option=value [option=value..] I<address> [I<address> ...]
 
 Possible options and values:
@@ -90,6 +99,10 @@ either B<on> or B<off>.
 
 =back
 
+=item B<getkeyconf>
+
+Send a command to immediatly request keys and configuration from remailers.
+
 =item B<dumpconf>
 
 Dumps the current configuration to standard output.
@@ -106,12 +119,14 @@ Verbose mode. Causes B<pingd> to print debugging messages about its progress.
 
 Print a short help and exit sucessfully.
 
-=item --hup
+=item --nohup
 
-Usefull only when passwd with the B<add> or B<set> command.
+Usefull only when passwd with the B<add>, B<set> or B<getkeyconf> command.
 
-Sends a HUP signal to the daemon which instructs it to process the commands
-after adding the command to the task list.
+Don't send a HUP signal to the daemon which instructs it to process the
+commands after adding the command to the task list.
+
+Per default such a signal is sent.
 
 =item --detach
 
@@ -172,13 +187,12 @@ $ENV{'PATH'} = '/bin:/usr/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $scheduler;
 my $redirected_stdio = 0;
 
 sub setSigHandlers() {
 	$SIG{'HUP'} = sub {
 		print "Got SIGINT. scheduling readcommands\n";
-		$scheduler->schedule('readcommands', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', time() );
 		if ($redirected_stdio) {
 			close STDOUT;
 			close STDERR;
@@ -188,15 +202,15 @@ sub setSigHandlers() {
 	};
 	$SIG{'INT'} = sub {
 		print "Got SIGINT. scheduling exit\n";
-		$scheduler->schedule('exit', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', time() );
 	};
 	$SIG{'QUIT'} = sub {
 		print "Got SIGQUIT. scheduling exit\n";
-		$scheduler->schedule('exit', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', time() );
 	};
 	$SIG{'TERM'} = sub {
 		print "Got SIGTERM. scheduling exit\n";
-		$scheduler->schedule('exit', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', time() );
 	};
 };
 
@@ -213,9 +227,11 @@ sub expire() {
 
 
 
-sub command_add(@) {
+sub command_adddelete(@) {
+	my $command = shift @_;
 	my @argv = @_;
 
+	die ("command_adddelete requires command\n") unless defined $command;
 	die ("add requires argument <address>\n") unless scalar @argv;
 	my @addresses;
 	for my $address (@argv) {
@@ -223,7 +239,7 @@ sub command_add(@) {
 		push @addresses, $address;
 	};
 	for my $address (@addresses) {
-		Echolot::Commands::addCommand("add $address");
+		Echolot::Commands::addCommand("$command $address");
 	};
 };
 
@@ -249,6 +265,8 @@ sub command_set(@) {
 	};
 };
 
+
+
 sub pid_exists() {
 	return (-e Echolot::Config::get()->{'pidfile'});
 };
@@ -264,7 +282,8 @@ sub daemon_run() {
 	Echolot::Globals::initStorage();
 	setSigHandlers();
 
-	$scheduler = new Echolot::Scheduler;
+	Echolot::Globals::get()->{'scheduler'} = new Echolot::Scheduler;
+	my $scheduler = Echolot::Globals::get()->{'scheduler'};
 	$scheduler->add('exit'                ,     -1                                         , 0, 'exit' );
 	$scheduler->add('readcommands'        ,     -1                                         , 0, \&Echolot::Commands::processCommands );
 
@@ -356,7 +375,7 @@ Getopt::Long::config('bundling');
 if (!GetOptions (
 	'help'    =>  \$params->{'help'},
 	'verbose' =>  \$params->{'verbose'},
-	'hup'     =>  \$params->{'hup'},
+	'nohup'   =>  \$params->{'nohup'},
 	'detach'  =>  \$params->{'detach'},
 	)) {
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
@@ -375,16 +394,23 @@ chdir( Echolot::Config::get()->{'homedir'} );
 Echolot::Globals::init();
 
 
-if ($COMMAND eq 'add') {
-	command_add(@ARGV);
-	if ($params->{'hup'} && pid_exists()) {
+if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
+	command_adddelete($COMMAND, @ARGV);
+	if (!$params->{'nohup'} && pid_exists()) {
 		daemon_hup()
 	} else {
 		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
 	};
 } elsif ($COMMAND eq 'set') {
 	command_set(@ARGV);
-	if ($params->{'hup'} && pid_exists()) {
+	if (!$params->{'nohup'} && pid_exists()) {
+		daemon_hup()
+	} else {
+		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+	};
+} elsif ($COMMAND eq 'getkeyconf') {
+	Echolot::Commands::addCommand("getkeyconf");
+	if (!$params->{'nohup'} && pid_exists()) {
 		daemon_hup()
 	} else {
 		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
