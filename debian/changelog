@@ -1,3 +1,10 @@
+echolot (2.0.5-1) unstable; urgency=low
+
+  * New upstream version (supports use without user defined mailboxes).
+  * Make recipient delimiter configured by debconf.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 25 Oct 2002 12:54:44 +0200
+
 echolot (2.0.4-3) unstable; urgency=low
 
   * Add a debconf note about user defined mailboxes being required

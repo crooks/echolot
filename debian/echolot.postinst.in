@@ -66,13 +66,15 @@ cat > $filename << 'EOF'
 		my $address = Debconf::Client::ConfModule::get("echolot/address");
 		my $operator = Debconf::Client::ConfModule::get("echolot/operator");
 		my $sitename = Debconf::Client::ConfModule::get("echolot/sitename");
+		my $recipient_delimiter = Debconf::Client::ConfModule::get("echolot/recipient_delimiter");
 
 		my ($local, $domain) = split (/@/, $address, 2);
 
-		my $debconf  = sprintf("\$CONFIG->{q{my_localpart}    } = q{%s};\n", $local);
-		   $debconf .= sprintf("\$CONFIG->{q{my_domain}       } = q{%s};\n", $domain);
-		   $debconf .= sprintf("\$CONFIG->{q{operator_address}} = q{%s};\n", $operator);
-		   $debconf .= sprintf("\$CONFIG->{q{sitename}        } = q{%s};\n", $sitename);
+		my $debconf  = sprintf("\$CONFIG->{q{my_localpart}        } = q{%s};\n", $local);
+		   $debconf .= sprintf("\$CONFIG->{q{my_domain}           } = q{%s};\n", $domain);
+		   $debconf .= sprintf("\$CONFIG->{q{operator_address}    } = q{%s};\n", $operator);
+		   $debconf .= sprintf("\$CONFIG->{q{sitename}            } = q{%s};\n", $sitename);
+		   $debconf .= sprintf("\$CONFIG->{q{recipient_delimiter} } = q{%s};\n", $recipient_delimiter);
 
 		my $fh = new IO::File;
 		$fh->open(">/etc/echolot/pingd.conf") or
