@@ -317,10 +317,10 @@ sub parse_mix_key($$$) {
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime();
 		my $today = sprintf("%04d-%02d-%02d", $year+1900, $mon+1, $mday);
 		(defined $mixmasters{$keyid}->{'created'} && ($today lt $mixmasters{$keyid}->{'created'})) and
-			Echolot::Log::info("Mixmaster key for $remailer_address created in the future ($today < $created)."),
+			Echolot::Log::info("Mixmaster key for $remailer_address created in the future ($today < ".$mixmasters{$keyid}->{'created'}.")."),
 			next;
 		(defined $mixmasters{$keyid}->{'expires'} && ($mixmasters{$keyid}->{'expires'} lt $today)) and
-			Echolot::Log::info("Mixmaster key for $remailer_address expired ($expires < $today)."),
+			Echolot::Log::info("Mixmaster key for $remailer_address expired (".$mixmasters{$keyid}->{'expires'}." < $today)."),
 			next;
 
 		if ($remailer->{'address'} ne $remailer_address) {

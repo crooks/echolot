@@ -406,8 +406,8 @@ sub command_set(@) {
 
 	my @settings;
 	while (scalar @argv && $argv[0] =~ /^(show(?:it)?|ping(?:it)?|fetch(?:it))=(on|off)$/) {
-		$name = $1;
-		$value = $2;
+		my $name = $1;
+		my $value = $2;
 
 		$name = 'showit' if ($name eq 'show');
 		$name = 'pingit' if ($name eq 'ping');
@@ -453,11 +453,11 @@ sub command_enabledisable (@) {
 	my $value;
 	if ($command eq 'enable') {
 		$value='on';
-	elsif ($command eq 'disable') {
+	} elsif ($command eq 'disable') {
 		$value='off';
-	else
+	} else {
 		die ("argument $command is not enable or disable.  Shouldn't even be here.\n");
-	}
+	};
 	my @cmd = ("showit=$value", "pingit=$value", "fetch=$value");
 	push @cmd, @argv;
 	command_setremailercaps(@argv);

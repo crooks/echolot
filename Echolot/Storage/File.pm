@@ -1246,7 +1246,7 @@ sub set_caps($$$$$$;$) {
 	(defined $address) or
 		Echolot::Log::cluck ("$address not defined in set_key.");
 
-	if (! defined $self->{'metadata'}->{'remailers'}->{$address} )
+	if (! defined $self->{'metadata'}->{'remailers'}->{$address} ) {
 		$self->{'metadata'}->{'remailers'}->{$address} = {};
 	};
 
@@ -1305,7 +1305,7 @@ sub set_key($$$$$$$$$) {
 	(defined $address) or
 		Echolot::Log::cluck ("$address not defined in set_key.");
 
-	if (! defined $self->{'metadata'}->{'remailers'}->{$address} )
+	if (! defined $self->{'metadata'}->{'remailers'}->{$address} ) {
 		$self->{'metadata'}->{'remailers'}->{$address} = {};
 	};
 
@@ -1574,7 +1574,7 @@ sub expire($) {
 
 
 		next unless exists $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'};
-		for my $type keys( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
+		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
 			next unless exists $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type};
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
 				my @out  = grep {$_      > $expire_pings} $self->get_pings($remailer_addr, $type, $key, 'out');
