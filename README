@@ -1,4 +1,4 @@
-$Id: README,v 1.10 2002/07/06 23:30:08 weasel Exp $
+$Id: README,v 1.11 2002/07/10 11:49:41 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -22,8 +22,7 @@ Please see the file named "LICENSE".
 REQUIREMENTS
 ------------
 	in general:
-		XML::Parser
-		XML::Dumper
+		Data::Dumper (should be part of perl-base)
 		Digest::MD5
 		Mail::Internet
 		HTML::Template
@@ -34,6 +33,8 @@ REQUIREMENTS
 		a mixmaster installation
 FIXME what else
 
+Indirect requirements:
+	Class:MethodMaker (by GnuPG::Interface)
 
 SETUP
 -----
@@ -70,10 +71,16 @@ o Mail should be delivered to /home/pinger/echolot/mail which must be a Maildir
 
   Example snipped for procmail:
 
-  :0
-  $HOME/echolot/mail/
+    :0
+    $HOME/echolot/mail/
   
   (the trailing slash is important!)
+
+
+  Example for qmail:
+
+    echo "./echolot/mail/" > .qmail;
+    touch .qmail-default
 
 
 o run »./pingd --verbose start«
