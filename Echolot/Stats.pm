@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.6 2002/06/22 23:36:32 weasel Exp $
+# $Id: Stats.pm,v 1.7 2002/07/02 17:05:22 weasel Exp $
 #
 
 =pod
@@ -353,7 +353,8 @@ sub build_rems($) {
 	my ($types) = @_;
 
 	my %rems;
-	for my $addr (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+		my $addr = $remailer->{'address'};
 		my $has_type = 0;
 		for my $type (@$types) {
 			$has_type = 1, last if (Echolot::Globals::get()->{'storage'}->has_type($addr, $type));
@@ -364,7 +365,8 @@ sub build_rems($) {
 			'stats'    => calculate($addr,$types),
 			'nick'     => Echolot::Globals::get()->{'storage'}->get_nick($addr),
 			'caps'     => Echolot::Globals::get()->{'storage'}->get_capabilities($addr),
-			'address'  => $addr
+			'address'  => $addr,
+			'showit'   => $remailer->{'showit'}
 			};
 
 		$rems{$addr} = $rem if (defined $rem->{'stats'} && defined $rem->{'nick'} && defined $rem->{'address'} && defined $rem->{'caps'} );
@@ -382,12 +384,14 @@ sub build_rems($) {
 sub build_lists() {
 
 	my $rems = build_rems(['mix']);
-	build_mlist1( $rems, 'mlist');
-	build_list2( $rems, 'mlist2');
+	my @rems = grep { $_->{'showit'} } @$rems;
+	build_mlist1( \@rems, 'mlist');
+	build_list2( \@rems, 'mlist2');
 
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa']);
-	build_rlist1( $rems, 'rlist');
-	build_list2( $rems, 'rlist2');
+	@rems = grep { $_->{'showit'} } @$rems;
+	build_rlist1( \@rems, 'rlist');
+	build_list2( \@rems, 'rlist2');
 };
 
 
@@ -401,7 +405,9 @@ sub build_mixring() {
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
 
-	for my $addr (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+		next unless $remailer->{'showit'};
+		my $addr = $remailer->{'address'};
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, 'mix');
 
 		my %key;
