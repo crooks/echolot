@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.24 2002/07/13 20:35:50 weasel Exp $
+# $Id: Config.pm,v 1.25 2002/07/13 23:37:55 weasel Exp $
 #
 
 =pod
@@ -78,11 +78,11 @@ sub init($) {
 		ping_every_nth_time         => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
 		buildstats                  => 5*60, # build statistics every 5 minutes
 		buildkeys                   => 8*60*60, # build keyring every 8 hours
+		buildthesaurus              => 60*60, # hourly
 		commitprospectives          => 8*60*60, # commit prospective addresses every 8 hours
 		expire                      => 24*60*60, # daily
 		getkeyconf                  => 24*60*60, # daily
 		check_resurrection          => 7*24*60*60, # weekly
-		build_thesaurus             => 60*60, # hourly
 		
 		resultdir                   => 'results',
 		thesaurusdir                => 'results/thesaurus',

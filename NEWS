@@ -1,3 +1,6 @@
+Changes in version
+	* Added commands buildstats buildkeys and buildthesaurus
+
 Changes in version 2.0beta13 - 2002-07-12
 	* Have correct title tags and some layout changes in the HTML templates
 	* Encode HTML Entities in HTML Stats

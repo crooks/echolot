@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.5 2002/07/03 11:08:21 weasel Exp $
+# $Id: Commands.pm,v 1.6 2002/07/13 23:37:55 weasel Exp $
 #
 
 =pod
@@ -69,6 +69,12 @@ sub processCommands($) {
 			Echolot::Globals::get()->{'storage'}->set_stuff(@args);
 		} elsif ($command eq 'getkeyconf') {
 			Echolot::Globals::get()->{'scheduler'}->schedule('getkeyconf', time() );
+		} elsif ($command eq 'buildstats') {
+			Echolot::Globals::get()->{'scheduler'}->schedule('buildstats', time() );
+		} elsif ($command eq 'buildkeys') {
+			Echolot::Globals::get()->{'scheduler'}->schedule('buildkeys', time() );
+		} elsif ($command eq 'buildthesaurus') {
+			Echolot::Globals::get()->{'scheduler'}->schedule('buildthesaurus', time() );
 		} elsif ($command eq 'delete') {
 			Echolot::Globals::get()->{'storage'}->delete_remailer(@args);
 		} elsif ($command eq 'setremailercaps') {

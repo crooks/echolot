@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.39 2002/07/13 21:23:02 weasel Exp $
+# $Id: pingd,v 1.40 2002/07/13 23:37:55 weasel Exp $
 #
 
 =pod
@@ -33,6 +33,12 @@ pingd - echolot ping daemon
 =item B<pingd> B<deleteremailercaps> I<address>
 
 =item B<pingd> B<getkeyconf>
+
+=item B<pingd> B<buildstats>
+
+=item B<pingd> B<buildkeys>
+
+=item B<pingd> B<buildthesaurus>
 
 =item B<pingd> B<dumpconf>
 
@@ -124,6 +130,18 @@ the next valid remailer-conf reply by the remailer.
 
 Send a command to immediatly request keys and configuration from remailers.
 
+=item B<buildstats>
+
+Send a command to immediatly rebuild stats.
+
+=item B<buildkeys>
+
+Send a command to immediatly rebuild the keyrings.
+
+=item B<buildthesaurus>
+
+Send a command to immediatly rebuild the Thesaurus.
+
 =item B<dumpconf>
 
 Dumps the current configuration to standard output.
@@ -149,7 +167,8 @@ Print version number and exit sucessfully.
 =item --nohup
 
 Usefull only with the B<add>, B<set>, B<setremailercaps>,
-B<deleteremailercaps> or B<getkeyconf> command.
+B<deleteremailercaps>, B<getkeyconf>, B<buildstats>, B<buildkeys>,
+or B<buildthesaurus> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
@@ -369,7 +388,7 @@ sub daemon_run($) {
 	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}    , 0, \&Echolot::Pinger::send_pings );
 	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}         , 0, \&Echolot::Stats::build_stats );
 	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}          , 0, \&Echolot::Stats::build_keys );
-	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'build_thesaurus'}    , 0, \&Echolot::Thesaurus::build_thesaurus );
+	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'buildthesaurus'}     , 0, \&Echolot::Thesaurus::build_thesaurus );
 
 	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'} , 0, \&commit_prospective_address );
 	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}             , 0, \&expire );
@@ -444,7 +463,14 @@ sub make_dirs() {
 	};
 };
 
-
+sub hup_if_wanted($) {
+	my ($nohup) = @_;
+	if (!$nohup && pid_exists()) {
+		daemon_hup()
+	} else {
+		print "Don't forget to run $PROGRAM_NAME process.\n";
+	};
+};
 
 
 
@@ -492,39 +518,28 @@ Echolot::Globals::init();
 
 if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	command_adddelete($COMMAND, @ARGV);
-	if (!$params->{'nohup'} && pid_exists()) {
-		daemon_hup()
-	} else {
-		print "Don't forget to run $PROGRAM_NAME process.\n";
-	};
+	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'set') {
 	command_set(@ARGV);
-	if (!$params->{'nohup'} && pid_exists()) {
-		daemon_hup()
-	} else {
-		print "Don't forget to run $PROGRAM_NAME process.\n";
-	};
-} elsif ($COMMAND eq 'setremailercaps') {
-	command_setremailercaps(@ARGV);
-	if (!$params->{'nohup'} && pid_exists()) {
-		daemon_hup()
-	} else {
-		print "Don't forget to run $PROGRAM_NAME process.\n";
-	};
+	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'deleteremailercaps') {
 	command_deleteremailercaps(@ARGV);
-	if (!$params->{'nohup'} && pid_exists()) {
-		daemon_hup()
-	} else {
-		print "Don't forget to run $PROGRAM_NAME process.\n";
-	};
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'setremailercaps') {
+	command_setremailercaps(@ARGV);
+	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'getkeyconf') {
 	Echolot::Commands::addCommand("getkeyconf");
-	if (!$params->{'nohup'} && pid_exists()) {
-		daemon_hup()
-	} else {
-		print "Don't forget to run $PROGRAM_NAME process.\n";
-	};
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'buildstats') {
+	Echolot::Commands::addCommand("buildstats");
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'buildkeys') {
+	Echolot::Commands::addCommand("buildkeys");
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'buildthesaurus') {
+	Echolot::Commands::addCommand("buildthesaurus");
+	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'process') {
 	daemon_hup();
 } elsif ($COMMAND eq 'stop') {
