@@ -1,2 +1,2 @@
-debian/tmp/pingd.1
-debian/tmp/pingd.conf.5
+doc/pingd.1
+doc/pingd.conf.5

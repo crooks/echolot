@@ -20,9 +20,6 @@ endif
 
 build: build-stamp
 build-stamp:
-	mkdir debian/tmp
-	pod2man --section=1 --release="$(version)" --center=Echolot pingd debian/tmp/pingd.1
-	pod2man --section=5 --release="$(version)" --center=Echolot doc/pingd.conf.pod debian/tmp/pingd.conf.5
 	sed -e "s/REMAILER_LIST/$(REMAILERS)/" < debian/echolot.postinst.in > debian/echolot.postinst
 	touch build-stamp
 
@@ -32,7 +29,6 @@ clean:
 
 	rm -f build-stamp
 	rm -f debian/echolot.postinst
-	rm -rf debian/tmp
 
 	dh_clean
 
