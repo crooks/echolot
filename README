@@ -1,4 +1,4 @@
-$Id: README,v 1.15 2002/07/10 23:08:43 weasel Exp $
+$Id: README,v 1.16 2002/07/11 23:26:00 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -111,6 +111,15 @@ Run »./pingd dumpconf« to see a list of all available configuration
 options.  You may add them to the pingd.conf file. After changing that
 file you need to restart pingd.
 
+
+CAVEATS
+-------
+
+- echolot will keep open all ping and metadata files. This means it needs quite
+  a few file descriptors (about 2 * total keys or 6 to 8 * remailers + some for
+  perl).  If you have a very strict ulimit for open files you need to increase it.
+  Something like 512 should be plenty.
+  If you get obscure errors this might probably be it.
 
 
 Please report bugs and feature requests at
