@@ -1,6 +1,8 @@
 Changes in version       - 2004      
 	* Have new disable and enable commands which are shortcut
 	  for set pingit=off showit=off fetch=off and =on respectively.
+	* Accept show=, ping=, and fetchit= in addition to their real
+	  names in set.
 
 Changes in version 2.1.3 - 2004-04-20
 	* Improvements to pingd.conf(5) by Colin.
