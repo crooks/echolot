@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.29 2002/07/17 17:53:44 weasel Exp $
+# $Id: Config.pm,v 1.30 2002/07/17 18:53:15 weasel Exp $
 #
 
 =pod
@@ -73,6 +73,7 @@ sub init($) {
 		seperate_rlists             => 0,
 		combined_list               => 0,
 		thesaurus                   => 1,
+		stats_sort_by_latency       => 0,
 
 		# Timers and Counters
 		processmail                 => 60,   # process incomng mail every minute

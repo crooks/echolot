@@ -12,6 +12,8 @@ Changes in version
 	* The getkeyconf config option was replaced by getkeyconf_interval and
 	  getkeyconf_every_nth_time. Not all requests are sent at the same time
 	  any more.
+	* Stats can be sorted by latency rather than nick. Set
+	  stats_sort_by_latency if you want that.
 
 Changes in version 2.0beta15 - 2002-07-16
 	* Have echolot version in stats HTML pages

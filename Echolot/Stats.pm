@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.21 2002/07/16 02:48:57 weasel Exp $
+# $Id: Stats.pm,v 1.22 2002/07/17 18:53:15 weasel Exp $
 #
 
 =pod
@@ -451,13 +451,17 @@ sub build_rems($) {
 			'address'  => $addr,
 			'showit'   => $remailer->{'showit'}
 			};
+		$rem->{'latency'} = $rem->{'stats'}->{'avr_latency'}; # for sorting purposes only
+		$rem->{'latency'} = 9999 unless defined $rem->{'latency'};
 
 		$rems{$addr} = $rem if (defined $rem->{'stats'} && defined $rem->{'nick'} && defined $rem->{'address'} && defined $rem->{'caps'} );
 	};
 
+	my $sort_by_latency = Echolot::Config::get()->{'stats_sort_by_latency'};
 	my @rems =
 		sort {
 			- ($a->{'stats'}->{'avr_reliability'} <=> $b->{'stats'}->{'avr_reliability'}) ||
+			(($a->{'latency'} <=> $b->{'latency'}) * $sort_by_latency) ||
 			($a->{'nick'} cmp $b->{'nick'})
 			} map { $rems{$_} } keys %rems;
 	

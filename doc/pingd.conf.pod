@@ -200,6 +200,16 @@ Collect Thesaurus data and build Thesaurus' Index.
 	Default: 'thesaurus' => 1,
 	Example: 'thesaurus' => 0,
 
+=item B<stats_sort_by_latency>
+
+In statistics output remailers are sorted by reliability as the primary key.
+The secondary key usually is nickname. If you prefer to sort by latency rather
+than nick set this to 1 (-1 if you want to reverse the order).
+
+	Default: 'stats_sort_by_latency' => 0,
+	Example: 'stats_sort_by_latency' => 1,
+
+
 =back
 
 
