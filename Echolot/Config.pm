@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.26 2002/07/16 00:09:28 weasel Exp $
+# $Id: Config.pm,v 1.27 2002/07/16 00:21:04 weasel Exp $
 #
 
 =pod
@@ -118,6 +118,7 @@ sub init($) {
 			}
 		},
 
+		# ping types
 		do_pings => {
 			'cpunk-dsa' => 1,
 			'cpunk-rsa' => 1,
@@ -125,6 +126,7 @@ sub init($) {
 			'mix' => 1
 		},
 
+		# templates
 		templates => {
 			'thesaurusindexfile'    => 'templates/thesaurusindex.html',
 			'mlist'                 => 'templates/mlist.html',
