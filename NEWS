@@ -13,6 +13,11 @@ Changes in
 	  shut down in stop and restart.
 	* Regularily clean up the temp directory.
 	* Send out pings every two hours by default.
+	* Modified statistics generation:
+	  We no longer assume a normal distribution of latencies but instead
+	  use percentiles when calculating a life probability of an outstanding
+	  ping.  Also we do not show the mean of latency but the median as
+	  this seems to be 'more correct'.
 
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.

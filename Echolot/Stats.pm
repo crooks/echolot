@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.56 2003/06/06 09:32:37 weasel Exp $
+# $Id: Stats.pm,v 1.57 2003/06/06 11:27:59 weasel Exp $
 #
 
 =pod
@@ -20,12 +20,6 @@ and keyrings.
 use strict;
 use English;
 use Echolot::Log;
-
-use Statistics::Distrib::Normal qw{};
-
-my $NORMAL = new Statistics::Distrib::Normal;
-$NORMAL->mu(0);
-$NORMAL->sigma(1);
 
 my $STATS_DAYS;
 my $SECONDS_PER_DAY;
@@ -190,10 +184,35 @@ sub build_list2_capsstr($) {
 	return $str;
 }
 
+sub median($) {
+	my ($arr) = @_;
+	my $cnt = scalar @$arr;
+	if ($cnt == 0) {
+		return undef;
+	} elsif ($cnt % 2 == 0) {
+		return ($arr->[ int(($cnt - 1 ) / 2) ] + $arr->[ int($cnt / 2) ] ) / 2;
+	} else {
+		return $arr->[ int(($cnt - 1 ) / 2) ];
+	};
+};
+
+sub percentile($$) {
+	my ($lat, $lats) = @_;
+
+	my $num = scalar @$lats;
+	my $i;
+	for (my $i=0; $i < $num; $i++) {
+		last if $lat < $lats->[$i];
+	}
+	return ($num - $i) / $num;
+}
 
 sub calculate($$) {
 	my ($addr, $types) = @_;
 	my $now = time();
+
+	my $SKEW_ABS = 15*60;
+	my $SKEW_PERCENT = 0.80;
 
 	my @out;
 	my @done;
@@ -207,51 +226,47 @@ sub calculate($$) {
 		};
 	};
 
-	my $latency = 0;
-	my $received = 0;
-	my $sent = 0;
-	my @latency;
-	my @received;
-	my @sent;
+	my @latency_total = map { $_->[1] } @done;
+	my @latency_day;
+	my $sent_total;
+	my $received_total;
+	my @sent_day;
+	my @received_day;
 	for my $done (@done) {
-		$latency += $done->[1];   $latency [int(($now - $done->[0]) / $SECONDS_PER_DAY)] += $done->[1];
-		$sent ++;                 $sent    [int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
-		$received ++;             $received[int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
+		push @{ $latency_day [int(($now - $done->[0]) / $SECONDS_PER_DAY)] }, $done->[1];
+		$sent_total ++;     $sent_day    [int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
+		$received_total ++; $received_day[int(($now - $done->[0]) / $SECONDS_PER_DAY)] ++;
 	};
-	$latency /= (scalar @done) if (scalar @done);
-	$latency = undef unless (scalar @done);
+
+	@latency_total = sort { $a <=> $b } @latency_total;
+	my $latency_median = median (\@latency_total);
+	my @latency_median_day;
 	for ( 0 .. $STATS_DAYS - 1 ) {
-		$latency[$_] /= $received[$_] if ($received[$_]);
-	};
-
-	my $variance = 0;
-	$variance += ($latency - $_->[1]) ** 2 for (@done);
-	$variance /= (scalar @done) if (scalar @done);
-
-	my $deviation = sqrt($variance);
+		@{$latency_day[$_]} = sort { $a <=> $b } $latency_day[$_];
+		$latency_median_day[$_] = median ( $latency_day[$_] );
+	}
 
 	if (scalar @out) {
-		my @p = 
-			($deviation != 0) ?
-				$NORMAL->utp( map { ($now - $_ - $latency) / $deviation } @out ) :
+		my @p = ( scalar @latency_total ) ?
+				map { percentile( ($now - $_ - $SKEW_ABS)/$SKEW_PERCENT , \@latency_total ) } @out :
 				map { 0 } @out;
 		for (my $i=0; $i < scalar @out; $i++) {
-			$sent ++;            $sent    [int(($now - $out[$i]) / $SECONDS_PER_DAY)] ++;
-			$received += $p[$i]; $received[int(($now - $out[$i]) / $SECONDS_PER_DAY)] += $p[$i];
+			$sent_total ++;            $sent_day    [int(($now - $out[$i]) / $SECONDS_PER_DAY)] ++;
+			$received_total += $p[$i]; $received_day[int(($now - $out[$i]) / $SECONDS_PER_DAY)] += $p[$i];
 		};
 	};
-	$received /= $sent if ($sent);
+	$received_total /= $sent_total if ($sent_total);
 	for ( 0 .. $STATS_DAYS - 1 ) {
-		$received[$_] /= $sent[$_] if ($sent[$_]);
+		$received_day[$_] /= $sent_day[$_] if ($sent_day[$_]);
 	};
 
 
 
 	return {
-		avr_latency     => $latency,
-		avr_reliability => $received,
-		latency_day     => \@latency,
-		reliability_day => \@received
+		avr_latency     => $latency_median,
+		avr_reliability => $received_total,
+		latency_day     => \@latency_day,
+		reliability_day => \@received_day
 	};
 };
 
