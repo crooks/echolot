@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.6 2002/07/16 02:48:57 weasel Exp $
+# $Id: Tools.pm,v 1.7 2002/07/17 17:06:44 weasel Exp $
 #
 
 =pod
@@ -52,6 +52,15 @@ sub make_mac($) {
 
 	my $mac = hash($token . Echolot::Globals::get()->{'storage'}->get_secret() );
 	return $mac;
+};
+
+sub makeShortNumHash($) {
+	my ($text) = @_;
+
+	my $hash = Echolot::Tools::make_mac($text);
+	$hash = substr($hash, 0, 4);
+	my $sum = hex($hash);
+	return $sum;
 };
 
 sub verify_mac($$) {

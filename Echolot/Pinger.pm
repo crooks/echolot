@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.15 2002/07/17 16:14:23 weasel Exp $
+# $Id: Pinger.pm,v 1.16 2002/07/17 17:06:44 weasel Exp $
 #
 
 =pod
@@ -21,15 +21,6 @@ use Carp qw{cluck};
 use English;
 use Echolot::Pinger::Mix;
 use Echolot::Pinger::CPunk;
-
-sub makeHash($) {
-	my ($text) = @_;
-
-	my $hash = Echolot::Tools::make_mac($text);
-	$hash = substr($hash, 0, 4);
-	my $sum = hex($hash);
-	return $sum;
-};
 
 sub do_mix_ping($$$$$) {
 	my ($address, $keyid, $time, $to, $body) = @_;
@@ -109,7 +100,7 @@ sub send_pings() {
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($address)) {
 			next unless Echolot::Config::get()->{'do_pings'}->{$type};
 			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
-				next unless ($this_call_id eq (makeHash($address.$type.$key) % $send_every_n_calls));
+				next unless ($this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type.$key) % $send_every_n_calls));
 				print "ping calling $type, $address, $key\n" if Echolot::Config::get()->{'verbose'};
 				do_ping($type, $address, $key);
 			}
