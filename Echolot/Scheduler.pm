@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.4 2002/06/13 15:27:25 weasel Exp $
+# $Id: Scheduler.pm,v 1.5 2002/06/20 04:28:13 weasel Exp $
 #
 
 =pod
@@ -67,8 +67,6 @@ sub add($$$$$) {
 
 =item B<schedule> (I<name>, I<for>)
 
-Internal function.
-
 Schedule execution of I<name> for I<for>. If I<for> is not given it is calculated
 from I<interval> and I<offset> passed to B<new>.
 
@@ -85,6 +83,8 @@ sub schedule($$;$) {
 
 
 	unless (defined $for) {
+		($interval < 0) and
+			return 1;
 		my $now = time();
 		$for = $now - $now % $interval + $offset;
 		($for <= $now) and $for += $interval;
@@ -113,13 +113,13 @@ It will run forever or until a task with I<what> == 'exit' is executed.
 sub run($) {
 	my ($self) = @_;
 
-	my $task = shift @{ $self->{'schedule'} };
-	(defined $task) or
+	(defined $self->{'schedule'}->[0]) or
 		croak("Scheduler is empty"),
 		return 0;
 
 	while(1) {
 		my $now = time();
+		my $task = $self->{'schedule'}->[0];
 		if ($task->{'start'} < $now) {
 			warn("Task $task->{'name'} could not be started on time\n");
 		} else {
@@ -127,23 +127,27 @@ sub run($) {
 			sleep ($task->{'start'} - $now);
 		};
 
+		(time() < $task->{'start'}) and
+			next;
+
 		$now = $task->{'start'};
 		do {
+			$task = shift @{ $self->{'schedule'} };
 			my $name = $task->{'name'};
 			(defined $self->{'tasks'}->{$name}) or
 				warn("Task $task->{'name'} is not defined\n");
 
 			my $what = $self->{'tasks'}->{$name}->{'what'};
+			print "Running $name at ".(time())." (scheduled for $now)\n";
 			last if ($what eq 'exit');
-			print "Running $name at $now\n";
 			&$what();
-			$self->schedule($name, $now + $self->{'tasks'}->{$name}->{'interval'});
+			$self->schedule($name, $now + $self->{'tasks'}->{$name}->{'interval'}) if
+				($self->{'tasks'}->{$name}->{'interval'} > 0);
 
-			$task = shift @{ $self->{'schedule'} };
-			(defined $task) or
+			(defined $self->{'schedule'}->[0]) or
 				croak("Scheduler is empty"),
 				return 0;
-		} while ($now == $task->{'start'});
+		} while ($now >= $self->{'schedule'}->[0]->{'start'});
 	};
 
 	return 1;
