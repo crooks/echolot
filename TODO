@@ -1,4 +1,4 @@
-$Id: TODO,v 1.53 2003/03/02 20:49:02 weasel Exp $
+$Id: TODO,v 1.54 2003/04/29 16:31:21 weasel Exp $
 
 Legend:
         - Not done
@@ -8,7 +8,22 @@ Legend:
         D Deferred
         X Abandoned
 
+ - normal distribution is plain out wrong for latency
+   - change to median for the latency column
+   - assumption on whether a ping is lost should be
+     changed from the normal distribution caluclation
+     to quantiles
  - updated information with from lines
+ - fix pingtcl to wait for pingd to shut down
+ - optimize chain pinger:
+   cache callids in chainpinging - md5 is not that cheap
+ - debian init script mag setremaielrcaps nicht
+	Tue 21:02:36 <mike_lap> # /etc/init.d/echolot setremailercaps '$remailer{"lcs"} = "<mix@anon.lcs.mit.edu> mix klen1000";'
+	Tue 21:02:36 <mike_lap> Running Echolot Ping Daemon: pingd setremailercaps...
+	Tue 21:02:36 <mike_lap> caps '{lcs}' is not a valid remailer caps line
+ - list middleman only optionally in Fromlines
+ - check behaviour if we lag behind schedule
+
 
 can be done later:
  - ping mail2news gates

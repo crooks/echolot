@@ -1,7 +1,7 @@
 package Echolot::Report;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Report.pm,v 1.1 2003/02/20 19:39:03 weasel Exp $
+# $Id: Report.pm,v 1.2 2003/04/29 16:31:21 weasel Exp $
 #
 
 =pod
@@ -28,7 +28,12 @@ sub print_summary() {
 
 	for my $remailer (@addresses) {
 		my $addr = $remailer->{'address'};
-		$report .= "$addr (ID: $remailer->{'id'}): ".uc($remailer->{'status'})."; Fetch/Ping/Show: $remailer->{'fetch'}$remailer->{'pingit'}$remailer->{'showit'}; TTL: $remailer->{'ttl'}\n";
+		$report .= "$addr (ID: $remailer->{'id'}): ".uc($remailer->{'status'})."; ".
+			"Fetch/Ping/Show: ".
+			($remailer->{'fetch'} ? '1' : '0') .
+			($remailer->{'pingit'} ? '1' : '0') .
+			($remailer->{'showit'} ? '1' : '0') .
+			"; TTL: $remailer->{'ttl'}\n";
 		$report .= "  Resurection TTL: $remailer->{'resurrection_ttl'}\n" if (defined $remailer->{'resurrection_ttl'} && ($remailer->{'status'} eq 'ttl timeout'));
 		if (defined $remailers{$addr}) {
 			$report .= "  $remailers{$addr}->{'status'}\n";

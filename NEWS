@@ -1,3 +1,6 @@
+Changes in
+	* Fix 0/false in Fetch/Ping/Show in summary report.
+
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.
 	* Adjusted some loglevels (several info got downgraded to debug)
