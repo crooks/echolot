@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.8 2002/07/02 13:57:09 weasel Exp $
+# $Id: Pinger.pm,v 1.9 2002/07/02 17:04:51 weasel Exp $
 #
 
 =pod
@@ -97,17 +97,19 @@ sub send_pings() {
 
 	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
 	for my $remailer (@remailers) {
+		next unless $remailer->{'pingit'};
+		my $address = $remailer->{'address'};
 		my $timemod = ($now / $call_intervall);
 		my $this_call_id = $timemod % $send_every_n_calls;
 
-		my $this_remailer_id = makeHash($remailer) % $send_every_n_calls;
+		my $this_remailer_id = makeHash($address) % $send_every_n_calls;
 		
 		next unless ($this_call_id eq $this_remailer_id);
 
-		for my $type (Echolot::Globals::get()->{'storage'}->get_types($remailer)) {
-			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($remailer, $type)) {
-				print "ping calling $type, $remailer, $key\n" if Echolot::Config::get()->{'verbose'};
-				do_ping($type, $remailer, $key);
+		for my $type (Echolot::Globals::get()->{'storage'}->get_types($address)) {
+			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
+				print "ping calling $type, $address, $key\n" if Echolot::Config::get()->{'verbose'};
+				do_ping($type, $address, $key);
 			}
 		};
 	};
