@@ -1,0 +1,21 @@
+Upgrading checklist for Echolot
+$Id: UPGRADE,v 1.1 2002/12/18 18:35:53 weasel Exp $
+
+- Download the latest .tar.gz from <URL:http://www.palfrader.org/echolot/>.
+- Verify the signature.
+- Stop the running pingd.
+- Make sure it no longer runs.
+- Make a backup of your entire echolot directory. really.
+- Untar the new Echolot release to a new directory and copy your
+  data directory and pingd.conf there.
+- Replace your old Echolot directory with the new tree.
+- Start the new pingd and verify it's working properly.
+- Congratulations.
+
+
+Notes for upgrades from a version earlier than 2.0.6
+ - If you have specified thesaurusindexfile and/or indexfilebasename in your
+   Echolot configuration file, please remove the .html extension from that
+   setting.
+
+EOF
