@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.11 2003/02/20 14:05:19 weasel Exp $
+# $Id: Chain.pm,v 1.12 2003/02/20 19:46:24 weasel Exp $
 #
 
 =pod
@@ -122,7 +122,7 @@ sub get_latest_key($$) {
 	my $chosen = undef;
 	for my $keyid (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
 		my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
-		$chosen = $keyid, $latest= $key{'last_update'} if $latest < $key{'last_update'};
+		$chosen = $keyid, $latest = $key{'last_update'} if $latest < $key{'last_update'};
 	};
 	return $chosen;
 };
