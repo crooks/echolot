@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.5 2003/02/25 19:59:01 weasel Exp $
+# $Id: Fromlines.pm,v 1.6 2003/03/02 19:44:50 weasel Exp $
 #
 
 =pod
@@ -50,8 +50,12 @@ sub build_fromlines() {
 				$from = 'Middleman Remailer' if $middleman;
 				my $disclaim_top = $from_info->{'disclaim_top'} && ! $middleman ? 1 : 0;
 				my $disclaim_bot = $from_info->{'disclaim_bot'} && ! $middleman ? 1 : 0;
+				my $last_update = $from_info->{'last_update'};
+				my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime($last_update);
 				my $frominfo = $disclaim_top.':'.$disclaim_bot.':'.$from;
-				push @{$from_types->{$frominfo}}, $type;
+				my $date = sprintf("%04d-%02d-%02d", $year+1900, $mon+1, $mday);
+				my $value = $type." ($date)";
+				push @{$from_types->{$frominfo}}, $value;
 			};
 			my $types_from;
 			for my $frominfo (sort keys %$from_types) {
