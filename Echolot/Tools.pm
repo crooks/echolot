@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.20 2003/02/18 06:57:07 weasel Exp $
+# $Id: Tools.pm,v 1.21 2003/02/28 17:10:57 weasel Exp $
 #
 
 =pod
@@ -339,13 +339,13 @@ sub make_garbage() {
 	};
 	close (FH) or
 		Echolot::Log::warn("Cannot close $file: $!.");
-	
+
 	$random = unpack("H*", $random);
 	$random = join "\n", grep { $_ ne '' } (split /(.{64})/, $random);
-	$random = "----- BEGIN GARBAGE -----\n".
+	$random = "-----BEGIN GARBAGE-----\n".
 		$random."\n".
-		"----- END GARBAGE -----\n";
-	
+		"-----END GARBAGE-----\n";
+
 	return $random;
 };
 
