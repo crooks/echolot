@@ -1,3 +1,10 @@
+echolot (2.0.2-2) unstable; urgency=low
+
+  * Changed Section from contrib/mail to (main/)mail as mimxaster is
+    in main now.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 11 Oct 2002 12:15:52 +0200
+
 echolot (2.0.2-1) unstable; urgency=low
 
   * New upstream version.

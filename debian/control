@@ -1,5 +1,5 @@
 Source: echolot
-Section: contrib/mail
+Section: mail
 Priority: extra
 Maintainer: Peter Palfrader <weasel@debian.org>
 Build-Depends-Indep: debhelper (>> 3.0.0)
