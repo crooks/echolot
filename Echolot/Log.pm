@@ -16,6 +16,7 @@ Echolot::Globals - echolot global variables
 
 use strict;
 use Carp qw{};
+#use Time::HiRes qw( gettimeofday );
 
 my %LOGLEVELS = qw{
 	debug		7
@@ -37,6 +38,12 @@ my @monnames = qw{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec};
 sub header_log($$) {
 	my ($level, $msg) = @_;
 
+	#my ($secs, $msecs) = gettimeofday();
+	#my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime( $secs );
+	#my $time = sprintf("%s %02d %02d:%02d:%02d.%06d",
+	#	$monnames[$mon],
+	#	$mday,
+	#	$hour, $min, $sec, $msecs);
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 	my $time = sprintf("%s %02d %02d:%02d:%02d",
 		$monnames[$mon],
