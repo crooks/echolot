@@ -1,3 +1,9 @@
+echolot (2.0.5-3notyet) unstable; urgency=low
+
+  * Fixed init.d script: s,devnull,dev/null,
+
+ -- Peter Palfrader <weasel@debian.org>  Thu,  5 Dec 2002 10:21:29 +0100
+
 echolot (2.0.5-2) unstable; urgency=low
 
   * Add sendpings command to init script.

@@ -90,7 +90,7 @@ case $1 in
 
 start)
 	if [ -f $PIDFILE ] ; then
-		PID=`cat $PIDFILE 2>/devnull` || true
+		PID=`cat $PIDFILE 2>/dev/null` || true
 		if kill -0 $PID 2>/dev/null
 		then
 			echo "$DESC already running."
@@ -117,7 +117,7 @@ start)
 
 stop)
 	echo -n "Stopping $DESC: "
-	PID=`cat $PIDFILE 2>/devnull` || true
+	PID=`cat $PIDFILE 2>/dev/null` || true
 	start-stop-daemon \
 		--stop \
 		--quiet \
@@ -129,7 +129,7 @@ stop)
 	;;
 
 reload|force-reload|restart)
-	PID=`cat $PIDFILE 2>/devnull` || true
+	PID=`cat $PIDFILE 2>/dev/null` || true
 	$0 stop
 	wait_for_deaddaemon $PID
 	$0 start
