@@ -1,12 +1,10 @@
-$Id: TODO,v 1.37 2002/08/21 19:26:01 weasel Exp $
+$Id: TODO,v 1.38 2002/09/05 15:12:09 weasel Exp $
 
 for 2.0:
- Why does austria perform that bad with mix pings.
- tally the number of mixmaster, cypherpunk, and "total unique" remailers
-   running and have that display in echolot.html
+ fix bugs
 
 can be done later, nice if for 2.0:
- list broken chains
+ detect broken chains
  ping nymservers
  chain preload and postload
  parse bounces and mark pings as dead immediatly
