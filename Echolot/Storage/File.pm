@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.44 2003/01/14 05:25:35 weasel Exp $
+# $Id: File.pm,v 1.45 2003/02/03 20:10:35 weasel Exp $
 #
 
 =pod
@@ -22,6 +22,7 @@ use strict;
 use Data::Dumper;
 use IO::Handle;
 use English;
+use Carp;
 use Fcntl ':flock'; # import LOCK_* constants
 #use Fcntl ':seek'; # import SEEK_* constants
 use POSIX; # import SEEK_* constants (older perls don't have SEEK_ in Fcntl)
