@@ -1,4 +1,4 @@
-$Id: README,v 1.33 2002/09/12 17:04:38 weasel Exp $
+$Id: README,v 1.34 2002/09/12 17:47:26 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -183,6 +183,11 @@ o In the first terminal window, type:
 
 o In the second terminal window, type:
     $ ./pingd add <address1> <address2> <address3> ...
+
+  You can also use the following shell magic to add all addresses from
+  an existing rlist.txt or mlist.txt:
+    $ grep \$remailer rlist.txt | cut -f 2 -d \< | cut -f 1 -d \> |
+      xargs ./pingd add 
 
   Monitor the first terminal in which you started pingd. You should see
   mention of email addresses being added.
