@@ -1,4 +1,4 @@
-Changes in version
+Changes in version 2.0beta14 - 2002-07-16
 	* Added commands buildstats buildkeys and buildthesaurus
 	* Added legend to templates (Orange)
 	* Thesaurus building failed when an id did not return a
