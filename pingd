@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.25 2002/07/10 12:50:10 weasel Exp $
+# $Id: pingd,v 1.26 2002/07/10 12:58:12 weasel Exp $
 #
 
 =pod
@@ -346,7 +346,9 @@ sub pid_exists() {
 	return (-e Echolot::Config::get()->{'pidfile'});
 };
 
-sub daemon_run() {
+sub daemon_run($) {
+	my ($process) = @_;
+
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
 		if pid_exists();
 	open (PIDFILE, '>'.Echolot::Config::get()->{'pidfile'}) or
@@ -374,7 +376,7 @@ sub daemon_run() {
 	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'} , 0, \&Echolot::Conf::check_resurrection );
 
 	Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', time() )
-		if ($params->{'process'});
+		if ($process);
 
 	$scheduler->run();
 
@@ -540,11 +542,11 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 			close STDIN;
 			$redirected_stdio = 1;
 			print "Startup at ".scalar localtime().".\n";
-			daemon_run();
+			daemon_run( $params->{'process'} );
 			print "done at ".scalar localtime().".\n";
 		};
 	} else {
-		daemon_run();
+		daemon_run( $params->{'process'} );
 	};
 } elsif ($COMMAND eq 'dumpconf') {
 	Echolot::Config::dump();
