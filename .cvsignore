@@ -1,2 +1,10 @@
 data
 mail
+mail-errors
+results
+results.private
+tmp
+gnupg
+output
+pingd.pid
+commands.txt
