@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.20 2002/07/17 17:53:44 weasel Exp $
+# $Id: Conf.pm,v 1.21 2002/07/17 19:00:22 weasel Exp $
 #
 
 =pod
@@ -351,7 +351,7 @@ sub parse_cpunk_key($$$) {
 		
 		my @included_keys = $stdout =~ /^pub:.*$/mg;
 		(scalar @included_keys >= 2) &&
-			cluck ("Cannot handle more than one key per block correctlye yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'});
+			cluck ("Cannot handle more than one key per block correctly yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'});
 		for my $included_key (@included_keys) {
 			my ($type, $keyid, $uid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):[^:]+:[^:]*:::([^:]+):/;
 			(defined $uid) or
