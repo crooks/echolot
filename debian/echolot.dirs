@@ -1,4 +1,4 @@
-usr/lib/echolot
+usr/share/perl5
 var/lib/echolot
 var/run/echolot
 var/log/echolot

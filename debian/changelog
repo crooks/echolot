@@ -3,8 +3,10 @@ echolot (2.0.3-3) unstable; urgency=low
   * Remove Suggests: procmail.
   * Copy new description from README to control.
   * Updated remailer list.
+  * Use a more correct directory structure
+    (usr/lib/echolot -> usr/share/perl5/)
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 12 Oct 2002 14:10:03 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 12 Oct 2002 14:43:28 +0200
 
 echolot (2.0.3-2) unstable; urgency=low
 

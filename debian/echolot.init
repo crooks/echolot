@@ -15,7 +15,7 @@ CHECKULIMIT=1
 CHECKUID=1
 USER=echolot
 GROUP=echolot
-DAEMON=/usr/lib/echolot/pingd
+DAEMON=/usr/bin/pingd
 DESC="Echolot Ping Daemon"
 NAME="pingd"
 test -f $DAEMON || exit 0
