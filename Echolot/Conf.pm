@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.35 2003/01/14 05:31:11 weasel Exp $
+# $Id: Conf.pm,v 1.36 2003/01/14 06:56:22 weasel Exp $
 #
 
 =pod
@@ -68,7 +68,7 @@ sub send_requests($;$) {
 				$which eq 'all' ||
 				(($which eq '') && ($this_call_id == (Echolot::Tools::makeShortNumHash($address.$type.$session_id) % $send_every_n_calls))));
 
-			Echolot::Log::info("Sending $type requests to ".$address.".");
+			Echolot::Log::info("Sending $type request to ".$address.".");
 
 			my $source_text = Echolot::Config::get()->{'remailerxxxtext'};
 			my $template =  HTML::Template->new(
@@ -97,7 +97,7 @@ sub check_resurrection() {
 		next unless ($remailer->{'status'} eq 'ttl timeout');
 		next unless ($remailer->{'fetch'});
 		next unless ($remailer->{'resurrection_ttl'});
-		Echolot::Log::info("Sending requests to ".$remailer->{'address'}." to check for resurrection.");
+		Echolot::Log::info("Sending request to ".$remailer->{'address'}." to check for resurrection.");
 		for my $type (qw{conf key help stats adminkey}) {
 			Echolot::Tools::send_message(
 				'To' => $remailer->{'address'},
