@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.6 2003/02/16 10:07:27 weasel Exp $
+# $Id: Chain.pm,v 1.7 2003/02/17 07:22:49 weasel Exp $
 #
 
 =pod
@@ -195,7 +195,11 @@ sub set_intensive_care($@) {
 	my ($chaintype, $intensive_care) = @_;
 
 	%{$INTENSIVE_CARE{$chaintype}} = map { ($_->{'addr1'}.' '.$_->{'addr2'}) => $_->{'reason'} } @$intensive_care;
-	Echolot::Log::debug("intensive care $chaintype:\n" . join("\n", map { "\t\t$_: $INTENSIVE_CARE{$chaintype}->{$_}" } keys %{$INTENSIVE_CARE{$chaintype}} ));
+	if (scalar @$intensive_care) {
+		Echolot::Log::debug("intensive care $chaintype:\n" . join("\n", map { "\t\t$_: $INTENSIVE_CARE{$chaintype}->{$_}" } keys %{$INTENSIVE_CARE{$chaintype}} ));
+	} else {
+		Echolot::Log::debug("intensive care $chaintype: (none)");
+	};
 };
 
 sub receive($$$) {

@@ -324,7 +324,7 @@ B<chainping_minsample>), should be tested more often: They are checked
 every B<chainping_ic_every_nth_time> time chain-pings are sent.
 
 	Default: 'chainpinger_interval'        => 5*60, # send out pings every 5 minutes
-	         'chainping_every_nth_time'    => 864,  # send out pings to the same chain every 864 calls, i.e. every 3 days
+	         'chainping_every_nth_time'    => 2016, # send out pings to the same chain every 2016 calls, i.e. week
 	         'chainping_ic_every_nth_time' => 288,  # send out pings to broken or unknown chains every 288 calls, i.e. daily
 
 =item B<addresses_default_ttl> [integer]
