@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.17 2003/02/16 10:20:10 weasel Exp $
+# $Id: Tools.pm,v 1.18 2003/02/16 10:24:45 weasel Exp $
 #
 
 =pod
@@ -330,9 +330,9 @@ sub make_garbage() {
 	
 	$random = unpack("H*", $random);
 	$random = join "\n", grep { $_ ne '' } (split /(.{64})/, $random);
-	$random = "----- BEGIN GARBAGE' -----\n".
+	$random = "----- BEGIN GARBAGE -----\n".
 		$random."\n".
-		"----- BEGIN GARBAGE' -----\n";
+		"----- END GARBAGE -----\n";
 	
 	return $random;
 };
