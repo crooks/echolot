@@ -1,3 +1,9 @@
+echolot (2.1.6-2) unstable; urgency=low
+
+  * Add disable and enable to allowed commands in init script.
+
+ -- Peter Palfrader <weasel@debian.org>  Sat, 25 Sep 2004 16:49:11 +0200
+
 echolot (2.1.6-1) unstable; urgency=medium
 
   * New upstream version, catch one use of an undefined variable in

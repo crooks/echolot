@@ -134,7 +134,7 @@ reload|force-reload|restart)
 	wait_for_deaddaemon $PID
 	$0 start
 	;;
-process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|sendchainpings|buildstats|buildkeys|buildthesaurus|buildfromlines|dumpconf|summary)
+process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|sendchainpings|buildstats|buildkeys|buildthesaurus|buildfromlines|dumpconf|summary|enable|disable)
 	# Check for right User
 	SU=""
 	if [ "$CHECKUID" -gt "0" ]; then
