@@ -330,13 +330,14 @@ sub readwrite_gpg($$$$$) {
 				close $wfd;
 				$sin->remove($wfd);
 				$sin = undef;
-			};
-			$offset += $written;
-			if ($offset == length($in)) {
-				Echolot::Log::trace("writing to $wfd done.");
-				close $wfd;
-				$sin->remove($wfd);
-				$sin = undef;
+			} else {
+				$offset += $written;
+				if ($offset == length($in)) {
+					Echolot::Log::trace("writing to $wfd done.");
+					close $wfd;
+					$sin->remove($wfd);
+					$sin = undef;
+				}
 			}
 		}
 
