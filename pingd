@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.7 2002/07/02 13:46:48 weasel Exp $
+# $Id: pingd,v 1.8 2002/07/02 14:11:49 weasel Exp $
 #
 
 =pod
@@ -155,7 +155,7 @@ my $COMMAND = shift @ARGV;
 die ("command required\n") unless defined $COMMAND;
 
 
-Echolot::Config::init();
+Echolot::Config::init( $params );
 chdir( Echolot::Config::get()->{'homedir'} );
 Echolot::Globals::init();
 
