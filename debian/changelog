@@ -1,4 +1,4 @@
-echolot (2.0.9-1) unstable; urgency=low
+echolot (2.0.9-1) unstable; urgency=medium
 
   * New upstream version.
     Depends on liblog-dispatch-perl
