@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.59 2003/06/23 13:14:14 weasel Exp $
+# $Id: Stats.pm,v 1.60 2003/09/02 10:11:43 weasel Exp $
 #
 
 =pod
@@ -470,8 +470,8 @@ sub build_rems($) {
 			'nick'     => Echolot::Globals::get()->{'storage'}->get_nick($addr),
 			'caps'     => Echolot::Globals::get()->{'storage'}->get_capabilities($addr),
 			'address'  => $addr,
-			'showit'   => $remailer->{'showit'}
 			};
+		$rem->{'list-it'} = $remailer->{'showit'} && $rem->{'caps'} !~ m/\btesting\b/i;
 		$rem->{'latency'} = $rem->{'stats'}->{'avr_latency'}; # for sorting purposes only
 		$rem->{'latency'} = 9999 unless defined $rem->{'latency'};
 
@@ -604,7 +604,7 @@ sub find_broken_chains($$$) {
 				my $nick1 = $remailers{$addr1}->{'nick'};
 				my $nick2 = $remailers{$addr2}->{'nick'};
 				push @broken_chains,
-					{ public => $remailers{$addr1}->{'showit'} && $remailers{$addr2}->{'showit'},
+					{ public => $remailers{$addr1}->{'list-it'} && $remailers{$addr2}->{'list-it'},
 					  chain => "($nick1 $nick2)" };
 				push @intensive_care, { addr1 => $addr1, addr2 => $addr2, reason => "bad: $done/$out" };
 			};
@@ -663,7 +663,7 @@ sub build_lists() {
 
 	$rems = $mixrems;
 	$mixrems = undef;
-	@$pubrems = grep { $_->{'showit'} } @$rems;
+	@$pubrems = grep { $_->{'list-it'} } @$rems;
 	build_mlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist', 'mlist');
 	build_list2( $rems, 2, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2', 'mlist2');
 	build_mlist1( $pubrems, $pubbroken1, $pubbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', 'mlist');
@@ -678,7 +678,7 @@ sub build_lists() {
 
 	$rems = $cpunkrems;
 	$cpunkrems = undef;
-	@$pubrems = grep { $_->{'showit'} } @$rems;
+	@$pubrems = grep { $_->{'list-it'} } @$rems;
 	build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist', 'rlist');
 	build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2', 'rlist2');
 	build_rlist1( $pubrems, $pubbroken1, $pubbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', 'rlist');
@@ -693,7 +693,7 @@ sub build_lists() {
 
 	if (Echolot::Config::get()->{'separate_rlists'}) {
 		$rems = build_rems(['cpunk-rsa']);
-		@$pubrems = grep { $_->{'showit'} } @$rems;
+		@$pubrems = grep { $_->{'list-it'} } @$rems;
 		build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
 		build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
 		build_rlist1( $pubrems, $pubbroken1, $pubbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
@@ -704,7 +704,7 @@ sub build_lists() {
 		};
 
 		$rems = build_rems(['cpunk-dsa']);
-		@$pubrems = grep { $_->{'showit'} } @$rems;
+		@$pubrems = grep { $_->{'list-it'} } @$rems;
 		build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
 		build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
 		build_rlist1( $pubrems, $pubbroken1, $pubbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
@@ -715,7 +715,7 @@ sub build_lists() {
 		};
 
 		$rems = build_rems(['cpunk-clear']);
-		@$pubrems = grep { $_->{'showit'} } @$rems;
+		@$pubrems = grep { $_->{'list-it'} } @$rems;
 		build_rlist1( $rems, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', 'rlist-clear');
 		build_list2( $rems, 1, $privbroken1, $privbroken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
 		build_rlist1( $pubrems, $pubbroken1, $pubbroken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', 'rlist-clear');
@@ -801,7 +801,7 @@ sub build_mixring() {
 			};
 		};
 
-		$key{'showit'} = $remailer->{'showit'};
+		$key{'list-it'} = $remailer->{'list-it'};
 		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
 			$data->{$key{'summary'}} = \%key;
 			$data->{$key{'summary'}} = \%key;
@@ -810,7 +810,7 @@ sub build_mixring() {
 
 	for my $indx (sort {$a cmp $b} keys %$data) {
 		my $key = $data->{$indx};
-		if ($key->{'showit'}) {
+		if ($key->{'list-it'}) {
 			print F $key->{'summary'}."\n\n";
 			print F $key->{'key'},"\n\n";
 			print T2L $key->{'summary'},"\n";
@@ -889,7 +889,7 @@ sub build_pgpring_type($$$$) {
 			} elsif ($count_imported < 1) {
 				Echolot::Log::info("GnuPG status '$status' didn't indicate key for '$addr' was imported correctly. Ignoring.");
 			};
-			$keyids->{$final_keyid} = $remailer->{'showit'};
+			$keyids->{$final_keyid} = $remailer->{'list-it'};
 		};
 	};
 	

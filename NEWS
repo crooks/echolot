@@ -5,8 +5,8 @@ Changes in
 	* Catch SIGPIPE and log it as error.
 	* Document thesaurusindexfile.
 	* Minor documentation fixes.
-	* Exit immediatly after the current running task, even if we have a
-	  backlog.
+	* When asked to shut down, exit immediatly after the current running
+	  task, even if we have a backlog.
 	* If we run late we should now drop actions where it does not hurt.
 	* Remove random command invocation via pingctr/init script.  People
 	  should just call pingd directly.  Also wait for pingd to really
@@ -20,6 +20,9 @@ Changes in
 	  this seems to be 'more correct'.
 	  Also have different weights for pings based on their age.
 	* Optimized chain pinging: takes less CPU.
+	* Do not list remailers with the 'testing' capability in
+	  public stats.  Testing indicates a node is not ready for real
+	  users' traffic yet.
 
 Changes in version 2.1 - 2003-03-03
 	* Minor documentation fixes suggested by Ryan Lackey.
