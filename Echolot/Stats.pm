@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.24 2002/07/23 00:30:11 weasel Exp $
+# $Id: Stats.pm,v 1.25 2002/07/29 13:35:47 weasel Exp $
 #
 
 =pod
@@ -569,10 +569,17 @@ sub build_mixring() {
 	open(T2L, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
+	$filename = Echolot::Config::get()->{'private_resultdir'}.'/pubring.mix';
+	open(F_PRIV, '>'.$filename) or
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
+	$filename = Echolot::Config::get()->{'private_resultdir'}.'/type2.list';
+	open(T2L_PRIV, '>'.$filename) or
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
 
 	my $data;
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
-		next unless $remailer->{'showit'};
 		my $addr = $remailer->{'address'};
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, 'mix');
 
@@ -585,20 +592,29 @@ sub build_mixring() {
 			};
 		};
 
+		$key{'showit'} = $remailer->{'showit'};
 		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
+			$data->{$key{'summary'}} = \%key;
 			$data->{$key{'summary'}} = \%key;
 		};
 	};
 
 	for my $indx (sort {$a cmp $b} keys %$data) {
 		my $key = $data->{$indx};
-		print F $key->{'summary'}."x\n\n";
-		print F $key->{'key'},"\n\n";
-		print T2L $key->{'summary'},"\n";
+		if ($key->{'showit'}) {
+			print F $key->{'summary'}."x\n\n";
+			print F $key->{'key'},"\n\n";
+			print T2L $key->{'summary'},"\n";
+		};
+		print F_PRIV $key->{'summary'}."x\n\n";
+		print F_PRIV $key->{'key'},"\n\n";
+		print T2L_PRIV $key->{'summary'},"\n";
 	};
 
 	close(F);
 	close(T2L);
+	close(F_PRIV);
+	close(T2L_PRIV);
 };
 
 
@@ -607,7 +623,6 @@ sub build_pgpring_type($$$$) {
 	my ($type, $GnuPG, $keyring, $keyids) = @_;
 	
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
-		next unless $remailer->{'showit'};
 		my $addr = $remailer->{'address'};
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, $type);
 
@@ -658,7 +673,7 @@ sub build_pgpring_type($$$$) {
 					cluck("GnuPG status '$status' didn't indicate key for '$addr' was imporeted correctly. Ignoring.\n");
 				};
 			};
-			push @$keyids, $final_keyid;
+			$keyids->{$final_keyid} = $remailer->{'showit'};
 		};
 	};
 	
@@ -712,12 +727,16 @@ sub build_pgpring() {
 	        Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.keyring';
 	
 
-	my $keyids = [];
+	my $keyids = {};
 	build_pgpring_type('cpunk-rsa', $GnuPG, $keyring, $keyids) or
 		cluck("build_pgpring_type failed"),
 		return undef;
 
-	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-rsa.asc', $keyids) or
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-rsa.asc', [ grep {$keyids->{$_}} keys %$keyids ]) or
+		cluck("build_pgpring_export failed"),
+		return undef;
+	
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'private_resultdir'}.'/pgp-rsa.asc', [ keys %$keyids ]) or
 		cluck("build_pgpring_export failed"),
 		return undef;
 	
@@ -725,7 +744,11 @@ sub build_pgpring() {
 		cluck("build_pgpring_type failed"),
 		return undef;
 
-	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-all.asc', $keyids) or
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-all.asc', [ grep {$keyids->{$_}} keys %$keyids ]) or
+		cluck("build_pgpring_export failed"),
+		return undef;
+	
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'private_resultdir'}.'/pgp-all.asc', [ keys %$keyids ]) or
 		cluck("build_pgpring_export failed"),
 		return undef;
 	
