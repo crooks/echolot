@@ -1,3 +1,7 @@
+Changes in version 2.0 beta3 - 2002-07-10
+	* Fixed a small bug with writing the metadata so that it could not be
+	  parsed again
+
 Changes in version 2.0 beta2 - 2002-07-10
 	* Moved from XML to Data::Dumper
 	  Use convert-xml-to-datadumper in the tools directory to

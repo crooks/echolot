@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.28 2002/07/10 11:49:41 weasel Exp $
+# $Id: File.pm,v 1.29 2002/07/10 11:54:52 weasel Exp $
 #
 
 =pod
@@ -202,7 +202,7 @@ sub metadata_write($) {
 	truncate($fh, 0) or
 		cluck("Cannot truncate metadata file to zero length: $!"),
 		return 0;
-	print($fh "<!-- vim:set syntax=xml: -->\n") or
+	print($fh "# vim:set syntax=perl:\n") or
 		cluck("Error when writing to metadata file: $!"),
 		return 0;
 	print($fh $data) or
