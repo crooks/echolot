@@ -1,6 +1,5 @@
 for 2.0:
  make setup easy/document setup
- only fetch keys and confs remailers if fetch is set
  make a private [rm]list showing all remailers
  ping cpunk without pgponly in clear too
  configure pinging options (i.e. cpunkt-{rsa,dsa,none}, mix)

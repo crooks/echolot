@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.7 2002/06/20 04:27:07 weasel Exp $
+# $Id: Conf.pm,v 1.8 2002/07/02 17:06:59 weasel Exp $
 #
 
 =pod
@@ -28,6 +28,7 @@ sub send_requests() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
 		next unless ($remailer->{'status'} eq 'active');
+		next unless ($remailer->{'fetch'});
 		print "Sending requests to ".$remailer->{'address'}."\n";
 		for my $type (qw{conf key help stats}) {
 			Echolot::Tools::send_message(
