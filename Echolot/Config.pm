@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.8 2002/07/02 17:17:56 weasel Exp $
+# $Id: Config.pm,v 1.9 2002/07/02 18:15:26 weasel Exp $
 #
 
 =pod
@@ -63,6 +63,13 @@ sub init($) {
 			}
 		},
 
+		do_pings => {
+			'cpunk-dsa' => 1,
+			'cpunk-rsa' => 1,
+			'cpunk-clear' => 1,
+			'mix' => 1
+		},
+		
 		homedir                     => undef,
 		my_localpart                => undef,
 		my_domain                   => undef,

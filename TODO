@@ -1,7 +1,6 @@
 for 2.0:
  make setup easy/document setup
  make a private [rm]list showing all remailers
- configure pinging options (i.e. cpunkt-{rsa,dsa,none}, mix)
 
 for later:
  rotate secret
