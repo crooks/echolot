@@ -1,5 +1,11 @@
 #!/usr/bin/perl -w
 
+# In 2.0beta1 XML was used to store all relevant data
+# 2.0beta2 ditched XML and went for Data::Dumper
+
+# This script takes the XML data from STDIN and
+# prints the data in Data::Dumper perl style to stdout
+
 use strict;
 use XML::Parser;
 use XML::Dumper;

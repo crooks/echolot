@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This script is used after exporting the CVS to build a new
+# release tarball
+
 set -e
 
 find -name .cvsignore -print0 | xargs -0 rm
