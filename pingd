@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.24 2002/07/10 12:42:56 weasel Exp $
+# $Id: pingd,v 1.25 2002/07/10 12:50:10 weasel Exp $
 #
 
 =pod
@@ -78,7 +78,7 @@ keys and confs.
 =item B<delete> I<address> [I<address> ...]
 
 Delete I<address> from the list of remailers to query for
-keys and confs. Delete all statistics and key for that remailer.
+keys and confs. Delete all statistics and keys for that remailer.
 
 =item B<set> option=value [option=value..] I<address> [I<address> ...]
 
@@ -146,7 +146,7 @@ Print version number and exit sucessfully.
 
 =item --nohup
 
-Usefull only when passed with the B<add>, B<set>, B<setremailercaps>,
+Usefull only with the B<add>, B<set>, B<setremailercaps>,
 B<deleteremailercaps> or B<getkeyconf> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
@@ -156,13 +156,13 @@ Per default such a signal is sent.
 
 =item --process
 
-Usefull only when passed with the B<start> command.
+Usefull only with the B<start> command.
 
 Read and process the commands file on startup.
 
 =item --detach
 
-Usefull only when passwd with the B<start> command.
+Usefull only with the B<start> command.
 
 Tell B<pingd> to detach.
 
