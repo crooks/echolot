@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.4 2002/07/10 21:46:28 weasel Exp $
+# $Id: Tools.pm,v 1.5 2002/07/10 22:16:12 weasel Exp $
 #
 
 =pod
@@ -116,6 +116,8 @@ sub send_message(%) {
 	};
 	$args{'Subject'} = 'none' unless (defined $args{'Subject'});
 	
+	my @lines = map { $_."\n" } split (/\r?\n/, $args{'Body'});
+
 	open(SENDMAIL, '|'.Echolot::Config::get()->{'sendmail'}.' -f '.$args{'From'}.' -t')
 		or cluck("Cannot run sendmail: $!"),
 		return 0;
