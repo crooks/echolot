@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.53 2002/08/05 17:46:17 weasel Exp $
+# $Id: pingd,v 1.54 2002/08/07 23:33:33 weasel Exp $
 #
 
 =pod
@@ -276,6 +276,7 @@ use Echolot::Pinger;
 use Echolot::Stats;
 use Echolot::Commands;
 use Echolot::Thesaurus;
+use POSIX qw(setsid);
 
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
@@ -616,17 +617,18 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	make_dirs();
 	if ($params->{'detach'}) {
 		print "Detaching.\n";
-		unless (fork()) {
-			close STDOUT;
-			close STDERR;
-			open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
-			open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
-			close STDIN;
-			$redirected_stdio = 1;
-			print "Startup at ".scalar localtime().".\n";
-			daemon_run( $params->{'process'} );
-			print "done at ".scalar localtime().".\n";
-		};
+		exit(0) if (fork());
+		POSIX::setsid();
+		exit(0) if (fork());
+		close STDOUT;
+		close STDERR;
+		open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
+		open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
+		close STDIN;
+		$redirected_stdio = 1;
+		print "Startup at ".scalar localtime().".\n";
+		daemon_run( $params->{'process'} );
+		print "done at ".scalar localtime().".\n";
 	} else {
 		daemon_run( $params->{'process'} );
 	};
