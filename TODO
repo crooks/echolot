@@ -1,4 +1,4 @@
-$Id: TODO,v 1.33 2002/07/16 03:02:01 weasel Exp $
+$Id: TODO,v 1.34 2002/07/17 02:35:29 weasel Exp $
 
 for 2.0:
  Why does austria perform that bad with mix pings.
@@ -14,3 +14,4 @@ can be done later, nice if for 2.0:
  get rid of dependency on gnupg
  seperate keys in remailer-key reply if they share the same armor (cmeclex is
    the only one doing this. AARG)
+ query other stat pages for new remailers
