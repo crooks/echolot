@@ -27,6 +27,7 @@ Changes in version
 	* Compile a list of default From: lines as well as a list of
 	  remailers which allow user supplied From headers.
 	* Print status summary to log daily.
+	* Reliable and CRLF - a neverending (sad) story.
 
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.
