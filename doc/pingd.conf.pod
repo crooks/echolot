@@ -36,9 +36,9 @@ In C<pinger@remailer.example.com> the localpart is C<pinger>.
 
 =item B<my_domain>
 
-The FQDN of the pinger's email address.
+The domain part (FQDN) of the pinger's email address.
 
-In C<pinger@remailer.example.com> the FQDN is C<remailer.example.com>.
+In C<pinger@remailer.example.com> the domain part is C<remailer.example.com>.
 
 	Default: none
 	Example: 'my_domain' => 'remailer.example.com',

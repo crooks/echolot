@@ -11,8 +11,8 @@ $CONFIG = {
   # In "pinger@remailer.example.com" the localpart is "pinger".
 	'my_localpart'     => 'pinger',
 
-  # The FQDN of the pinger's email address.
-  # In "pinger@remailer.example.com" the FQDN is "remailer.example.com".
+  # The domain part (FQDN) of the pinger's email address.
+  # In "pinger@remailer.example.com" the domain part is "remailer.example.com".
 	'my_domain'        => 'remailer.example.com',
 
   # The email address of the human operator that runs this pinger.
