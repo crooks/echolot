@@ -1,9 +1,8 @@
-$Id: TODO,v 1.25 2002/07/10 16:03:18 weasel Exp $
+$Id: TODO,v 1.26 2002/07/10 17:59:56 weasel Exp $
 
 for 2.0:
 
 for later:
- make seperate list for rsa, dsa and plaintext pings
  document configuration options
  list broken chains
  ping nymservers

@@ -1,4 +1,4 @@
-Changes in
+Changes in version 2.0beta5 - 2002-07-10
 	* Thesaurus filenames changed from nn-foo to nn.foo.
 	  Use the change-thesaurus-filenames script in the tools
 	  directory to convert your current thesaurus if you wish
@@ -7,17 +7,17 @@ Changes in
 	  supported now. Enable seperate_rlists in pingd.conf.
 	* Have a combined list. Enable with combined_list in pingd.conf.
 
-Changes in version 2.0 beta4 - 2002-07-10
+Changes in version 2.0beta4 - 2002-07-10
 	* Minor documentation fixes
 	* Added --process switch
 	* Die if metadata or conf data cannot be parsed
 	* Build manpage into extra file
 
-Changes in version 2.0 beta3 - 2002-07-10
+Changes in version 2.0beta3 - 2002-07-10
 	* Fixed a small bug with writing the metadata so that it could not be
 	  parsed again
 
-Changes in version 2.0 beta2 - 2002-07-10
+Changes in version 2.0beta2 - 2002-07-10
 	* Moved from XML to Data::Dumper
 	  Use convert-xml-to-datadumper in the tools directory to
 	  convert your setup:
@@ -28,5 +28,5 @@ Changes in version 2.0 beta2 - 2002-07-10
 	    convert-xml-to-datadumper METADATA < data/metadata.old > data/metadata
 	    pingd start
 
-Changes in version 2.0 beta1 - 2002-07-07
+Changes in version 2.0beta1 - 2002-07-07
 	* Initial public beta test
