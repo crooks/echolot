@@ -1,13 +1,14 @@
-Changes in version
+Changes in version 2.0beta9 - 2002-07-11
 	* Don't reset PATH to /usr/bin:/bin any more
+	* Use confess or cluck instead of croak in some places.
 
-Changes in version 2.0beta8 -  2002-07-10
+Changes in version 2.0beta8 - 2002-07-10
 	* Fix public clist.
 
-Changes in version 2.0beta7 -  2002-07-10
+Changes in version 2.0beta7 - 2002-07-10
 	* fixed a stupid syntax bug.
 
-Changes in version 2.0beta6 -  2002-07-10
+Changes in version 2.0beta6 - 2002-07-10
 	* Did away with Mail::Internet. Using local sendmail binary only.
 	  This also means the smarthost config option is obsolete and there
 	  is a sendmail config option now.
