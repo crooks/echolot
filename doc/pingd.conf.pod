@@ -86,10 +86,17 @@ without recipient delimiter:
 
 =item B<dev_random>
 
-Where to read random data from.
+Where to read strong random data from - currently used only for generating our
+secret.
 
 	Default: 'dev_random' => '/dev/random',
-	Example: 'dev_random' => '/dev/urandom',
+
+=item B<dev_urandom>
+
+Where to read weak random data from - currently used only for generating
+garbage generation.
+
+	Default: 'dev_urandom' => '/dev/urandom',
 
 =item B<sendmail>
 
@@ -119,6 +126,22 @@ B<hash_len> is the number of characters to include in the email address.
 
 	Default: 'hash_len' => 8,
 	Example: 'hash_len' => 4,
+
+=item B<seconds_per_day> [integer]
+
+The length of one character in reliability and latency stats.  One
+character usually stands for exactly one day (hence the name of this
+config option).  Changing it in production use if probably a bad idea
+bug shortening it might come in handy during debugging.
+
+	Default: 'seconds_per_day' => 24*60*60,
+
+=item B<stats_days> [integer]
+
+How many day (or whatever you configured seconds_per_day to really be)
+to have in the stats.  This is 12 days.
+
+	Default: 'stats_days' => 12,
 
 =back
 
@@ -212,6 +235,15 @@ How often to build mlist etc.
 	Default: 'buildstats' => 5*60, # every 5 minutes
 	Example: 'buildstats' => 60*60, # hourly
 
+=item B<chainping_update> [seconds]
+
+When building stats and we have chain pinging enabled
+(see B<do_chainpings>), how often to rebuild chain stats.
+This can be a CPU intensive task therefore it's not updated
+every time stats are built.
+
+	Default: 'chainping_update' => 4*60*60, # chain stats should never be older than 4 hours
+
 =item B<buildkeys> [seconds]
 
 How often to build keyrings.
@@ -277,6 +309,24 @@ spikes.
 	Example: 'pinger_interval'     => 60,    # send out pings every minute
 	         'ping_every_nth_time' => 60,    # send out pings to the same remailer every 60 calls, i.e. every hour
 
+=item B<chainpinger_interval> [seconds]
+
+=item B<chainping_every_nth_time> [integer]
+
+=item B<chainping_ic_every_nth_time> [integer]
+
+How often to send chain pings. Chain-Pings are sent every
+B<chainpinger_interval> seconds.  The same chain is pinged every
+B<chainping_every_nth_time> time chain-pings are sent.  Chains in
+I<Intensive Care> (ic), that are chains that are either known or
+believed to be bad or are not tested enough yet (see
+B<chainping_minsample>), should be tested more often: They are checked
+every B<chainping_ic_every_nth_time> time chain-pings are sent.
+
+	Default: 'chainpinger_interval'        => 5*60, # send out pings every 5 minutes
+	         'chainping_every_nth_time'    => 864,  # send out pings to the same chain every 864 calls, i.e. every 3 days
+	         'chainping_ic_every_nth_time' => 288,  # send out pings to broken or unknown chains every 288 calls, i.e. daily
+
 =item B<addresses_default_ttl> [integer]
 
 How many times to request remailer-xxx from a remailer (done every
@@ -334,6 +384,13 @@ not make this smaller than 12 days.
 
 	Default: 'expire_pings' => 12*24*60*60, # 12 days
 
+=item B<expire_chainpings> [seconds]
+
+After how long to expire chain pings. This should probably
+be set to the same as B<chainping_period>.
+
+	Default: 'expire_chainpings' => 12*24*60*60, # 12 days
+
 =item B<expire_thesaurus> [seconds]
 
 After how long to expire files in the thesaurus directory.
@@ -359,7 +416,7 @@ How many backups of metadata to keep.
 =back
 
 
-=head2 DIRECTORIES AND FILES
+=head2 DIRECTORIES AND FILES AND RELATED OPTIONS
 
 =over
 
@@ -384,6 +441,13 @@ The Maildir directory or Mbox which is searched for new messages.
 The Maildir directory where messages are put that could not be parsed.
 
 	Default: 'mailerrordir' => 'mail-errors',
+
+=item B<save_errormails> [bool]
+
+Whether to keep error messages at all
+
+	Default: 'save_errormails' => 0,
+	Example: 'save_errormails' => 1,
 
 =item B<resultdir>
 
@@ -555,7 +619,63 @@ The extension that such metafiles (see above) should have.
 
 	Default: 'meta_extension' => '.meta',
 
+=item B<random_garbage> [integer]
+
+Pings usually are quite short.  Some 100 bytes are sufficient to relay
+all the information that is required.  To make them not that out that
+extremly, pings are padded using random garbage of random length.
+
+B<random_garbage> is the top limit for the amount of bytes to add.  The
+actual number is randomly generated and uniformly distributed over
+[0, B<random_garbage>]
+
+	Default: 'random_garbage' => '8192',
+
 =back
+
+=head2 CHAIN PINGING
+
+=over
+
+=item B<do_chainpings> [bool]
+
+Whether or not to do chain pings.  Chain pings test all chains
+of two remailers and come up with a list of broken chains.
+This produces a non-trivial amount of traffic.
+
+	Default: 'do_chainpings' => 1,
+
+=item B<chainping_fudge>
+
+Which factor of messages may get lost in addition to the guessed loss
+derived from one-hop stats before a chain is declared broken.
+
+	Default: 'chainping_fudge' => 0.3, # if less than 0.3 * rel1 * rel2 make it, the chain is really broken
+
+=item B<chainping_grace>
+
+Which factor of time in addition to the guessed latency
+derived from one-hop stats before a chain ping is considered list
+
+	Default: 'chainping_grace' => 1.5, # don't count pings sent no longer than 1.5 * (lat1 + lat2) ago
+
+=item B<chainping_period> [seconds]
+
+What time frame is taken into account when calculating chain stats.
+This should probably be smaller than B<expire_chainpings>.
+
+	Default: 'chainping_period' => 12*24*60*60, # 12 days
+
+=item B<chainping_minsample> [seconds]
+
+Have at least as many sent (and not within grace) chain pings before
+declaring a chain broken.
+
+	Default: 'chainping_minsample' => 3, # have at least sent 3 pings before judging any chain
+
+
+=back
+
 
 =head2 PINGING TYPES
 
@@ -593,6 +713,22 @@ Pings mixmaster remailers.
 	   'cpunk-clear' => 1,
 	   'mix' => 1
 	  },
+
+=item B<which_chainpings>
+
+B<which_chainpings> controls some respects of chain pinging.
+It's a hash over chaintypes - currently B<mix> and B<cpunk>.
+Each entry is a reference to an array which specifies the
+preference for key types in that chaintype.
+
+	Default: which_chainpings => {
+	   'cpunk' => [ qw{cpunk-dsa cpunk-rsa cpunk-clear} ],
+	   'mix' => [ qw{mix} ]
+	  },
+
+This means that in case of cpunk chain pings we prefer
+using cpunk-dsa over cpunk-rsa which in return we prefer
+to cpunk-clear.  For mix there's only mix.
 
 =back
 
