@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.39 2003/05/21 00:28:35 weasel Exp $
+# $Id: Conf.pm,v 1.40 2003/06/06 09:50:55 weasel Exp $
 #
 
 =pod
@@ -121,9 +121,9 @@ sub remailer_caps($$$;$) {
 	Echolot::Log::info("Could not find id in token '$token'."), return 0 unless defined $id;
 	my ($remailer_type) = ($conf =~ /^\s*Remailer-Type:\s* (.*?) \s*$/imx);
 	Echolot::Log::info("No remailer type found in remailer_caps from '$token'."), return 0 unless defined $remailer_type;
-	my ($remailer_caps) = ($conf =~ /^\s*(  \$remailer{".*"}  \s*=\s*  "<.*@.*>.*";   )\s*$/imx);
+	my ($remailer_caps) = ($conf =~ /^\s*(  \$remailer{"?.*"?}  \s*=\s*  "?<.*@.*>.*"?;   )\s*$/imx);
 	Echolot::Log::info("No remailer caps found in remailer_caps from '$token'."), return 0 unless defined $remailer_caps;
-	my ($remailer_nick, $remailer_address) = ($remailer_caps =~ /^\s*  \$remailer{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
+	my ($remailer_nick, $remailer_address) = ($remailer_caps =~ /^\s*  \$remailer{"?(.*)"?}  \s*=\s*  "?<(.*@.*)>.*"?;   \s*$/ix);
 	Echolot::Log::info("No remailer nick found in remailer_caps from '$token': '$remailer_caps'."), return 0 unless defined $remailer_nick;
 	Echolot::Log::info("No remailer address found in remailer_caps from '$token': '$remailer_caps'."), return 0 unless defined $remailer_address;
 	
