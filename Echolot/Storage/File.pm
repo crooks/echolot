@@ -515,13 +515,13 @@ sub get_pings($$$$$) {
 
 	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, $direction, 1);
 	(defined $fh) or
-		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings."),
+		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings.");
 	($fh == -1) and
-		Echolot::Log::info ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings (key has expired)."),
+		Echolot::Log::info ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings (key has expired, or not available yet)."),
 		return ();
 
 	seek($fh, 0, SEEK_SET) or
-		Echolot::Log::warn("Cannot seek to start of $remailer_addr type $type key $key direction $direction pings: $!."),
+		Echolot::Log::warn("Cannot seek to start of $remailer_addr type $type key $key direction $direction pings: $! ($fh)."),
 		return undef;
 
 	if ($direction eq 'out') {
