@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.33 2002/07/11 23:20:54 weasel Exp $
+# $Id: File.pm,v 1.34 2002/07/11 23:39:13 weasel Exp $
 #
 
 =pod
@@ -48,7 +48,6 @@ my $CONSTANTS = {
 	'metadatafile' => 'metadata'
 };
 
-$ENV{'PATH'} = '/bin:/usr/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 my $METADATA_VERSION = 1;
