@@ -1,6 +1,6 @@
 Changes in version
 	* Have a consistent name for the ~/echolot directory in README.
-	* If you request keyconf from only a few remailers more requests could
+	* If you request keyconf from only a few remailers, more requests could
 	  have been sent. Fixed that.
 	* Write REMAIL n to mix.cfg - apparently it defaults to yes, which
 	  means Mixmaster will want to create keys.
