@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.1 2002/06/20 04:26:12 weasel Exp $
+# $Id: Commands.pm,v 1.2 2002/07/02 14:06:51 weasel Exp $
 #
 
 =pod
@@ -26,7 +26,7 @@ use English;
 sub addCommand($) {
 	my ($command) = @_;
 
-	my $filename = Echolot::Config::get()->{'commands'};
+	my $filename = Echolot::Config::get()->{'commands_file'};
 	open(FH, ">>$filename" ) or
 		cluck("Cannot open $filename for appending $!"),
 		return 0;
@@ -43,7 +43,7 @@ sub addCommand($) {
 };
 
 sub processCommands($) {
-	my $filename = Echolot::Config::get()->{'commands'};
+	my $filename = Echolot::Config::get()->{'commands_file'};
 
 	(-e $filename) or
 		return 1;
