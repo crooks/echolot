@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.15 2002/07/03 11:08:21 weasel Exp $
+# $Id: pingd,v 1.16 2002/07/03 12:54:31 weasel Exp $
 #
 
 =pod
@@ -497,9 +497,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 			open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
 			close STDIN;
 			$redirected_stdio = 1;
-			print "Startup at ".scalar localtime()."\n";
+			print "Startup at ".scalar localtime().".\n";
 			daemon_run();
-			print "done.\n";
+			print "done at ".scalar localtime().".\n";
 		};
 	} else {
 		daemon_run();
