@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.27 2003/02/20 14:05:38 weasel Exp $
+# $Id: Pinger.pm,v 1.28 2003/02/20 14:22:38 weasel Exp $
 #
 
 =pod
@@ -148,8 +148,8 @@ sub receive($$$$) {
 		# they add an empty line between each usefull line
 		$msg =~ s/(\r?\n)\r?\n/$1/g if ($msg =~ /^-----BEGIN PGP MESSAGE-----\r?\n\r?\n/m);
 
-		$top = $msg =~ m/^\S.*-----BEGIN PGP MESSAGE-----/s ? 1 : 0;
-		$bot = $msg =~ m/^-----END PGP MESSAGE-----.*\S/s ? 1 : 0;
+		$top = ($msg =~ m/^\S.*-----BEGIN PGP MESSAGE-----/ms) ? 1 : 0;
+		$bot = ($msg =~ m/^-----END PGP MESSAGE-----.*\S/ms) ? 1 : 0;
 
 		$body = Echolot::Tools::crypt_symmetrically($msg, 'decrypt');
 	};
