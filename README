@@ -1,4 +1,4 @@
-$Id: README,v 1.26 2002/08/14 22:54:20 weasel Exp $
+$Id: README,v 1.27 2002/08/14 22:56:45 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -145,6 +145,10 @@ o Echolot puts its stats in the result directory. It also produces
   default index page, symlink it to index.html with something like
   »ln -s echolot.html index.html« in the result directory or set
   the indexfilebasename option to index.html.
+
+o Echolot produces .meta files per default. These files include extra
+  headers that your http server should send to clients. With apache
+  you can load the mod_cern_meta module and set MetaFiles to on.
 
 CONFIGURATION
 -------------
