@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.18 2003/02/21 22:59:40 weasel Exp $
+# $Id: CPunk.pm,v 1.19 2003/02/22 19:08:55 weasel Exp $
 #
 
 =pod
@@ -99,7 +99,7 @@ sub encrypt_to($$$$) {
 		stderr     => $stderr_fh,
 		status     => $status_fh
 		);
-	my $command_args = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
+	my $command_args = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --textmode --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
 	my $plaintextfile;
 
 	#if ($pgp2compat) {
@@ -190,7 +190,7 @@ sub ping($$$$$) {
 			$with_from = 0;
 		};
 		#	"Latent-Time: +0\n".
-		$msg = "::\r\n".
+		$msg = "::\n".
 			"Anon-To: $to\n".
 			"\n".
 			$header.
