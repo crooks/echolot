@@ -1,3 +1,8 @@
 make setup easy
 expire pings
+expire keys
+expire confs
 rotate secret
+ping cpunk without pgponly in clear too
+get rid of dependency on mix
+get rid of dependency on gnupg
