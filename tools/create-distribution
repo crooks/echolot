@@ -26,7 +26,6 @@
 
 set -e
 
-find -name .cvsignore -print0 | xargs -0 rm
 version=`grep 'VERSION =' pingd | sed -e "s/.* '//" -e "s/'.*//"`
 dirname=`basename \`pwd\``
 pod2man --section=1 --release="$version" --center=Echolot pingd doc/pingd.1
