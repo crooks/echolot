@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.31 2003/01/02 21:24:32 weasel Exp $
+# $Id: Conf.pm,v 1.32 2003/01/02 23:51:15 weasel Exp $
 #
 
 =pod
@@ -158,34 +158,35 @@ sub remailer_caps($$$;$) {
 
 	# Fetch prospective remailers from reliable's remailer-conf reply:
 	my @lines = split /\r?\n/, $conf;
-	while (@lines) {
-		my $head = $lines[0];
-		chomp $head;
-		shift @lines;
-		last if ($head eq 'SUPPORTED CPUNK (TYPE I) REMAILERS');
-	};
 
-	while (@lines) {
-		my $head = $lines[0];
-		chomp $head;
-		shift @lines;
-		last unless ($head =~ /<(.*?@.*?)>/);
-		Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type1', $remailer_address);
-	};
+	while (1) {
+		my $head;
+		while (@lines) {
+			$head = $lines[0];
+			chomp $head;
+			shift @lines;
+			last if ($head eq 'SUPPORTED CPUNK (TYPE I) REMAILERS' ||
+				 $head eq 'SUPPORTED MIXMASTER (TYPE II) REMAILERS');
+		};
+		my $wanting = $head eq 'SUPPORTED CPUNK (TYPE I) REMAILERS' ? 1 :
+		              $head eq 'SUPPORTED MIXMASTER (TYPE II) REMAILERS' ? 2 :
+		              undef;
+		last unless defined $wanting;
 
-	while (@lines) {
-		my $head = $lines[0];
-		chomp $head;
-		shift @lines;
-		last if ($head eq 'SUPPORTED MIXMASTER (TYPE II) REMAILERS');
-	};
-
-	while (@lines) {
-		my $head = $lines[0];
-		chomp $head;
-		last unless ($head =~ /\s(.*?@.*?)\s/);
-		shift @lines;
-		Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type2', $remailer_address);
+		while (@lines) {
+			$head = $lines[0];
+			chomp $head;
+			shift @lines;
+			if ($wanting == 1) {
+				last unless ($head =~ /<(.*?@.*?)>/);
+				Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type1', $remailer_address);
+			} elsif ($wanting == 2) {
+				last unless ($head =~ /\s(.*?@.*?)\s/);
+				Echolot::Globals::get()->{'storage'}->add_prospective_address($1, 'reliable-caps-reply-type2', $remailer_address);
+			} else {
+				carp("Shouldn't be here. wanting == $wanting");
+			};
+		};
 	};
 
 	return 1;
