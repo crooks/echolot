@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.5 2002/06/20 04:29:06 weasel Exp $
+# $Id: Stats.pm,v 1.6 2002/06/22 23:36:32 weasel Exp $
 #
 
 =pod
@@ -22,7 +22,7 @@ use warnings;
 use Carp qw{cluck};
 
 use constant DAYS => 12;
-use constant SECS_PER_DAY => 3 * 60 * 60;
+use constant SECS_PER_DAY => 24 * 60 * 60;
 #use constant DAYS => 12;
 #use constant SECS_PER_DAY => 24 * 60 * 60;
 
@@ -372,7 +372,8 @@ sub build_rems($) {
 
 	my @rems =
 		sort {
-			- ($a->{'stats'}->{'avr_reliability'} <=> $b->{'stats'}->{'avr_reliability'})
+			- ($a->{'stats'}->{'avr_reliability'} <=> $b->{'stats'}->{'avr_reliability'}) ||
+			($a->{'nick'} cmp $b->{'nick'})
 			} map { $rems{$_} } keys %rems;
 	
 	return \@rems;
