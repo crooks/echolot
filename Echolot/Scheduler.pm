@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.11 2002/07/22 01:28:21 weasel Exp $
+# $Id: Scheduler.pm,v 1.12 2002/08/23 07:54:53 weasel Exp $
 #
 
 =pod
@@ -62,19 +62,21 @@ sub add($$$$$) {
 			order     => $ORDER++
 		};
 
-	$self->schedule($name);
+	$self->schedule($name, 1);
 	
 	return 1;
 };
 
-=item B<schedule> (I<name>, I<for>)
+=item B<schedule> (I<name>, I<reschedule>, [ I<for>, [I<arguments>]] )
 
 Schedule execution of I<name> for I<for>. If I<for> is not given it is calculated
-from I<interval> and I<offset> passed to B<new>.
+from I<interval> and I<offset> passed to B<new>. if I<reschedule> is set
+the task will be rescheduled when it's done (according to its interval).
+You may also give arguments to passed to the task.
 
 =cut
-sub schedule($$;$$) {
-	my ($self, $name, $for, $arguments) = @_;
+sub schedule($$$;$$) {
+	my ($self, $name, $reschedule, $for, $arguments) = @_;
 	
 	(defined $self->{'tasks'}->{$name}) or
 		cluck("Task $name is not defined"),
@@ -99,7 +101,8 @@ sub schedule($$;$$) {
 			start => $for,
 			order => $self->{'tasks'}->{$name}->{'order'},
 			name => $name,
-			arguments => $arguments
+			arguments => $arguments,
+			reschedule => $reschedule
 		};
 
 	@{ $self->{'schedule'} } = sort { $a->{'start'} <=> $b->{'start'} or $a->{'order'} <=> $b->{'order'} }
@@ -146,8 +149,8 @@ sub run($) {
 			print "Running $name at ".(time())." (scheduled for $now)\n" if Echolot::Config::get()->{'verbose'};
 			last if ($what eq 'exit');
 			&$what( $now, @{ $task->{'arguments'} } );
-			$self->schedule($name, $now + $self->{'tasks'}->{$name}->{'interval'}) if
-				($self->{'tasks'}->{$name}->{'interval'} > 0);
+			$self->schedule($name, 1, $now + $self->{'tasks'}->{$name}->{'interval'}) if
+				($task->{'reschedule'} && $self->{'tasks'}->{$name}->{'interval'} > 0);
 
 			(defined $self->{'schedule'}->[0]) or
 				cluck("Scheduler is empty"),

@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.9 2002/07/17 17:53:44 weasel Exp $
+# $Id: Commands.pm,v 1.10 2002/08/23 07:54:53 weasel Exp $
 #
 
 =pod
@@ -68,13 +68,13 @@ sub processCommands($) {
 		} elsif ($command eq 'set') {
 			Echolot::Globals::get()->{'storage'}->set_stuff(@args);
 		} elsif ($command eq 'getkeyconf') {
-			Echolot::Globals::get()->{'scheduler'}->schedule('getkeyconf', time(), \@args );
+			Echolot::Globals::get()->{'scheduler'}->schedule('getkeyconf', 0, time(), \@args );
 		} elsif ($command eq 'buildstats') {
-			Echolot::Globals::get()->{'scheduler'}->schedule('buildstats', time() );
+			Echolot::Globals::get()->{'scheduler'}->schedule('buildstats', 0, time() );
 		} elsif ($command eq 'buildkeys') {
-			Echolot::Globals::get()->{'scheduler'}->schedule('buildkeys', time() );
+			Echolot::Globals::get()->{'scheduler'}->schedule('buildkeys', 0, time() );
 		} elsif ($command eq 'buildthesaurus') {
-			Echolot::Globals::get()->{'scheduler'}->schedule('buildthesaurus', time() );
+			Echolot::Globals::get()->{'scheduler'}->schedule('buildthesaurus', 0, time() );
 		} elsif ($command eq 'delete') {
 			Echolot::Globals::get()->{'storage'}->delete_remailer(@args);
 		} elsif ($command eq 'setremailercaps') {

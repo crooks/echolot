@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.69 2002/08/23 06:05:46 weasel Exp $
+# $Id: pingd,v 1.70 2002/08/23 07:54:53 weasel Exp $
 #
 
 =pod
@@ -287,7 +287,7 @@ use POSIX qw(setsid);
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0beta32';
+my $VERSION = '2.0beta33';
 
 
 my $redirected_stdio = 0;
@@ -295,7 +295,7 @@ my $redirected_stdio = 0;
 sub setSigHandlers() {
 	$SIG{'HUP'} = sub {
 		print "Got SIGHUP. scheduling readcommands\n";
-		Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', 0, time() );
 		if ($redirected_stdio) {
 			close STDOUT;
 			close STDERR;
@@ -305,15 +305,15 @@ sub setSigHandlers() {
 	};
 	$SIG{'INT'} = sub {
 		print "Got SIGINT. scheduling exit\n";
-		Echolot::Globals::get()->{'scheduler'}->schedule('exit', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 	$SIG{'QUIT'} = sub {
 		print "Got SIGQUIT. scheduling exit\n";
-		Echolot::Globals::get()->{'scheduler'}->schedule('exit', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 	$SIG{'TERM'} = sub {
 		print "Got SIGTERM. scheduling exit\n";
-		Echolot::Globals::get()->{'scheduler'}->schedule('exit', time() );
+		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 };
 
@@ -448,7 +448,7 @@ sub daemon_run($) {
 	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf_interval'}, 0, \&Echolot::Conf::send_requests );
 	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'} , 0, \&Echolot::Conf::check_resurrection );
 
-	Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', time() )
+	Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', 0, time() )
 		if ($process);
 
 	$scheduler->run();
