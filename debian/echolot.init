@@ -89,10 +89,12 @@ start)
 		PID=`cat $PIDFILE 2>/devnull` || true
 		if kill -0 $PID 2>/dev/null
 		then
-			echo "$DESC already running"
+			echo "$DESC already running."
 			exit 0
 		else
-			rm -f /var/run/echolot/pingd.pid 
+			echo -n "Removing stale pid file: "
+			rm -f $PIDFILE
+			echo "$PIDFILE."
 		fi
 	fi
 	echo -n "Starting $DESC: " 
