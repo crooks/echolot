@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.30 2002/09/21 01:45:39 weasel Exp $
+# $Id: Conf.pm,v 1.31 2003/01/02 21:24:32 weasel Exp $
 #
 
 =pod
@@ -364,7 +364,7 @@ sub parse_cpunk_key($$$) {
 
 		my $pid = $GnuPG->wrap_call(
 			commands     => [qw{--with-colons}],
-			command_args => [qw{--no-options --no-default-keyring --fast-list-mode}],
+			command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode}],
 			handles      => $handles );
 		print $stdin_fh $key;
 		close($stdin_fh);

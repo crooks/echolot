@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.36 2002/12/18 17:31:00 weasel Exp $
+# $Id: Stats.pm,v 1.37 2003/01/02 21:24:32 weasel Exp $
 #
 
 =pod
@@ -693,7 +693,7 @@ sub build_pgpring_type($$$$) {
 				);
 			my $pid = $GnuPG->wrap_call(
 				commands     => [ '--import' ],
-				command_args => [qw{--no-options --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
+				command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
 				handles      => $handles );
 			print $stdin_fh $key{'key'};
 			close($stdin_fh);
@@ -737,7 +737,7 @@ sub build_pgpring_export($$$$) {
 		);
 	my $pid = $GnuPG->wrap_call(
 		commands     => [ '--export' ],
-		command_args => [qw{--no-options --no-default-keyring --keyring}, $keyring, @$keyids ],
+		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --keyring}, $keyring, @$keyids ],
 		handles      => $handles );
 	close($stdin_fh);
 

@@ -2,7 +2,8 @@ Changes in version
 	* Removed a dupped line from v2legend.
 	* Allow periods in hostname.
 	* Don't use GnuPG::Interface's recipients when encrypting any more as
-	  it is broken with at least GnuPG 1.2.1
+	  it is broken with at least GnuPG 1.2.1.
+	* Always use --no-secmem-warning with GnuPG calls.
 
 Changes in version 2.0.7 - 2002-12-18
 	* Added upgrade HOWTO.

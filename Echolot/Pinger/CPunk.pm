@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.8 2003/01/02 20:04:50 weasel Exp $
+# $Id: CPunk.pm,v 1.9 2003/01/02 21:24:32 weasel Exp $
 #
 
 =pod
@@ -54,7 +54,7 @@ sub encrypt_to($$$$) {
 		);
 	my $pid = $GnuPG->wrap_call(
 		commands     => [ '--import' ],
-		command_args => [qw{--no-options --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
+		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
 		handles      => $handles );
 	print $stdin_fh $keys->{$recipient}->{'key'};
 	close($stdin_fh);
@@ -99,7 +99,7 @@ sub encrypt_to($$$$) {
 		stderr     => $stderr_fh,
 		status     => $status_fh
 		);
-	my $command_args = [qw{--no-options --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
+	my $command_args = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
 	my $plaintextfile;
 	if ($pgp2compat) {
 		#pgp2compat requires files, cannot use stdin
