@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.2 2002/06/11 15:56:23 weasel Exp $
+# $Id: Stats.pm,v 1.3 2002/06/13 15:29:29 weasel Exp $
 #
 
 =pod
@@ -21,11 +21,19 @@ use strict;
 use warnings;
 use Carp qw{cluck};
 
-my $DAYS = 12;
-my $SECS_PER_DAY = 24 * 60 * 60;
+use constant DAYS => 12;
+use constant SECS_PER_DAY => 30 * 60;
+#use constant DAYS => 12;
+#use constant SECS_PER_DAY => 24 * 60 * 60;
+
+use Statistics::Distrib::Normal qw{};
+
 my @WDAY = qw{Sun Mon Tue Wed Thu Fri Sat};
 my @MON  = qw{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec};
 
+my $NORMAL = new Statistics::Distrib::Normal;
+$NORMAL->mu(0);
+$NORMAL->sigma(1);
 
 sub makeDate() {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime();
@@ -67,9 +75,9 @@ sub makeMinHr($$) {
 sub build_mlist1_latencystr($) {
 	my ($lat) = @_;
 
-	my $str = '?' x $DAYS;
-	for my $day (0 .. $DAYS - 1) {
-		substr($str, $DAYS - 1 - $day, 1) = 
+	my $str = '?' x DAYS;
+	for my $day (0 .. DAYS - 1) {
+		substr($str, DAYS - 1 - $day, 1) = 
 			(defined $lat->[$day]) ?
 			 ($lat->[$day] <    300 ? '#' :
 			  ($lat->[$day] <   3600 ? '*' :
@@ -86,9 +94,9 @@ sub build_mlist1_latencystr($) {
 sub build_mlist2_latencystr($) {
 	my ($lat) = @_;
 
-	my $str = '?' x $DAYS;
-	for my $day (0 .. $DAYS - 1) {
-		substr($str, $DAYS - 1 - $day, 1) = 
+	my $str = '?' x DAYS;
+	for my $day (0 .. DAYS - 1) {
+		substr($str, DAYS - 1 - $day, 1) = 
 			(defined $lat->[$day]) ?
 			 ($lat->[$day] <    20*60 ? '0' :
 			  ($lat->[$day] <   1*3600 ? '1' :
@@ -117,9 +125,9 @@ sub build_mlist2_latencystr($) {
 sub build_mlist2_reliabilitystr($) {
 	my ($rel) = @_;
 
-	my $str = '?' x $DAYS;
-	for my $day (0 .. $DAYS - 1) {
-		substr($str, $DAYS - 1 - $day, 1) =
+	my $str = '?' x DAYS;
+	for my $day (0 .. DAYS - 1) {
+		substr($str, DAYS - 1 - $day, 1) =
 			(defined $rel->[$day]) ?
 				(($rel->[$day] == 1) ?
 				'+' :
@@ -190,14 +198,14 @@ sub calculate($$) {
 
 	my @keys = Echolot::Globals::get()->{'storage'}->get_keys($addr, $type) or 
 		carp ("No keys asoziated with $addr, $type"),
-		return 0;
+		return undef;
 	
 	my @out;
 	my @done;
 	
 	for my $key (@keys) {
-		push @out,  grep {$_      > $now - $DAYS * $SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'out');
-		push @done, grep {$_->[0] > $now - $DAYS * $SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'done');
+		push @out,  grep {$_      > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'out');
+		push @done, grep {$_->[0] > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'done');
 	};
 
 	my $latency = 0;
@@ -207,31 +215,34 @@ sub calculate($$) {
 	my @received;
 	my @sent;
 	for my $done (@done) {
-		$latency += $done->[1];   $latency [int(($now - $done->[0]) / $SECS_PER_DAY)] += $done->[1];
-		$sent ++;                 $sent    [int(($now - $done->[0]) / $SECS_PER_DAY)] ++;
-		$received ++;             $received[int(($now - $done->[0]) / $SECS_PER_DAY)] ++;
+		$latency += $done->[1];   $latency [int(($now - $done->[0]) / SECS_PER_DAY)] += $done->[1];
+		$sent ++;                 $sent    [int(($now - $done->[0]) / SECS_PER_DAY)] ++;
+		$received ++;             $received[int(($now - $done->[0]) / SECS_PER_DAY)] ++;
 	};
 	$latency /= (scalar @done) if (scalar @done);
-	for ( 0 .. $DAYS - 1 ) {
+	for ( 0 .. DAYS - 1 ) {
 		$latency[$_] /= $received[$_] if ($received[$_]);
 	};
-
-	for my $out (@out) { 
-		my $p = 0;
-		$sent ++;        $sent    [int(($now - $out) / $SECS_PER_DAY)] ++;
-		$received += $p; $received[int(($now - $out) / $SECS_PER_DAY)] += $p;
-	};
-	$received /= $sent if ($sent);
-	for ( 0 .. $DAYS - 1 ) {
-		$received[$_] /= $sent[$_] if ($sent[$_]);
-	};
-
 
 	my $variance = 0;
 	$variance += ($latency - $_->[1]) ** 2 for (@done);
 	$variance /= (scalar @done) if (scalar @done);
 
 	my $deviation = sqrt($variance);
+
+	if (scalar @out) {
+		my @p = $NORMAL->utp( map { ($now - $_ - $latency) / $deviation } @out );
+		for (my $i=0; $i < scalar @out; $i++) {
+			$sent ++;            $sent    [int(($now - $out[$i]) / SECS_PER_DAY)] ++;
+			$received += $p[$i]; $received[int(($now - $out[$i]) / SECS_PER_DAY)] += $p[$i];
+		};
+	};
+	$received /= $sent if ($sent);
+	for ( 0 .. DAYS - 1 ) {
+		$received[$_] /= $sent[$_] if ($sent[$_]);
+	};
+
+
 
 	return {
 		avr_latency     => $latency,
@@ -285,6 +296,12 @@ sub build_mlist2($) {
 			$remailer->{'stats'}->{'avr_reliability'} * 100,
 			build_mlist2_capsstr($remailer->{'caps'});
 	};
+
+	printf F "\n\n\nRemailer-Capabilities:\n\n";
+	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
+		print F $remailer->{'caps'},"\n"
+	}
+
 	close (F);
 };
 
@@ -294,11 +311,13 @@ sub build_mlists() {
 	for my $addr (Echolot::Globals::get()->{'storage'}->get_remailers()) {
 		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, 'mix');
 
-		$rems{$addr} = {
+		my $rem = {
 			'stats' => calculate($addr,'mix'),
 			'nick'  => Echolot::Globals::get()->{'storage'}->get_nick($addr),
 			'caps'  => Echolot::Globals::get()->{'storage'}->get_capabilities($addr)
 			};
+
+		$rems{$addr} = $rem if (defined $rem->{'stats'} && defined $rem->{'nick'} && defined $rem->{'caps'} );
 	};
 
 	my @rems = map { $rems{$_} }
@@ -334,9 +353,12 @@ sub build_mixring() {
 			};
 		};
 
-		print F $key{'summary'},"\n\n";
-		print F $key{'key'},"\n\n";
-		print T2L $key{'summary'},"\n";
+		# only if we have a conf
+		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
+			print F $key{'summary'},"\n\n";
+			print F $key{'key'},"\n\n";
+			print T2L $key{'summary'},"\n";
+		};
 	};
 
 	close(F);
