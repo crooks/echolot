@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.5 2003/02/16 09:09:57 weasel Exp $
+# $Id: Chain.pm,v 1.6 2003/02/16 10:07:27 weasel Exp $
 #
 
 =pod
@@ -86,7 +86,8 @@ sub do_chainping($$$$$$$) {
 		"type2: $type2\n".
 		"key2: $key2\n".
 		"sent: $now\n".
-		"mac: $mac\n";
+		"mac: $mac\n".
+		Echolot::Tools::make_garbage();
 	$body = Echolot::Tools::crypt_symmetrically($body, 'encrypt');
 		
 	my $to = Echolot::Tools::make_address('chainping');

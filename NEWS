@@ -1,6 +1,14 @@
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.
 	* Removed --pgp2 in CPunk RSA pings.
+	* Append random garbage to pings so they have different
+	  lengths.
+	  new options:
+	    - random_gabage (default: 8192)
+	      Garbage length is chosen uniformly from 0 to random_gabage bytes.
+	    - dev_urandom (default: /dev/urandom)
+	      where to read garbage from (more generally: non-blocking
+	      (low-quality) randomless source)
 
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.

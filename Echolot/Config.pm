@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.54 2003/02/16 09:13:51 weasel Exp $
+# $Id: Config.pm,v 1.55 2003/02/16 10:07:27 weasel Exp $
 #
 
 =pod
@@ -64,6 +64,7 @@ sub init($) {
 		# System Specific Options
 		recipient_delimiter         => '+',
 		dev_random                  => '/dev/random',
+		dev_urandom                 => '/dev/urandom',
 		sendmail                    => '/usr/sbin/sendmail',
 
 		# Magic Numbers
@@ -112,12 +113,15 @@ sub init($) {
 		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
 		prospective_addresses_ttl   => 5*24*60*60, # 5 days
 		reliable_auto_add_min       => 3, # 3 remailes need to list new address
-		
+
 		expire_keys                 => 5*24*60*60, # 5 days
 		expire_confs                => 5*24*60*60, # 5 days
 		expire_pings                => 12*24*60*60, # 12 days
 		expire_thesaurus            => 21*24*60*60, # 21 days
 		expire_chainpings           => 12*24*60*60, # 12 days
+
+		random_garbage              => 8192,
+
 
 		# Directories and files
 		mailin                      => 'mail',

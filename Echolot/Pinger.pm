@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.24 2003/02/14 04:57:45 weasel Exp $
+# $Id: Pinger.pm,v 1.25 2003/02/16 10:07:27 weasel Exp $
 #
 
 =pod
@@ -71,7 +71,8 @@ sub do_ping($$$) {
 		"type: $type\n".
 		"key: $key\n".
 		"sent: $now\n".
-		"mac: $mac\n";
+		"mac: $mac\n".
+		Echolot::Tools::make_garbage();
 	$body = Echolot::Tools::crypt_symmetrically($body, 'encrypt');
 		
 	my $to = Echolot::Tools::make_address('ping');

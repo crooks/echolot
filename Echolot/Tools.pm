@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.15 2003/02/15 11:43:41 weasel Exp $
+# $Id: Tools.pm,v 1.16 2003/02/16 10:07:27 weasel Exp $
 #
 
 =pod
@@ -306,6 +306,35 @@ sub crypt_symmetrically($$) {
 	my $result = $stdout;
 	$result =~ s,^Version: .*$,Version: N/A,m;
 	return $result;
+};
+
+sub make_garbage() {
+
+	my $file = Echolot::Config::get()->{'dev_urandom'};
+	open(FH, $file) or
+		Echolot::Log::warn("Cannot open $file: $!."),
+		return "";
+	my $random = '';
+	my $want = rand(int(Echolot::Config::get()->{'random_garbage'} / 2));
+	my $i = 0;
+	while ($want > 0) {
+		my $buf;
+		$want -= read(FH, $buf, $want);
+		$random .= $buf;
+		($i++ > 15 && $want > 0) and
+			Echolot::Log::warn("Could not get enough garbage (still missing $want."),
+			last;
+	};
+	close (FH) or
+		Echolot::Log::warn("Cannot close $file: $!.");
+	
+	$random = unpack("H*", $random);
+	$random = join "\n", grep { $_ ne '' } (split /(.{64})/, $random);
+	$random = "----- BEGIN GARBAGE' -----\n".
+		$random."\n".
+		"----- BEGIN GARBAGE' -----\n";
+	
+	return $random;
 };
 
 1;
