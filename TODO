@@ -1,4 +1,4 @@
-$Id: TODO,v 1.48 2003/02/17 09:44:46 weasel Exp $
+$Id: TODO,v 1.49 2003/02/17 10:26:06 weasel Exp $
 
 Legend:
         - Not done
@@ -9,6 +9,8 @@ Legend:
         X Abandoned
 
  - have different stats philosophies (pessimist, optimist..)
+ - Collect default and modified From: header (and check for 
+   extra Footer/Header)
 
 can be done later:
  - allow capsstring overrides/additions
