@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.1 2002/06/18 17:18:40 weasel Exp $
+# $Id: CPunk.pm,v 1.2 2002/06/20 04:25:57 weasel Exp $
 #
 
 =pod
@@ -79,7 +79,7 @@ sub encrypt_to($$$$) {
 
 
 
-
+	$msg =~ s/\r?\n/\r\n/g;
 
 
 
@@ -100,7 +100,8 @@ sub encrypt_to($$$$) {
 		stderr     => $stderr_fh,
 		status     => $status_fh
 		);
-	my $command_args = [qw{--no-options --always-trust --no-default-keyring --keyring}, $keyring];
+	my $command_args = [qw{--no-options --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring];
+	#my $command_args = [qw{--no-default-keyring --always-trust --compress-algo 1 --load-extension idea --rfc1991 --cipher-algo IDEA  --keyring}, $keyring];
 	my $plaintextfile;
 	if ($pgp2compat) {
 		#pgp2compat requires files, cannot use stdin
@@ -116,8 +117,9 @@ sub encrypt_to($$$$) {
 			return 0;
 
 
-		push @$command_args, qw{--pgp2 --cipher-algo 3DES}, $plaintextfile;
-		#push @$command_args, '--load-extension', 'idea', '--pgp2', $plaintextfile;
+		push @$command_args, qw{--pgp2}, $plaintextfile;
+		#push @$command_args, qw{--load-extension idea --pgp2}, $plaintextfile;
+		#push @$command_args, qw{--pgp2}, $plaintextfile;
 	} else {
 		#push @$command_args, qw{ --pgp6 };
 		#push @$command_args, qw{--disable-mdc --no-force-v4-certs --no-comment --escape-from --force-v3-sigs --no-ask-sig-expire --no-ask-cert-expire --digest-algo MD5 --compress-algo 1 --cipher-algo 3DES };
@@ -144,7 +146,7 @@ sub encrypt_to($$$$) {
 		#return undef;
 	(($status =~ /^^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
 	 ($status =~ /^^\[GNUPG:\] END_ENCRYPTION\s/m)) or
-		cluck("GnuPG status '$status' didn't indicate message to '$recipient' was encrypted correctly. Returning\n"),
+		cluck("GnuPG status '$status' didn't indicate message to '$recipient' was encrypted correctly (stderr: $stderr; args: ".join(' ', @$command_args)."). Returning\n"),
 		return undef;
 
 	unlink ($keyring) or
