@@ -1,6 +1,3 @@
-generate stats
+make setup easy
 expire pings
-commit prospective addresses to normal addresses
-expire prospective addresses
-type I keys & pings
 rotate secret
