@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.28 2002/09/03 17:14:26 weasel Exp $
+# $Id: Conf.pm,v 1.29 2002/09/10 20:04:46 weasel Exp $
 #
 
 =pod
@@ -86,7 +86,7 @@ sub send_requests($;$) {
 				'Token' => $type.'.'.$remailer->{'id'},
 				'Body' => $body);
 
-			Echolot::Globals::get()->{'storage'}->decrease_ttl($address) if ($type eq 'conf');
+			Echolot::Globals::get()->{'storage'}->decrease_ttl($address) if (($type eq 'conf') && ($which eq ''));
 		};
 	};
 	Echolot::Globals::get()->{'storage'}->enable_commit();
