@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.22 2002/07/03 01:01:51 weasel Exp $
+# $Id: File.pm,v 1.23 2002/07/03 01:06:13 weasel Exp $
 #
 
 =pod
@@ -926,13 +926,13 @@ sub delete_remailer($$) {
 	print "Deleting remailer $address\n"
 		if Echolot::Config::get()->{'verbose'};
 
-	unless (defined $self->{'METADATA'}->{'addresses'}->{$address}) {
+	if (defined $self->{'METADATA'}->{'addresses'}->{$address}) {
 		delete $self->{'METADATA'}->{'addresses'}->{$address}
 	} else {
 		cluck("Remailer $address does not exist in addresses")
 	};
 
-	unless (defined $self->{'METADATA'}->{'remailers'}->{$address}) {
+	if (defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}} ) {
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}} ) {
