@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.7 2003/03/02 19:46:29 weasel Exp $
+# $Id: Fromlines.pm,v 1.8 2003/03/02 19:50:21 weasel Exp $
 #
 
 =pod
@@ -54,7 +54,7 @@ sub build_fromlines() {
 				my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime($last_update);
 				my $frominfo = $disclaim_top.':'.$disclaim_bot.':'.$from;
 				my $date = sprintf("%04d-%02d-%02d", $year+1900, $mon+1, $mday);
-				my $value = $type." ($date)";
+				my $value = $middleman ? $type : ($type." ($date)");
 				push @{$from_types->{$frominfo}}, $value;
 			};
 			my $types_from;
