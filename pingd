@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.73 2002/09/08 18:17:31 weasel Exp $
+# $Id: pingd,v 1.74 2002/09/11 03:10:27 weasel Exp $
 #
 
 =pod
@@ -33,6 +33,8 @@ pingd - echolot ping daemon
 =item B<pingd> B<deleteremailercaps> I<address>
 
 =item B<pingd> B<getkeyconf> [I<address> [I<address> ...]]
+
+=item B<pingd> B<sendpings> [I<address> [I<address> ...]]
 
 =item B<pingd> B<buildstats>
 
@@ -131,6 +133,11 @@ the next valid remailer-conf reply by the remailer.
 Send a command to immediatly request keys and configuration from remailers.
 If no addresses are given, then requests will be sent to all remailers.
 
+=item B<sendpings> [I<address> [I<address> ...]]
+
+Send a command to immediatly send pings to the given remailers.
+If no addresses are given, then requests will be sent to all remailers.
+
 =item B<buildstats>
 
 Send a command to immediatly rebuild stats.
@@ -177,8 +184,8 @@ Print version number and exit sucessfully.
 =item B<--nohup>
 
 Usefull only with the B<add>, B<set>, B<setremailercaps>,
-B<deleteremailercaps>, B<getkeyconf>, B<buildstats>, B<buildkeys>,
-or B<buildthesaurus> command.
+B<deleteremailercaps>, B<getkeyconf>, B<sendpings>, B<buildstats>,
+B<buildkeys>, or B<buildthesaurus> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
@@ -414,6 +421,22 @@ sub command_getkeyconf(@) {
 	};
 };
 
+sub command_sendpings(@) {
+	my @argv = @_;
+
+	my @addresses;
+	for my $address (@argv) {
+		die ("argument $address is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
+		push @addresses, $address;
+	};
+
+	push @addresses, 'all' unless (scalar @addresses);
+
+	for my $address (@addresses) {
+		Echolot::Commands::addCommand("sendpings $address");
+	};
+};
+
 
 sub pid_exists() {
 	return (-e Echolot::Config::get()->{'pidfile'});
@@ -570,6 +593,7 @@ if ($params->{'help'}) {
 	print ("  setremailercaps    ... set remailer capabilities manually\n");
 	print ("  deleteremailercaps ... delete remailer capabilities manually\n");
 	print ("  getkeyconf         ... request remailer-xxx data immediatly\n");
+	print ("  sendpings          ... request immediate sending of pings\n");
 	print ("  buildstats         ... build remailer stats immediatly\n");
 	print ("  buildkeys          ... buid keyrings immediatly\n");
 	print ("  buildthesaurus     ... build thesaurus immediatly\n");
@@ -607,6 +631,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'getkeyconf') {
 	command_getkeyconf(@ARGV);
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'sendpings') {
+	command_sendpings(@ARGV);
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'buildstats') {
 	Echolot::Commands::addCommand("buildstats");

@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.20 2002/09/04 01:47:01 weasel Exp $
+# $Id: Pinger.pm,v 1.21 2002/09/11 03:10:27 weasel Exp $
 #
 
 =pod
@@ -84,8 +84,10 @@ sub do_ping($$$) {
 	return 1;
 };
 
-sub send_pings($) {
-	my ($scheduled_for) = @_;
+sub send_pings($;$) {
+	my ($scheduled_for, $which) = @_;
+
+	$which = '' unless defined $which;
 
 	my $call_intervall = Echolot::Config::get()->{'pinger_interval'};
 	my $send_every_n_calls = Echolot::Config::get()->{'ping_every_nth_time'};
@@ -99,11 +101,19 @@ sub send_pings($) {
 		next unless $remailer->{'pingit'};
 		my $address = $remailer->{'address'};
 
+		next unless (
+			$which eq 'all' ||
+			$which eq $address ||
+			$which eq '');
 
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($address)) {
 			next unless Echolot::Config::get()->{'do_pings'}->{$type};
 			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
-				next unless ($this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type.$key.$session_id) % $send_every_n_calls));
+				next unless (
+					$which eq $address ||
+					$which eq 'all' ||
+					(($which eq '') && ($this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type.$key.$session_id) % $send_every_n_calls))));
+
 				print "ping calling $type, $address, $key\n" if Echolot::Config::get()->{'verbose'};
 				do_ping($type, $address, $key);
 			}
