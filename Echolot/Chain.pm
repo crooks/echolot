@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.17 2003/06/09 18:57:41 weasel Exp $
+# $Id: Chain.pm,v 1.18 2003/07/08 23:51:37 weasel Exp $
 #
 
 =pod
@@ -138,7 +138,7 @@ sub send_pings($;$$) {
 			my $type;
 			my %supports = map { $_ => 1 } Echolot::Globals::get()->{'storage'}->get_types($addr);
 			for my $thistype (@{Echolot::Config::get()->{'which_chainpings'}->{$chaintype}}) {
-				$type = $thistype, last if $supports{$chaintype};
+				$type = $thistype, last if $supports{$thistype};
 			};
 			next unless $type;
 			my $key;
