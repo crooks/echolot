@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.25 2002/07/29 13:35:47 weasel Exp $
+# $Id: Stats.pm,v 1.26 2002/08/10 00:56:24 weasel Exp $
 #
 
 =pod
@@ -602,11 +602,11 @@ sub build_mixring() {
 	for my $indx (sort {$a cmp $b} keys %$data) {
 		my $key = $data->{$indx};
 		if ($key->{'showit'}) {
-			print F $key->{'summary'}."x\n\n";
+			print F $key->{'summary'}."\n\n";
 			print F $key->{'key'},"\n\n";
 			print T2L $key->{'summary'},"\n";
 		};
-		print F_PRIV $key->{'summary'}."x\n\n";
+		print F_PRIV $key->{'summary'}."\n\n";
 		print F_PRIV $key->{'key'},"\n\n";
 		print T2L_PRIV $key->{'summary'},"\n";
 	};
