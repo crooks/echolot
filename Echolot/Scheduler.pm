@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.2 2002/06/11 10:16:38 weasel Exp $
+# $Id: Scheduler.pm,v 1.3 2002/06/11 11:06:32 weasel Exp $
 #
 
 =pod
@@ -134,6 +134,7 @@ sub run($) {
 
 			my $what = $self->{'tasks'}->{$name}->{'what'};
 			last if ($what eq 'exit');
+			print "Running $name at $now\n";
 			&$what();
 			$self->schedule($name, $now + $self->{'tasks'}->{$name}->{'interval'});
 
