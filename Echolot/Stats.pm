@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.14 2002/07/10 17:58:05 weasel Exp $
+# $Id: Stats.pm,v 1.15 2002/07/10 23:20:40 weasel Exp $
 #
 
 =pod
@@ -474,7 +474,7 @@ sub build_lists() {
 	build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
 	if (Echolot::Config::get()->{'combined_list'}) {
 		$clist->{'mix'} = $rems;
-		$pubclist->{'mix'} = $pubrems;
+		$pubclist->{'mix'} = $pubrems; $pubrems = undef;
 	};
 
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
@@ -485,7 +485,7 @@ sub build_lists() {
 	build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
 	if (Echolot::Config::get()->{'combined_list'} && ! Echolot::Config::get()->{'seperate_rlists'}) {
 		$clist->{'cpunk'} = $rems;
-		$pubclist->{'cpunk'} = $pubrems;
+		$pubclist->{'cpunk'} = $pubrems; $pubrems = undef;
 	};
 
 	if (Echolot::Config::get()->{'seperate_rlists'}) {
@@ -497,7 +497,7 @@ sub build_lists() {
 		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-rsa'} = $rems;
-			$pubclist->{'cpunk-rsa'} = $pubrems;
+			$pubclist->{'cpunk-rsa'} = $pubrems; $pubrems = undef;
 		};
 
 		$rems = build_rems(['cpunk-dsa']);
@@ -508,7 +508,7 @@ sub build_lists() {
 		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-dsa'} = $rems;
-			$pubclist->{'cpunk-dsa'} = $pubrems;
+			$pubclist->{'cpunk-dsa'} = $pubrems; $pubrems = undef;
 		};
 
 		$rems = build_rems(['cpunk-clear']);
@@ -519,7 +519,7 @@ sub build_lists() {
 		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-clear'} = $rems;
-			$pubclist->{'cpunk-clear'} = $pubrems;
+			$pubclist->{'cpunk-clear'} = $pubrems; $pubrems = undef;
 		};
 	};
 	if (Echolot::Config::get()->{'combined_list'}) {

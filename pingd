@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.31 2002/07/10 22:17:07 weasel Exp $
+# $Id: pingd,v 1.32 2002/07/10 23:20:40 weasel Exp $
 #
 
 =pod
@@ -232,7 +232,7 @@ $ENV{'PATH'} = '/bin:/usr/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0beta7';
+my $VERSION = '2.0beta8';
 
 
 my $redirected_stdio = 0;
