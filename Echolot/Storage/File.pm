@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.18 2002/07/03 00:33:40 weasel Exp $
+# $Id: File.pm,v 1.19 2002/07/03 00:36:14 weasel Exp $
 #
 
 =pod
@@ -153,8 +153,8 @@ sub metadata_read($) {
 
 	if ($self->{'METADATA_FILE_IS_NEW'}) { 
 		$self->{'METADATA'}->{'version'} = $METADATA_VERSION;
-		$self->{'METADATA'}->{'addresses'} = ();
-		$self->{'METADATA'}->{'remailers'} = ();
+		$self->{'METADATA'}->{'addresses'} = {};
+		$self->{'METADATA'}->{'remailers'} = {};
 
 		$self->{'METADATA_FILE_IS_NEW'} = 0;
 		$self->commit();
