@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.11 2002/08/14 22:54:20 weasel Exp $
+# $Id: Thesaurus.pm,v 1.12 2002/09/05 15:41:38 weasel Exp $
 #
 
 =pod
@@ -61,6 +61,7 @@ sub build_thesaurus() {
 
 		my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
 		next unless defined $remailer;
+		next unless $remailer->{'showit'};
 		
 		my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
 			$atime,$mtime,$ctime,$blksize,$blocks)
