@@ -318,7 +318,7 @@ use POSIX qw(setsid);
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.1.2';
+my $VERSION = '2.1.2+cvs';
 
 
 my $redirected_stdio = 0;
