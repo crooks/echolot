@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.46 2003/01/14 06:40:24 weasel Exp $
+# $Id: Config.pm,v 1.47 2003/02/14 05:03:15 weasel Exp $
 #
 
 =pod
@@ -149,6 +149,11 @@ sub init($) {
 			'cpunk-rsa' => 1,
 			'cpunk-clear' => 1,
 			'mix' => 1
+		},
+		# ping types
+		do_chainpings => {
+			'cpunk' => [ qw{cpunk-dsa cpunk-rsa cpunk-clear} ],
+			'mix' => [ qw{mix} ]
 		},
 
 		# templates
