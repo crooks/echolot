@@ -152,6 +152,7 @@ sub remailer_caps($$$;$) {
 		Echolot::Log::info("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
 		Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-conf', $remailer_address);
 	} else {
+		Echolot::Log::debug("Setting capabilities for $remailer_address");
 		Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
 		Echolot::Globals::get()->{'storage'}->set_caps($remailer_type, $remailer_caps, $remailer_nick, $remailer_address, $time, $dontexpire);
 
@@ -215,10 +216,15 @@ sub remailer_conf($$$) {
 	(defined $id) or
 		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
-	
+
+	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
+	Echolot::Log::info("No remailer found for id '$id'."), return 0 unless defined $remailer;
+	Echolot::Log::debug("Received remailer-conf reply for $remailer."),
+
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
 		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('conf', $id, $reply);
+
 
 	remailer_caps($reply, $token, $time);
 };
@@ -300,7 +306,7 @@ sub parse_mix_key($$$) {
 			         )?
 			      )?
 			   )?
-			)?/x;
+			)? .*?/x;
 		$mixmasters{$keyid} = {
 			nick	=> $nick,
 			address => $address,
@@ -345,6 +351,7 @@ sub parse_mix_key($$$) {
 			Echolot::Log::info("Remailer address mismatch $remailer->{'address'} vs $remailer_address. Adding latter to prospective remailers.");
 			Echolot::Globals::get()->{'storage'}->add_prospective_address($remailer_address, 'self-capsstring-key', $remailer_address);
 		} else {
+			Echolot::Log::debug("Setting mix key for $remailer_address: $keyid");
 			Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
 			Echolot::Globals::get()->{'storage'}->set_key(
 				'mix',
@@ -421,6 +428,7 @@ sub parse_cpunk_key($$$) {
 			# 1 .. RSA
 			# 17 .. DSA
 			if ($cypherpunk{$keyid}->{'type'} == 1 || $cypherpunk{$keyid}->{'type'} == 17 ) {
+				Echolot::Log::debug("Setting cpunk key for $remailer_address: $keyid; type ".$cypherpunk{$keyid}->{'type'});
 				Echolot::Globals::get()->{'storage'}->set_key(
 					(($cypherpunk{$keyid}->{'type'} == 1) ? 'cpunk-rsa' :
 					 (($cypherpunk{$keyid}->{'type'} == 17) ? 'cpunk-dsa' :
@@ -452,13 +460,14 @@ sub remailer_key($$$) {
 	(defined $id) or
 		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
-	
-	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
-		if (is_not_a_remailer($reply));
-	Echolot::Thesaurus::save_thesaurus('key', $id, $reply);
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
 	Echolot::Log::info("No remailer found for id '$id'."), return 0 unless defined $remailer;
+	Echolot::Log::debug("Received remailer-keys reply for $remailer."),
+
+	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
+		if (is_not_a_remailer($reply));
+	Echolot::Thesaurus::save_thesaurus('key', $id, $reply);
 
 	parse_mix_key($cp_reply, $time, $remailer);
 	parse_cpunk_key($cp_reply, $time, $remailer);
@@ -473,7 +482,12 @@ sub remailer_stats($$$) {
 	(defined $id) or
 		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
-	
+
+
+	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
+	Echolot::Log::info("No remailer found for id '$id'."), return 0 unless defined $remailer;
+	Echolot::Log::debug("Received remailer-stats reply for $remailer."),
+
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
 		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('stats', $id, $reply);
@@ -486,7 +500,11 @@ sub remailer_help($$$) {
 	(defined $id) or
 		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
-	
+
+	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
+	Echolot::Log::info("No remailer found for id '$id'."), return 0 unless defined $remailer;
+	Echolot::Log::debug("Received remailer-help reply for $remailer."),
+
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
 		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('help', $id, $reply);
@@ -499,7 +517,11 @@ sub remailer_adminkey($$$) {
 	(defined $id) or
 		Echolot::Log::info ("Returned token '$token' has no id at all."),
 		return 0;
-	
+
+	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
+	Echolot::Log::info("No remailer found for id '$id'."), return 0 unless defined $remailer;
+	Echolot::Log::debug("Received remailer-adminkey reply for $remailer."),
+
 	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
 		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('adminkey', $id, $reply);
