@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.44 2003/02/16 09:16:23 weasel Exp $
+# $Id: Stats.pm,v 1.45 2003/02/16 14:11:02 weasel Exp $
 #
 
 =pod
@@ -514,7 +514,7 @@ sub find_broken_chains($$$) {
 					my $theoretical_lat = $lat1 + $lat2;
 					$theoretical_lat = 0 unless defined $theoretical_lat;
 					my $latency = time() - $ping->{'sent'};
-					# print ("lat helps $latency $theoretical_lat\n"), 
+					# print ("lat helps $latency < ".int($theoretical_lat * Echolot::Config::get()->{'chainping_grace'})."  $addr1 $addr2\n"),
 					next if ($latency < $theoretical_lat * Echolot::Config::get()->{'chainping_grace'});
 				};
 
