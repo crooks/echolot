@@ -66,7 +66,8 @@ sub ping($$$$$) {
 		Echolot::Log::warn("Cannot close $mixcfg: $!."),
 		return 0;
 	
-	my $pid = open(KID, "|-");
+	my($wtr, $rdr, $err);
+	my $pid = open3($wtr, $rdr, $err, "|-");
 	defined $pid or
 		Echolot::Log::warn("Cannot fork for calling mixmaster: $!."),
 		return 0;
@@ -76,13 +77,18 @@ sub ping($$$$$) {
 		Echolot::Log::warn("Cannot exec mixpinger: $!.");
 		exit(1);
 	};
-	print KID "From: Echolot Pinger <$address>\n"
-		if $with_from;
-	print KID "To: $to\n\n$body\n";
-	close (KID);
+	my $msg;
+	$msg .= "From: Echolot Pinger <$address>\n" if $with_from;
+	$msg .= "To: $to\n\n$body\n";
 
+	my ($stdout, $stderr, undef) = Echolot::Tools::readwrite_gpg($msg, $wtr, $rdr, $err, undef);
 	waitpid $pid, 0;
-	    
+
+	$stderr =~ s/^Chain: .*//mg;
+	$stderr =~ s/^Warning: The message has a From: line.*//mg;
+	Echolot::Log::info("Mixmaster said on stdout: $stdout");
+	Echolot::Log::warn("Mixmaster said on stderr: $stderr");
+
 	return 1;
 };
 

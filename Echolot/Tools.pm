@@ -288,14 +288,14 @@ sub readwrite_gpg($$$$$) {
 
 	$inputfd->blocking(0);
 	$stdoutfd->blocking(0);
-	$statusfd->blocking(0);
+	$statusfd->blocking(0) if defined $statusfd;
 	$stderrfd->blocking(0);
 	$sout->add($stdoutfd);
 	$sout->add($stderrfd);
-	$sout->add($statusfd);
+	$sout->add($statusfd) if defined $statusfd;
 	$sin->add($inputfd);
 
-	Echolot::Log::debug("input is $inputfd; output is $stdoutfd; err is $stderrfd; status is $statusfd.");
+	Echolot::Log::debug("input is $inputfd; output is $stdoutfd; err is $stderrfd; status is ".(defined $statusfd ? $statusfd : 'undef').".");
 
 	my ($stdout, $stderr, $status) = ("", "", "");
 
@@ -330,7 +330,7 @@ sub readwrite_gpg($$$$$) {
 				$stdout .= <$rfd>;
 				next;
 			}
-			if ($rfd == $statusfd) {
+			if (defined $statusfd && $rfd == $statusfd) {
 				$status .= <$rfd>;
 				next;
 			}
