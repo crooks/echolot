@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.7 2002/06/11 16:00:00 weasel Exp $
+# $Id: File.pm,v 1.8 2002/06/13 15:30:08 weasel Exp $
 #
 
 =pod
@@ -262,7 +262,7 @@ sub pingdata_open($) {
 
 	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
-			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{$type}->{'keys'}} ) {
+			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
 				$self->pingdata_open_one($remailer_addr, $type, $key);
 			};
 		};
@@ -372,7 +372,7 @@ sub register_pingdone($$$$$) {
 
 	my @outpings = $self->get_pings($remailer_addr, $type, $key, 'out');
 	my $origlen = scalar (@outpings);
-	@outpings = grep { print "_: '$_'; st: '$sent_time'\n" ; $_ != $sent_time } @outpings;
+	@outpings = grep { $_ != $sent_time } @outpings;
 	($origlen == scalar (@outpings)) and
 		warn("No ping outstanding for $remailer_addr, $key, $sent_time\n"),
 		return 1;
@@ -470,19 +470,22 @@ sub restore_ttl($$) {
 
 sub set_caps($$$$$$) {
 	my ($self, $type, $caps, $nick, $address, $timestamp) = @_;
-	
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 		$self->{'METADATA'}->{'remailers'}->{$address} =
 			{
 				status => 'active',
 				pingit => Echolot::Config::get()->{'ping_new'},
 				showit => Echolot::Config::get()->{'show_new'},
-				conf => {
+			};
+	};
+
+	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'}) {
+		$self->{'METADATA'}->{'remailers'}->{$address}->{'conf'} =
+			{
 					nick => $nick,
 					type => $type,
 					capabilities => $caps,
 					last_update => $timestamp
-				}
 			};
 	} else {
 		my $conf = $self->{'METADATA'}->{'remailers'}->{$address}->{'conf'};
