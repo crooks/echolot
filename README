@@ -1,23 +1,28 @@
-$Id: README,v 1.31 2002/09/12 04:28:40 weasel Exp $
+$Id: README,v 1.32 2002/09/12 16:38:11 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
 
-| Echolot, das: German, sonic depth finder
+| Echolot, das: (German) sonic depth finder
 
-Echolot is a Pinger for anonymous remailers.
+PURPOSE
+-------
+Echolot is a Pinger for anonymous remailers such as Mixmaster
 
 A Pinger in the context of anonymous remailers is a program that
-regularily sends messages through remailers to check their reliability.
-It then calculates reliability statistics which are used by remailer
-clients to choose the chain of remailers to use.
+regularly sends messages through remailers to determine their status.
+Based on the responses, the Pinger calculates reliability statistics
+which may be used by remailer clients to choose a chain of remailers to
+use.
 
-Additionally it collects configuration parameters and keys of all
-remailers and offers them in a format readable by remailer clients.
+Furthermore, Echolot collects configuration parameters and keys of
+remailers and offers the collected information in a format readable by
+remailer clients.  This helps reduce the administration effort required
+to use or host remailers.
 
-
-This is Echolot2. Besides the name, author and purpose this has nothing
-to do with Echolot1. It's written from scratch.
+This is Echolot2. Besides the name, author, and purpose, this software
+has nothing to do with Echolot1.  Echolot2 has been written from
+scratch.
 
 LICENSE
 -------
@@ -26,165 +31,267 @@ Please see the file named "LICENSE".
 
 REQUIREMENTS
 ------------
-	in general:
-		Data::Dumper (should be part of perl-base)
-		Digest::MD5 (or perl >= 5.8)
-		HTML::Template
-		a local Mail Transfer Agent
-	for type1 pings
-		GnuPG ( >= 1.0.7)
-		GnuPG::Interface ( >= 0.33)
-	for type2 pings
-		a Mixmaster installation
 
-Indirect requirements:
-	Class:MethodMaker (by GnuPG::Interface)
-	File::Spec (by HTML::Template, should be in more recent perl-base)
+o GnuPG (1.0.7 or higher required)
+o Mixmaster http://mixmaster.sourceforge.net/
+o Perl (5.8 or higher suggested)
+o a local Mail Transfer Agent (MTA)
+o Procmail (recommended)
 
-  If you have the CPAN perl module installed, you can use the
-  »install-perl-modules« script in the tools directory to download and
-  install the needed perl moduesl.
+The following perl modules:
+o HTML::Template
+o GnuPG::Interface (0.33 or higher required)
+o Data::Dumper (should be part of perl-base)
+o Digest::MD5 (included in perl 5.8 or higher)
 
-SETUP
------
+INITIAL SETUP
+-------------
 
-o Create a new unix user named »pinger« (You can actually use any name
-  you wish but I will refer to the user as pinger in this document).
+o Verify that gpg 1.0.7 or later is installed:
+      # gpg -version
 
-o Make sure you have the perl libraries mentioned above and GnuPG
-  installed properly.
+o If the required perl modules above are not yet installed on your
+  system, or if you are not sure if these perl libraries are installed,
+  please install or upgrade the libraries as follows.  Even if you
+  already have these libraries installed, there is no harm in following
+  this installation procedure anyway.
 
-o Copy all Echolot files and directories to ~pinger/echolot
+  Execute the install-perl-modules script from the tools directory. It
+  makes use of the CPAN module to check whether you have the required
+  modules installed and if not downloads and installs them for you.
+      # tools/install-perl-modules
 
-o Copy/Rename the pingd.conf.sample file to pingd.conf.
+  If this command reports errors, please verify that you are using perl
+  5.8 or higher and are connected to the Internet.
 
-o Check the homedir setting and set sitename in pingd.conf.
+o Create a new user named »pinger« (You can use a different user name if
+  you so desire. The remainder of this document assumes that Echolot has
+  been installed as user »pinger«).
 
-o If the Mixmaster executable »mix« is not in your PATH, set
-  the »mixmaster« config option in pingd.conf.
+o Copy all Echolot files and directories to the directory
+  ~pinger/echolot.
 
-  Echolot can use any available mixmaster binary (e.g. your remailer's mix).
-  It will not share pool or keyrings with the existing installation (it sets
-  the MIXPATH environment variable).
-  
-  If you prefer you can build one for Echolot and place it in ~/Mix. Don't
-  bother putting configuration or keyrings there though - they won't get used.
+o Copy the pingd.conf.sample file to pingd.conf.
 
-o If the GnuPG executable »gpg« is not in your PATH, set
-  the »gnupg« config option in pingd.conf.
+o Check the homedir setting and set sitename in pingd.conf to match your
+  host.
+
+o If the Mixmaster executable »mix« is not in your PATH, set the
+  »mixmaster« config option in pingd.conf to point to your local
+  installation of mixmaster. Echolot can use any accessible mixmaster
+  binary, such as the mix binary of a remailer that may be installed on
+  the same machine. (Frequently found in /home/remailer/Mix/mix.)
+
+  Echolot will not share the Mixmaster pool or key rings with the
+  existing Mixmaster installation. Instead, Echolot uses pools and key
+  rings as specified by the MIXPATH environment variable.  FIXME
+
+  If you prefer, you can build a second Mixmaster binary for the
+  exclusive use of Echolot and place that binary in /home/pinger/Mix.
+  There is no need to put configuration information or key rings into
+  that directory - they will not get used.
+
+o If the GnuPG executable »gpg« is not in your PATH, set the »gnupg«
+  configuration option in pingd.conf.
 
 o Set my_localpart and my_domain in pingd.conf to the appropriate values
   for your pinger. Mail to my_localpart@my_domain needs to reach
   Echolot.
 
-o Make sure your MTA supports user defined mailboxes. so that
-  my_localpart+anything@my_domain also reaches Echolot.
-              ^^^^^^^^^
-  If you use another character instead of + to indicate a user defined
-  extension set recipient_delimiter accordingly in pingd.conf.
+o Make sure your MTA supports user defined mailboxes to ensure that
+  email addressed to my_localpart+anything@my_domain will reach Echolot.
 
-  postfix: add »recipient_delimiter = +« to main.cf.
+  If your MTA uses a character other than »+« to indicate a user defined
+  extension, set recipient_delimiter accordingly in pingd.conf.
 
-o Echolot can read its incoming mail either from a mbox format mailbox or from
-  Maildir. The latter is preffered for technical reasons (Maildir is superiour
-  to mbox because it does not require any locking).
+  If you are using postfix as your MTA, adding the following line to
+  postfix.s main.cf file will enable user defined mailboxes:
+      recipient_delimiter = +
 
-  The »mailin« config variable defines where mail is read from. It defaults to
-  »mail«. If it's a directory, Maildir is assumed, mbox format otherwise.
+  If you are using an MTA other than postfix, consult your MTA's
+  documentation to determine how to enable user defined mailboxes.
 
-  Mbox:
-    It's probably best to change the »mailin« config option to
-    »/var/spool/pinger« (or whatever it is on your system).
+o Echolot can read its incoming mail either from an mbox format mailbox
+  or from a Maildir. The latter is preferred for technical reasons since
+  a Maildir does not require file locking.
 
-  Maildir (recommended):
-    Mail should be delivered to /home/pinger/echolot/mail which is a Maildir
-    mailbox, i.e there are 3 directories: /home/pinger/echolot/mail/tmp,
-    /home/pinger/echolot/mail/cur and /home/pinger/echolot/mail/new. Qmail,
-    postfix and procmail can do this.
+  Echolot's »mailin« configuration variable defines from which location
+  mail is being read. The variable defaults to »mail«. If this is a
+  directory, Maildir is assumed, otherwise mbox format is assumed.
 
-    Example snipped for procmail:
+  If you can only use mbox format for incoming email:
+    Change the »mailin« config option to »/var/spool/pinger« (or
+    wherever incoming email for user pinger is being spooled on your
+    system).
 
-      :0
-      $HOME/echolot/mail/
-  
-    (the trailing slash is important!)
+  If you are able to use Maildir (recommended):
+    Mail will be delivered to /home/pinger/echolot/mail, a Maildir
+    mailbox.
+
+    Create Echolot's Maildir:
+      # mkdir /home/pinger/echolot/mail
+
+    Make sure the directory owned by pinger:
+      # chown pinger. /home/pinger/echolot/mail
+
+    If you are using postfix as your MTA, add one of the following lines
+      to postfix's main.cf file to enable the use of procmail depending
+      where on your system procmail is located.
+        mailbox_command = /usr/bin/procmail
+        mailbox_command = /usr/local/bin/procmail
+
+      Reload postfix for the changes to main.cf to take effect.
+        # postfix reload
+
+      With procmail now active in your MTA, save the following two lines
+      as /home/pinger/.procmailrc to ensure that mail for Echolot will be
+      stored in Echolot.s Maildir:
+
+        :0
+        $HOME/echolot/mail/
+
+        (CAVEAT: the trailing slash is significant and may not be
+         omitted!)
+
+    If you are using qmail as your MTA, do the following:
+        # echo "./echolot/mail/" > .qmail
+        # touch .qmail-default
+
+o Finally, double-check to make sure that all of Echolot.s files and
+  directories are owed by user pinger.
 
 
-    Example for qmail:
 
-      echo "./echolot/mail/" > .qmail;
-      touch .qmail-default
+RUNNING ECHOLOT FOR THE FIRST TIME
+----------------------------------
 
-  
-    To use procmail with postfix set »mailbox_command = /usr/bin/procmail«
-    in main.cf.
+o Obtain the email addresses of 4 reliable remailers. Once connected to
+  the remailer network, Echolot will over time learn about other
+  remailers in operation. You can find a list of email addresses of
+  reliable remailers to seed Echolot.s auto-discovery feature at
+  http://www.noreply.org/echolot/rlist2.txt
 
-o Run »./pingd --verbose start«.
+  This list was created by the Echolot program.
 
-o Run »./pingd add <address> <address> <address>..« in another terminal
-  look at the first terminal where you started pingd. It should print
-  something about adding addresses.
+o As user »pinger«, open two terminal windows.
 
-o Run »./pingd getkeyconf« to request new remailer-key and
-  remailer-conf immediatly.
+o Change into the directory where echolot is kept.
+    $ cd echolot
 
-o pingd can be stopped with »./pingd stop« or with Ctrl+C on the
-  terminal where it runs.
+o In the first terminal window, type:
+    $ ./pingd --verbose start
 
-When everything works you may start pingd with
+o In the second terminal window, type:
+    $ ./pingd add <address1> <address2> <address3> ...
 
-o »./pingd --detach --verbose start«
+  Monitor the first terminal in which you started pingd. You should see
+  mention of email addresses being added.
 
-o You can tail the output file to get the debugging output:
-  »tail -f output«
+o In the second terminal window, execute
+    $ ./pingd getkeyconf
 
-o In the tools directory you find the »pingctl« wrapper for Echolot.
-  It takes care of checking ulimits, userid and cd'ing to the right
-  directory. If you want you can install it as an init script in
-  /etc/init.d or similar and link it from the runlevel directories
-  if your init is SysV style.
+  This will request remailer key and configuration files from the
+  remailers that you added in the previous step.
 
-o Echolot puts its stats in the result directory. It also produces
-  an index file name echolot.html. If you want to have it as your
-  default index page, symlink it to index.html with something like
-  »ln -s echolot.html index.html« in the result directory or set
-  the indexfilebasename option to index.html.
+o pingd can be stopped with the command
+    
+    $ ./pingd stop
 
-o Echolot produces .meta files per default. These files include extra
-  headers that your http server should send to clients. With apache
-  you can load the mod_cern_meta module and set MetaFiles to "on".
-   [ make sure MetaSuffix matches your meta_extension setting (".meta"
-     by default) and MetaDir is set to "." ]
+  or by issuing a Ctrl+C in the terminal in which pingd is running.
+
+
+
+VERIFYING ECHOLOT's OPERATION
+-----------------------------
+
+o Wait a few minutes for Echolot to receive results back from the
+  remailers that have been pinged
+
+o Look at one of Echolot.s result pages with the web browser of your
+  choice. For example:
+
+    $ cd /home/pinger/echolot/results
+    $ lynx mlist2.html
+
+  The file should list several remailers.
+
+  NOTE: Results for Type I remailers can be expected within minutes.
+  Results for Type II remailers may take up to an hour to appear.
+
+
+
+DAY-TO-DAY OPERATION
+--------------------
+
+o To run Echolot in the background, run
+      $ ./pingd --detach --verbose start
+
+o You can monitor the output file to obtain debugging output:
+      $ tail -f output
+
+o The tools directory contains the »pingctl« wrapper for Echolot.
+  The wrapper takes care of checking ulimits, userid, and cd'ing to the
+  correct directory.
+
+  To start Echolot at system startup, install this wrapper as an init
+  script in /etc/init.d or /usr/local/etc/rc.d, or wherever your
+  operating system stores System V-style initialization scripts. You can
+  link this wrapper from the runlevel directories if your init is SysV
+  style.
+
+o Echolot puts its stats in the result directory. Echolot also produces
+  an index file named echolot.html. If you want to use echolot.html as
+  your webpage.s index page, create a symbolic link.
+      $ ln -sf echolot.html index.html
+
+  Alternatively, you can set the indexfilebasename option in pingd.conf
+  to index.html.
+
+o Echolot additionally produces .meta files by default. These files
+  include extra headers that your http server should send to clients. If
+  you are using Apache as your web sever, you can load the mod_cern_meta
+  Apache module and set MetaFiles to "on". Please ensure that Apache's
+  MetaSuffix matches your meta_extension setting (".meta" by default)
+  and that MetaDir is set to "."] See your web server's documentation
+  for more information on meta files.
+
+
 
 CONFIGURATION
 -------------
 
-Consult the pingd.conf.5 manpage for documentation on configuration
-options.
+Consult the pingd.conf.5 manpage for documentation on the available
+configuration options.
 
-To get all available configuration options and their current value run 
-»./pingd dumpconf«.
+To obtain all available configuration options and their current value
+run:
+    $ ./pingd dumpconf
 
-After changing pingd.conf you need to restart pingd.
+You will need to restart pingd after making changes to pingd.conf for
+the changes to take effect.
+
+
 
 CAVEATS
 -------
 
-- Echolot will keep open all ping and metadata files. This means it needs quite
-  a few file descriptors (about 2 * total keys or 6 to 8 * remailers + some for
-  perl).  If you have a very strict ulimit for open files you need to increase it.
-  Something like 512 should be plenty.
-  If you get obscure errors this might probably be it.
-
+Echolot will keep open all ping and metadata files. This means it needs
+quite a few file descriptors (about 2 * total keys or 6 to 8 * remailers
+plus some for perl). If you have a very strict ulimit for open files you
+need to increase it. A ulimit of 512 should suffice. Obscure errors
+experienced might be caused by a ulimit that has been set too low.
 
 Please report bugs and feature requests at
-http://savannah.gnu.org/bugs/?group=echolot
+    http://savannah.gnu.org/bugs/?group=echolot
 
-The Echolot homepage is at
-http://www.palfrader.org/echolot/
+The Echolot homepage can be found at
+    http://www.palfrader.org/echolot/
+ 
+
 
 ACKNOWLEDGEMENTS
 ----------------
 	Orange Admin for contributing ideas and templates
+	Lucky Green for (re)writing docs
+	All the testers of Echolot.
 	The FSF for savanna.gnu.org.
-	All testers of Echolot.

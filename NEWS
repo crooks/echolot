@@ -1,14 +1,15 @@
 Changes in version 2.0rc3
 	* Write SENDMAIL to mix.cfg
+	* Add sendpings command.
 	* Only decrease a remailer's ttl during requesting -conf if
 	  it was requested by the usualy timer run and not by the
 	  user.
 	* Template cleanup: fix a link and add links to .txt versions
 	  to front page.
-	* Add sendpings command.
 	* Have install-perl-modules tool.
 	* Spelling fixes.
 	* seperate_rlists was renamed to separate_rlists.
+	* README was improved.
 
 Changes in version 2.0rc2 - 2002-09-08
 	* Reopen stdin to /dev/null instead of closing it to avoid
