@@ -1,4 +1,4 @@
-$Id: README,v 1.9 2002/07/06 23:26:32 weasel Exp $
+$Id: README,v 1.10 2002/07/06 23:30:08 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -76,7 +76,7 @@ o Mail should be delivered to /home/pinger/echolot/mail which must be a Maildir
   (the trailing slash is important!)
 
 
-o run »./pingd --verbose« start
+o run »./pingd --verbose start«
 
 o run »./pingd add <address> <address> <address>..« in another terminal
   look at the first terminal where you started pingd. It should print
