@@ -1,0 +1,60 @@
+
+In order to test remailer A's reliability, Echolot sends an encrypted
+ping through a 1-hop chain every two hours.  Pings are not sent strictly
+at 02:00, 04:00 etc, but at 2h*n + f(A, date) % 2h.  ( f() is a function
+of the remailer name and the date of the current day (basically md5))
+
+We record the timestamp each outgoing ping, and we record the time it
+took to return for incoming pings.
+
+The reliability of a node is the result of received/sent, with the
+following weighting applied:
+
+ weight := w1 * w2;
+
+ w1 is a function of a ping's age:
+  age:    1   2   3   4   5   6   7   8   9  10  11  12   [days]
+  weight 0.5 1.0 1.0 1.0 1.0 0.9 0.8 0.5 0.3 0.2 0.2 0.1
+
+  age is how long ago the ping was sent.  So if a ping was sent 23
+  hour ago, it weighs 0.5, if it was sent 2 days ago, its weight is 1.
+  Approaching 12 days, the weight approaches 0.0.
+
+ w2 also considers this node's pings' latencies over the last 12 days:
+
+  for pings that already returned, w2 is 1.0.
+  otherwise:
+    Let mod_age := (now - sent - 15m) * 0.8
+    w2 is the fraction of pings returned within mod_age seconds.
+
+   Example:
+    Assume a ping was sent 2 hours ago. mod_age is 84 minutes.  If 100%
+    of this node's pings were faster than 84 minutes, then w2 = 1.  If
+    only 30% were received within 84 minutes of sending out the ping,
+    then w2 is 0.3,  If no ping was ever faster than 84 minutes, then w2
+    is 0.
+
+
+The reported latency is the median of all received pings of the last 12
+days.
+
+
+
+Chain pings are done in a similar fashion:  We ping two-hop chains A, B.
+Each chain is pinged once a week (with a similar offset function as
+above).
+
+"Interesting chains" are pinged more often - daily.
+
+We report chains as broken if
+ - we sent at least 3 pings
+  AND
+ - received/sent <= rel(A) * rel(B) * 0.3.
+
+rel(X) is remailer X's reliability in single-hop pings.
+
+We define interesting chains as chains
+ - where we sent less than 3 pings, without getting any back.
+  OR
+ - where received/sent <= rel(A) * rel(B) * 0.3  (i.e. the chain is
+   reported broken)
