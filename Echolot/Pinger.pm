@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.4 2002/06/11 11:05:52 weasel Exp $
+# $Id: Pinger.pm,v 1.5 2002/06/13 15:26:50 weasel Exp $
 #
 
 =pod
@@ -111,17 +111,14 @@ sub receive($$$) {
 	                  (defined $sent ? $sent : 'undef') . ':' .
 	                  (defined $mac  ? $mac : 'undef') . ':';
 
-	print "Foo\n";
 	(defined $addr && defined $type && defined $key && defined $sent && defined $mac) or
 		warn ("Received ping at $timestamp has undefined values: $cleanstring\n"), #FIXME: logging
 		return 0;
 
-	print "Foo\n";
 	Echolot::Tools::verify_mac($addr.':'.$type.':'.$key.':'.$sent, $mac) or
 		warn ("Received ping at $timestamp has wrong mac; $cleanstring\n"), #FIXME: logging
 		return 0;
 
-	print "Foo\n";
 	Echolot::Globals::get()->{'storage'}->register_pingdone($addr, $type, $key, $sent, $now - $sent) or
 		return 0;
 	
