@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.15 2002/07/10 16:22:49 weasel Exp $
+# $Id: Conf.pm,v 1.16 2002/07/13 20:35:50 weasel Exp $
 #
 
 =pod
@@ -24,6 +24,15 @@ use GnuPG::Interface;
 use IO::Handle;
 
 
+sub is_not_a_remailer($) {
+	my ($reply) = @_;
+	if ($reply =~ /^\s* not \s+ a \s+ remailer\b/xi) {
+		return 1;
+	} else {
+		return 0;
+	};
+};
+
 sub send_requests() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
@@ -31,11 +40,22 @@ sub send_requests() {
 		next unless ($remailer->{'fetch'});
 		print "Sending requests to ".$remailer->{'address'}."\n"
 			if Echolot::Config::get()->{'verbose'};
+
+		my $source_text = Echolot::Config::get()->{'remailerxxxtext'};
+		my $template =  HTML::Template->new(
+			scalarref => \$source_text,
+			strict => 0,
+			global_vars => 1 );
+		$template->param ( address => $remailer->{'address'} );
+		$template->param ( operator_address => Echolot::Config::get()->{'operator_address'} );
+		my $body = $template->output();
+
 		for my $type (qw{conf key help stats adminkey}) {
 			Echolot::Tools::send_message(
 				'To' => $remailer->{'address'},
 				'Subject' => 'remailer-'.$type,
-				'Token' => $type.'.'.$remailer->{'id'})
+				'Token' => $type.'.'.$remailer->{'id'},
+				'Body' => $body)
 		};
 		Echolot::Globals::get()->{'storage'}->decrease_ttl($remailer->{'address'});
 	};
@@ -149,6 +169,8 @@ sub remailer_conf($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
+	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
+		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('conf', $id, $reply);
 
 	remailer_caps($reply, $token, $time);
@@ -366,6 +388,8 @@ sub remailer_key($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
+	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
+		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('key', $id, $reply);
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
@@ -385,6 +409,8 @@ sub remailer_stats($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
+	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
+		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('stats', $id, $reply);
 };
 
@@ -396,6 +422,8 @@ sub remailer_help($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
+	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
+		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('help', $id, $reply);
 };
 
@@ -407,6 +435,8 @@ sub remailer_adminkey($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
+	Echolot::Globals::get()->{'storage'}->not_a_remailer($id), return 1
+		if (is_not_a_remailer($reply));
 	Echolot::Thesaurus::save_thesaurus('adminkey', $id, $reply);
 };
 

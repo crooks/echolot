@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.34 2002/07/11 23:39:13 weasel Exp $
+# $Id: File.pm,v 1.35 2002/07/13 20:35:50 weasel Exp $
 #
 
 =pod
@@ -657,6 +657,17 @@ sub restore_ttl($$) {
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'active' if
 		($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'ttl timeout' ||
 		 $self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'dead');
+	$self->commit();
+	return 1;
+};
+
+sub not_a_remailer($$) {
+	my ($self, $id) = @_;
+	
+	my $address = $self->get_address_by_id($id);
+    cluck("No remailer found for id '$id'"), return 0 unless defined $address;
+
+	delete $self->{'METADATA'}->{'addresses'}->{$address}->{'disabled by user reply: is not a remailer'};
 	$self->commit();
 	return 1;
 };

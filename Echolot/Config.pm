@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.23 2002/07/11 17:45:59 weasel Exp $
+# $Id: Config.pm,v 1.24 2002/07/13 20:35:50 weasel Exp $
 #
 
 =pod
@@ -126,10 +126,25 @@ sub init($) {
 			'rlist2-clear'          => 'templates/rlist2-clear.html',
 			'clist'                 => 'templates/clist.html',
 		},
+
+		remailerxxxtext => "Hello,\n".
+			"\n".
+			"This message requests remailer configation data. The pinging software thinks\n".
+			"<TMPL_VAR NAME=\"address\"> is a remailer. Either it has been told so by the\n".
+			"maintainer of the pinger or it found the address in a remailer-conf or\n".
+			"remailer-key reply of some other remailer.\n".
+			"\n".
+			"If this is _not_ a remailer, you can tell this pinger that and it will stop\n".
+			"sending you those requests immediatly (otherwise it will try a few more times).\n".
+			"Just reply and make sure the following is the first line of your message:\n".
+			"	not a remailer\n".
+			"\n".
+			"If you want to talk to a human please mail <TMPL_VAR NAME=\"operator_address\">.\n",
 		
 		homedir                     => undef,
 		my_localpart                => undef,
 		my_domain                   => undef,
+		operator_address            => undef,
 		sitename                    => undef,
 		verbose                     => 0
 	};
