@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.3 2003/02/18 10:30:35 weasel Exp $
+# $Id: Fromlines.pm,v 1.4 2003/02/21 06:37:35 weasel Exp $
 #
 
 =pod
@@ -48,27 +48,37 @@ sub build_fromlines() {
 				my $from = $from_info->{'from'};
 				$from = 'Not Available' unless defined $from;
 				$from = 'Middleman Remailer' if $middleman;
-				push @{$from_types->{$from}}, $type;
+				my $disclaim_top = $from_info->{'disclaim_top'} ? 1 : 0;
+				my $disclaim_bot = $from_info->{'disclaim_bot'} ? 1 : 0;
+				my $frominfo = $disclaim_top.':'.$disclaim_bot.':'.$from;
+				push @{$from_types->{$frominfo}}, $type;
 			};
 			my $types_from;
-			for my $from (sort keys %$from_types) {
-				my $types = join ", ", sort { $a cmp $b } @{$from_types->{$from}};
-				$types_from->{$types} = $from;
+			for my $frominfo (sort keys %$from_types) {
+				my $types = join ", ", sort { $a cmp $b } @{$from_types->{$frominfo}};
+				$types_from->{$types} = $frominfo;
 			};
 			my @types_from = map {
+					my ($disclaim_top, $disclaim_bot, $from) = split (/:/, $types_from->{$_}, 3);
 					{
 						nick => $nick,
 						address => $addr,
 						types => $_,
-						from => Echolot::Tools::escape_HTML_entities($types_from->{$_})
+						disclaim_top => $disclaim_top,
+						disclaim_bot => $disclaim_bot,
+						from => Echolot::Tools::escape_HTML_entities($from)
 					}
 				} sort { $a cmp $b } keys %$types_from;
 			$data->{$user_supplied}->{$addr}->{'data'} = \@types_from;
 		};
 
 		# Remove user supplied if identical
-		my $f0 = join ':', map { $_->{'types'} .':'.$_->{'from'}}  @{$data->{0}->{$addr}->{'data'}};
-		my $f1 = join ':', map { $_->{'types'} .':'.$_->{'from'}}  @{$data->{1}->{$addr}->{'data'}};
+		my $f0 = join ':', map {
+				$_->{'disclaim_top'}.':'.$_->{'disclaim_bot'}.$_->{'types'}.':'.$_->{'from'}
+			}  @{$data->{0}->{$addr}->{'data'}};
+		my $f1 = join ':', map {
+				$_->{'disclaim_top'}.':'.$_->{'disclaim_bot'}.$_->{'types'}.':'.$_->{'from'}
+			}  @{$data->{1}->{$addr}->{'data'}};
 		if ($f0 eq $f1) {
 			delete $data->{1}->{$addr};
 		};

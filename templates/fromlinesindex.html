@@ -3,7 +3,7 @@
 	<title>From Headers [<TMPL_VAR NAME="SITE_NAME">]</title>
 	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
 	<link href="echolot.css" rel="stylesheet" type="text/css">
-	<!-- $Id: fromlinesindex.html,v 1.3 2003/02/21 06:09:39 weasel Exp $ -->
+	<!-- $Id: fromlinesindex.html,v 1.4 2003/02/21 06:35:54 weasel Exp $ -->
 </head>
 <body>
 <h1>From Headers [<TMPL_VAR NAME="SITE_NAME">]</h1>
@@ -20,12 +20,13 @@ convenience.
 
 <p>
 <table border=1>
-<tr><tr><th>nick</th><th>From Line</th><th>type</th></tr>
+<tr><tr><th>nick</th><th>Disclaimer</th><th>From Line</th><th>type</th></tr>
 
 <TMPL_LOOP NAME="default">
 	<TMPL_LOOP NAME="data">
 		<tr>
 			<td><TMPL_VAR NAME="nick"></td>
+			<td align="center"><TMPL_IF NAME="disclaim_top">top</TMPL_IF>&nbsp;<TMPL_IF NAME="disclaim_bot">bot</TMPL_IF></td>
 			<td><TMPL_VAR NAME="from"></td>
 			<td><small><TMPL_VAR NAME="types"></small></td>
 		</tr>
@@ -37,20 +38,21 @@ convenience.
 <h2>User Supplied From: Headers</h2>
 
 <p>
-If messages sent with a user supplied From header differ from those
-without, the remailer is listed here.  The difference can either
-be an additional disclaimer, really allowing (partial) From headers,
+If a message sent with a user supplied From header differs from
+one without, the remailer is listed here.  The difference can either
+be an additional disclaimer, actually allowing (partial) From headers,
 etc.
 
 <p>
 <table border=1>
 
-<tr><tr><th>nick</th><th>From Line</th><th>type</th></tr>
+<tr><tr><th>nick</th><th>Disclaimer</th><th>From Line</th><th>type</th></tr>
 
 <TMPL_LOOP NAME="usersupplied">
 	<TMPL_LOOP NAME="data">
 		<tr>
 			<td><TMPL_VAR NAME="nick"></td>
+			<td align="center"><TMPL_IF NAME="disclaim_top">top</TMPL_IF>&nbsp;<TMPL_IF NAME="disclaim_bot">bot</TMPL_IF></td>
 			<td><TMPL_VAR NAME="from"></td>
 			<td><small><TMPL_VAR NAME="types"></small></td>
 		</tr>
