@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.5 2002/06/13 15:26:50 weasel Exp $
+# $Id: Pinger.pm,v 1.6 2002/06/18 17:21:51 weasel Exp $
 #
 
 =pod
@@ -21,6 +21,7 @@ use warnings;
 use Carp qw{cluck};
 use English;
 use Echolot::Pinger::Mix;
+use Echolot::Pinger::CPunk;
 
 sub makeHash($) {
 	my ($text) = @_;
@@ -38,8 +39,24 @@ sub do_mix_ping($$$$$) {
 	Echolot::Pinger::Mix::ping(
 		$body,
 		$to,
-		$key{'nick'},
+		[ $key{'nick'} ],
 		{ $keyid => \%key } ) or
+		return 0;
+
+	return 1;
+};
+
+sub do_cpunk_ping($$$$$$) {
+	my ($address, $type, $keyid, $time, $to, $body) = @_;
+
+	my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
+	Echolot::Pinger::CPunk::ping(
+		$body,
+		$to,
+		[ { address => $address,
+		    keyid   => $keyid } ],
+		{ $keyid => \%key },
+		$type eq 'cpunk-rsa' ) or
 		return 0;
 
 	return 1;
@@ -60,6 +77,8 @@ sub do_ping($$$) {
 	my $to = Echolot::Tools::make_address('ping');
 	if ($type eq 'mix') {
 		do_mix_ping($address, $key, $now, $to, $body);
+	} elsif ($type eq 'cpunk-rsa' || $type eq 'cpunk-dsa') {
+		do_cpunk_ping($address, $type, $key, $now, $to, $body);
 	} else {
 		cluck ("Don't know how to handle ping type $type");
 		return 0;
@@ -86,6 +105,7 @@ sub send_pings() {
 
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($remailer)) {
 			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($remailer, $type)) {
+				print "ping calling $type, $remailer, $key\n";
 				do_ping($type, $remailer, $key);
 			}
 		};
