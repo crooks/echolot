@@ -861,13 +861,7 @@ sub build_pgpring_type($$$$) {
 				commands     => [ '--import' ],
 				command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
 				handles      => $handles );
-			print $stdin_fh $key{'key'};
-			close($stdin_fh);
-
-			my $stdout = join '', <$stdout_fh>; close($stdout_fh);
-			my $stderr = join '', <$stderr_fh>; close($stderr_fh);
-			my $status = join '', <$status_fh>; close($status_fh);
-
+			my ($stdout, $stderr, $status) = readwrite_gpg($key{'key'}, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 			waitpid $pid, 0;
 
 			($stdout eq '') or
@@ -895,12 +889,7 @@ sub build_pgpring_export($$$$) {
 		commands     => [ '--export' ],
 		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --keyring}, $keyring, @$keyids ],
 		handles      => $handles );
-	close($stdin_fh);
-
-	my $stdout = join '', <$stdout_fh>; close($stdout_fh);
-	my $stderr = join '', <$stderr_fh>; close($stderr_fh);
-	my $status = join '', <$status_fh>; close($status_fh);
-
+	my ($stdout, $stderr, $status) = readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
 
 	open (F, ">$file") or

@@ -274,6 +274,50 @@ sub make_gpg_fds() {
 	return ($fds{'stdin'}, $fds{'stdout'}, $fds{'stderr'}, $fds{'status'}, $handles);
 };
 
+sub readwrite_gpg($$$$$) {
+	my ($in, $inputfd, $stdoutfd, $stderrfd, $statusfd) = @_;
+	local $INPUT_RECORD_SEPARATOR = undef;
+	my $s = IO::Select->new();
+
+	$stdoutfd->blocking(0);
+	$statusfd->blocking(0);
+	$stderrfd->blocking(0);
+	$s->add($stdoutfd);
+	$s->add($stderrfd);
+	$s->add($statusfd);
+
+	my ($stdout, $stderr, $status) = ("", "", "");
+
+	print $inputfd $in; close $inputfd;
+
+	my @ready;
+	while ($s->count() > 0) {
+		@ready = $s->can_read(42);
+		next unless (scalar(@ready)); # Wait some more.
+
+		for my $rfd (@ready) {
+			if ($rfd->eof) {
+				$s->remove($rfd);
+				close($rfd);
+				next;
+			}
+			if ($rfd == $stdoutfd) {
+				$stdout .= <$rfd>;
+				next;
+			}
+			if ($rfd == $statusfd) {
+				$status .= <$rfd>;
+				next;
+			}
+			if ($rfd == $stderrfd) {
+				$stderr .= <$rfd>;
+				next;
+			}
+		}
+	}
+	return ($stdout, $stderr, $status);
+}
+
 sub crypt_symmetrically($$) {
 	my ($msg, $direction) = @_;
 
@@ -294,13 +338,7 @@ sub crypt_symmetrically($$) {
 		$direction eq 'encrypt' ?
 			$GnuPG->encrypt_symmetrically( handles      => $handles ) :
 			$GnuPG->decrypt( handles      => $handles );
-	print $stdin_fh $msg;
-	close($stdin_fh);
-
-	my $stdout = join '', <$stdout_fh>; close($stdout_fh);
-	my $stderr = join '', <$stderr_fh>; close($stderr_fh);
-	my $status = join '', <$status_fh>; close($status_fh);
-
+	my ($stdout, $stderr, $status) = readwrite_gpg($msg, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
 
 	if ($direction eq 'encrypt') {

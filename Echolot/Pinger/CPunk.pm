@@ -44,13 +44,7 @@ sub encrypt_to($$$$) {
 		commands     => [ '--import' ],
 		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
 		handles      => $handles );
-	print $stdin_fh $keys->{$recipient}->{'key'};
-	close($stdin_fh);
-
-	my $stdout = join '', <$stdout_fh>; close($stdout_fh);
-	my $stderr = join '', <$stderr_fh>; close($stderr_fh);
-	my $status = join '', <$status_fh>; close($status_fh);
-
+	my ($stdout, $stderr, $status) = readwrite_gpg($keys->{$recipient}->{'key'}, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
 
 	($stdout eq '') or
@@ -102,12 +96,7 @@ sub encrypt_to($$$$) {
 	$pid = $GnuPG->encrypt(
 		command_args => $command_args,
 		handles      => $handles );
-	close($stdin_fh);
-
-	$stdout = join '', <$stdout_fh>; close($stdout_fh);
-	$stderr = join '', <$stderr_fh>; close($stderr_fh);
-	$status = join '', <$status_fh>; close($status_fh);
-
+	my ($stdout, $stderr, $status) = readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
 
 	#($stderr eq '') or
