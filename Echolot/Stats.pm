@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.43 2003/02/16 09:09:57 weasel Exp $
+# $Id: Stats.pm,v 1.44 2003/02/16 09:16:23 weasel Exp $
 #
 
 =pod
@@ -542,7 +542,7 @@ sub find_broken_chains($$$) {
 				next if ($real_rel > $theoretical_rel * Echolot::Config::get()->{'chainping_fudge'});
 				my $nick1 = $remailers{$addr1}->{'nick'};
 				my $nick2 = $remailers{$addr2}->{'nick'};
-				push @broken_chains, "($nick1 $nick2) $done/$out";
+				push @broken_chains, "($nick1 $nick2)";
 				push @intensive_care, { addr1 => $addr1, addr2 => $addr2, reason => "bad: $done/$out" };
 			};
 		};
