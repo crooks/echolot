@@ -1,3 +1,9 @@
+echolot (2.0.10-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon,  3 Feb 2003 21:11:42 +0100
+
 echolot (2.0.9-1) unstable; urgency=medium
 
   * New upstream version.
