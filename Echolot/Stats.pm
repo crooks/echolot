@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.35 2002/12/03 02:59:13 weasel Exp $
+# $Id: Stats.pm,v 1.36 2002/12/18 17:31:00 weasel Exp $
 #
 
 =pod
@@ -354,14 +354,14 @@ sub build_rlist1($$$$$;$) {
 };
 
 
-sub build_list2($$$$$;$) {
-	my ($rems, $broken1, $broken2, $sameop, $filebasename, $html_template) = @_;
+sub build_list2($$$$$$;$) {
+	my ($rems, $type, $broken1, $broken2, $sameop, $filebasename, $html_template) = @_;
 
 	my $output = '';
 
 	$output .= sprintf "Stats-Version: 2.0\n";
 	$output .= sprintf "Generated: %s\n", make_date();
-	$output .= sprintf "Mixmaster    Latent-Hist   Latent  Uptime-Hist   Uptime  Options\n";
+	$output .= sprintf "%-12s Latent-Hist   Latent  Uptime-Hist   Uptime  Options\n", ($type == 1 ? 'Cypherpunk' : $type == 2 ? 'Mixmaster' : "Type $type");
 	$output .= sprintf "------------------------------------------------------------------------\n";
 
 	for my $remailer (@$rems) {
@@ -490,9 +490,9 @@ sub build_lists() {
 	$rems = build_rems(['mix']);
 	@$pubrems = grep { $_->{'showit'} } @$rems;
 	build_mlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist', 'mlist');
-	build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2', 'mlist2');
+	build_list2( $rems, 2, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2', 'mlist2');
 	build_mlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', 'mlist');
-	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', 'mlist2');
+	build_list2( $pubrems, 2, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', 'mlist2');
 	$stats{'mix_total'} = scalar @$pubrems;
 	$stats{'mix_98'} = scalar grep { $_->{'stats'}->{'avr_reliability'} >= 0.98 } @$pubrems;
 	$addresses{$_->{'address'}}=1 for @$pubrems;
@@ -504,9 +504,9 @@ sub build_lists() {
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
 	@$pubrems = grep { $_->{'showit'} } @$rems;
 	build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist', 'rlist');
-	build_list2( $rems,$broken1, $broken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2', 'rlist2');
+	build_list2( $rems, 1, $broken1, $broken2, $sameop,  Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2', 'rlist2');
 	build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', 'rlist');
-	build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', 'rlist2');
+	build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', 'rlist2');
 	$stats{'cpunk_total'} = scalar @$pubrems;
 	$stats{'cpunk_98'} = scalar grep { $_->{'stats'}->{'avr_reliability'} >= 0.98 } @$pubrems;
 	$addresses{$_->{'address'}}=1 for @$pubrems;
@@ -519,9 +519,9 @@ sub build_lists() {
 		$rems = build_rems(['cpunk-rsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
 		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
-		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
+		build_list2( $rems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
 		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', 'rlist-rsa');
-		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
+		build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', 'rlist2-rsa');
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-rsa'} = $rems;
 			$pubclist->{'cpunk-rsa'} = $pubrems; $pubrems = undef;
@@ -530,9 +530,9 @@ sub build_lists() {
 		$rems = build_rems(['cpunk-dsa']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
 		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
-		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
+		build_list2( $rems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
 		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', 'rlist-dsa');
-		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
+		build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', 'rlist2-dsa');
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-dsa'} = $rems;
 			$pubclist->{'cpunk-dsa'} = $pubrems; $pubrems = undef;
@@ -541,9 +541,9 @@ sub build_lists() {
 		$rems = build_rems(['cpunk-clear']);
 		@$pubrems = grep { $_->{'showit'} } @$rems;
 		build_rlist1( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', 'rlist-clear');
-		build_list2( $rems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
+		build_list2( $rems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
 		build_rlist1( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', 'rlist-clear');
-		build_list2( $pubrems, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
+		build_list2( $pubrems, 1, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', 'rlist2-clear');
 		if (Echolot::Config::get()->{'combined_list'}) {
 			$clist->{'cpunk-clear'} = $rems;
 			$pubclist->{'cpunk-clear'} = $pubrems; $pubrems = undef;
