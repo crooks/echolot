@@ -1,3 +1,11 @@
+echolot (2.0.4-2) unstable; urgency=low
+
+  * Change Depends from libdigest-MD5-perl to libdigest-md5-perl
+    (capitalization).
+  * Changed Standards-Version to 3.5.7 (no changes).
+
+ -- Peter Palfrader <weasel@debian.org>  Thu, 24 Oct 2002 13:40:41 +0200
+
 echolot (2.0.4-1) unstable; urgency=low
 
   * New upstream version.

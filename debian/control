@@ -3,11 +3,11 @@ Section: mail
 Priority: extra
 Maintainer: Peter Palfrader <weasel@debian.org>
 Build-Depends-Indep: debhelper (>> 3.0.0)
-Standards-Version: 3.5.2
+Standards-Version: 3.5.7
 
 Package: echolot
 Architecture: all
-Depends: ${shlibs:Depends}, debconf, gnupg (>= 1.0.7), postfix | mail-transport-agent, mixmaster, libdigest-MD5-perl, libhtml-template-perl, libgnupg-interface-perl (>= 0.33)
+Depends: ${shlibs:Depends}, debconf, gnupg (>= 1.0.7), postfix | mail-transport-agent, mixmaster, libdigest-md5-perl, libhtml-template-perl, libgnupg-interface-perl (>= 0.33)
 Description: Pinger for anonymous remailers such as Mixmaster
  A Pinger in the context of anonymous remailers is a program that
  regularly sends messages through remailers to determine their status.
