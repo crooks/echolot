@@ -1,4 +1,4 @@
-$Id: README,v 1.14 2002/07/10 22:59:24 weasel Exp $
+$Id: README,v 1.15 2002/07/10 23:08:43 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -29,7 +29,6 @@ REQUIREMENTS
 	for type1 pings
 		GnuPG (1.0.7)
 		GnuPG::Interface (0.33)
-		(the gnupg idea module is also needed)
 	for type2 pings
 		a mixmaster installation
 FIXME what else
