@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.5 2002/06/13 16:46:11 weasel Exp $
+# $Id: Conf.pm,v 1.6 2002/06/18 17:21:18 weasel Exp $
 #
 
 =pod
@@ -122,6 +122,8 @@ sub parse_mix_key($$$) {
 # AAAAAAAAAAAAAAAAAAAAAQAB
 # -----End Mix Key-----
 
+	$reply =~ s/^- -/-/gm; # PGP Signed messages
+
 	my %mixmasters;
 	# rot26 rot26@mix.uucico.de 7f6d997678b19ccac110f6e669143126 2.9b33 MC
 	my @mix_confs = ($reply =~ /^[a-z0-9]+ \s+ \S+\@\S+ \s+ [0-9a-f]{32} (?:\s+ \S+ \s+ \S+)?/xmg);
@@ -184,6 +186,8 @@ sub parse_cpunk_key($$$) {
 	my ($reply, $time, $remailer) = @_;
 
 	my $GnuPG = new GnuPG::Interface;
+	$GnuPG->options->hash_init(
+		homedir => Echolot::Config::get()->{'gnupghome'} );
 	$GnuPG->options->meta_interactive( 0 );
 	my %cypherpunk;
 
@@ -217,17 +221,19 @@ sub parse_cpunk_key($$$) {
 		my $stderr = join '', <$stderr_fh>; close($stderr_fh);
 		my $status = join '', <$status_fh>; close($status_fh);
 
+		waitpid $pid, 0;
+
 		($stderr eq '') or 
-			cluck("GnuPG returnd something in stderr: '$stderr' when checking key '$key'; skipping\n"),
+			cluck("GnuPG returned something in stderr: '$stderr' when checking key '$key'; skipping\n"),
 			next;
 		($status eq '') or 
-			cluck("GnuPG returnd something in status '$status' when checking key '$key': So what?\n");
+			cluck("GnuPG returned something in status '$status' when checking key '$key': So what?\n");
 		
 		my @included_keys = $stdout =~ /^pub:.*$/mg;
 		(scalar @included_keys >= 2) &&
 			cluck ("Cannot handle more than one key per block correctlye yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'});
 		for my $included_key (@included_keys) {
-			my ($type, $keyid, $uid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):[^:]+::::([^:]+):/;
+			my ($type, $keyid, $uid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):[^:]+:[^:]*:::([^:]+):/;
 			(defined $uid) or
 				cluck ("Unexpected format of '$included_key' by ".$remailer->{'address'}."; Skipping"),
 				next;
