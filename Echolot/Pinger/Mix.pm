@@ -18,6 +18,7 @@ This package provides functions for sending mixmaster (type II) pings.
 
 use strict;
 use English;
+use IPC::Open3;
 use Echolot::Log;
 
 sub ping($$$$$) {
