@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.12 2002/07/06 00:50:27 weasel Exp $
+# $Id: Conf.pm,v 1.13 2002/07/06 18:34:01 weasel Exp $
 #
 
 =pod
@@ -202,14 +202,14 @@ sub parse_mix_key($$$) {
 
 	my %mixmasters;
 	# rot26 rot26@mix.uucico.de 7f6d997678b19ccac110f6e669143126 2.9b33 MC
-	my @mix_confs = ($reply =~ /^[a-z0-9]+ \s+ \S+\@\S+ \s+ [0-9a-f]{32} (?:\s+ \S+ \s+ \S+)?/xmg);
+	my @mix_confs = ($reply =~ /^[a-z0-9]+ \s+ \S+\@\S+ \s+ [0-9a-f]{32} (?:\s+ \S+ (?:[ \t]+ \S+)?)?/xmg);
 	my @mix_keys = ($reply =~ /^-----Begin \s Mix \s Key-----\r?\n
 	                          [0-9a-f]{32}\r?\n
 							  \d+\r?\n
 							  (?:[a-zA-Z0-9+\/]*\r?\n)+
 							  -----End \s Mix \s Key-----$/xmg );
 	for (@mix_confs) {
-		my ($nick, $address, $keyid, $version, $caps) = /^([a-z0-9]+) \s+ (\S+@\S+) \s+ ([0-9a-f]{32}) (?:(\S+) \s+ (\S+))?/x;
+		my ($nick, $address, $keyid, $version, $caps) = /^([a-z0-9]+) \s+ (\S+@\S+) \s+ ([0-9a-f]{32}) (?:(\S+) (?:[\t]+ (\S+)))?/x;
 		$mixmasters{$keyid} = {
 			nick	=> $nick,
 			address => $address,
