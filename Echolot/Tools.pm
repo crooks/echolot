@@ -278,6 +278,9 @@ sub make_gpg_fds() {
 
 sub readwrite_gpg($$$$$) {
 	my ($in, $inputfd, $stdoutfd, $stderrfd, $statusfd) = @_;
+
+	Echolot::Log::debug("Entering readwrite_gpg.");
+
 	local $INPUT_RECORD_SEPARATOR = undef;
 	my $sout = IO::Select->new();
 	my $sin = IO::Select->new();
@@ -296,7 +299,9 @@ sub readwrite_gpg($$$$$) {
 
 	my ($readyr, $readyw, $written);
 	while ($sout->count() > 0) {
+		Echolot::Log::debug("select waiting for ".($sout->count())." fds.");
 		($readyr, $readyw, undef) = IO::Select::select($sout, $sin, undef, 42);
+		Echolot::Log::debug("ready: write: ".(scalar @$readyw)."; read: ".(scalar @$readyw));
 		foreach my $wfd (@$readyw) {
 			$written = $wfd->syswrite($in, length($in) - $offset, $offset);
 			$offset += $written;
@@ -309,8 +314,9 @@ sub readwrite_gpg($$$$$) {
 
 		next unless (defined(@$readyr)); # Wait some more.
 
-		for my $rfd (@$readyw) {
+		for my $rfd (@$readyr) {
 			if ($rfd->eof) {
+				Echolot::Log::debug("reading from $rfd done.");
 				$sout->remove($rfd);
 				close($rfd);
 				next;
@@ -329,6 +335,7 @@ sub readwrite_gpg($$$$$) {
 			}
 		}
 	}
+	Echolot::Log::debug("readwrite_gpg done.");
 	return ($stdout, $stderr, $status);
 };
 
