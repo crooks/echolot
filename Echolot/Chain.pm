@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.14 2003/02/21 14:14:40 weasel Exp $
+# $Id: Chain.pm,v 1.15 2003/02/21 22:59:07 weasel Exp $
 #
 
 =pod
@@ -165,9 +165,9 @@ sub send_pings($;$$) {
 			my $key1 = get_latest_key($addr1, $type1);
 
 			for my $rem2 (@remailers) {
-				next if $rem1 eq $rem2 && (! ($which1 eq $rem1 && $which2 eq $rem2));
 				next unless $rem2->{'pingit'};
 				my $addr2 = $rem2->{'address'};
+				next if $rem1 eq $rem2 && (! ($which1 eq $addr2 && $which2 eq $addr2));
 
 				next unless (
 					$which2 eq 'all' ||
