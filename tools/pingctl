@@ -10,13 +10,44 @@ set -e
 
 USER=pinger
 VERBOSE=0
-PINGD="/home/pinger/echolot/pingd"
+BASEDIR="/home/pinger/echolot"
+PINGD="$BASEDIR/pingd"
+PIDFILE="$BASEDIR/pingd.pid"
 
 # You probably don't want to mess with stuff below this line
 ################################################################
 
 CHECKULIMIT=1
 CHECKUID=1
+
+
+wait_for_deaddaemon () {
+	PID=$1
+	sleep 3
+	if test -n "$PID"
+	then
+		if kill -0 $PID 2>/dev/null
+		then
+			echo -n "Waiting for pid $PID ."
+			cnt=0
+			while kill -0 $PID 2>/dev/null
+			do
+				cnt=`expr $cnt + 1`
+				if [ $cnt -gt 30 ]
+				then
+					echo -n " Failed.. "
+					break
+				fi
+				sleep 2
+				echo -n "."
+			done
+			rm -f $PIDFILE
+		else
+			rm -f $PIDFILE
+		fi
+	fi
+}
+
 
 # Check for evil ulimits
 if [ "$CHECKULIMIT" -gt "0" ]; then
@@ -70,6 +101,18 @@ fi
 case $1 in
 
 start)
+	if [ -f $PIDFILE ] ; then
+		PID=`cat $PIDFILE 2>/dev/null` || true
+		if kill -0 $PID 2>/dev/null
+		then
+			echo "pingd already running."
+			exit 0
+		else
+			echo -n "Removing stale pid file: "
+			rm -f $PIDFILE
+			echo "$PIDFILE."
+		fi
+	fi
 	echo -n "Starting Echolot: pingd" 
 	if [ ! -z "$SU" ]; then
 		$SU "$PINGD --detach $VERBOSE start"
@@ -90,23 +133,13 @@ stop)
 	;;
 
 reload|force-reload|restart)
+	PID=`cat $PIDFILE 2>/dev/null` || true
 	$0 stop
-	sleep 10
+	wait_for_deaddaemon $PID
 	$0 start
-	;;
-process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|sendchainpings|buildstats|buildkeys|buildthesaurus|buildfromlines|dumpconf|summary)
-	echo "Running pingd $1..."
-	if [ ! -z "$SU" ]; then
-		$SU "$PINGD \"$@\""
-	else
-		$PINGD "$@"
-	fi
-	echo "done."
 	;;
 *)
 	echo "Usage: $0 (start|stop|reload|force-reload|restart)" >&2
-	echo "       $0 <COMMAND> [parameters]" >&2
-	echo "See the pingd(1) manual page for valid commands" >&2
 	exit 1
 	;;
 esac

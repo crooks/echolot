@@ -44,9 +44,9 @@ wait_for_deaddaemon () {
 				sleep 2
 				echo -n "."
 			done
-			rm -f /var/run/echolot/pingd.pid
+			rm -f $PIDFILE
 		else
-			rm -f /var/run/echolot/pingd.pid
+			rm -f $PIDFILE
 		fi
 	fi
 }
@@ -133,26 +133,6 @@ reload|force-reload|restart)
 	$0 stop
 	wait_for_deaddaemon $PID
 	$0 start
-	;;
-process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|sendchainpings|buildstats|buildkeys|buildthesaurus|buildfromlines|dumpconf|summary)
-	# Check for right User
-	SU=""
-	if [ "$CHECKUID" -gt "0" ]; then
-		CUID=`id -u`
-		CUIDNAME=`id -nu`
-		if [ "$CUIDNAME" = "$USER" ]; then
-			SU=""
-		elif [ "$CUID" = "0" ]; then
-			SU="su $USER -c"
-		else
-			echo "You are neither $USER nor root. Aborting." >&2
-			exit 1;
-		fi
-	fi
-
-	echo "Running $DESC: $NAME $1..."
-	$SU $DAEMON "$@"
-	echo "done."
 	;;
 *)
 	echo "Usage: $0 (start|stop|reload|force-reload|restart)" >&2
