@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.11 2002/07/03 12:09:03 weasel Exp $
+# $Id: Conf.pm,v 1.12 2002/07/06 00:50:27 weasel Exp $
 #
 
 =pod
@@ -24,6 +24,26 @@ use GnuPG::Interface;
 use IO::Handle;
 
 
+sub save_thesaurus($$$) {
+	my ($otype, $oid, $data) = @_;
+
+	return 1 unless Echolot::Config::get()->{'thesaurus'};
+
+	my ($type) = $otype =~ /^([a-z-]+)$/;
+	cluck("type '$otype' is not clean in save_thesaurus"), return 0 unless defined $type;
+	my ($id) = $oid =~ /^([0-9]+)$/;
+	cluck("id '$oid' is not clean in save_thesaurus"), return 0 unless defined $id;
+
+	my $file = Echolot::Config::get()->{'thesaurusdir'}.'/'.$id.'-'.$type;
+	open (F, ">$file") or
+		cluck ("Cannot open '$file': $!"),
+		return 0;
+	print F $data;
+	close (F);
+
+	return 1;
+};
+
 sub send_requests() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
@@ -31,7 +51,7 @@ sub send_requests() {
 		next unless ($remailer->{'fetch'});
 		print "Sending requests to ".$remailer->{'address'}."\n"
 			if Echolot::Config::get()->{'verbose'};
-		for my $type (qw{conf key help stats}) {
+		for my $type (qw{conf key help stats adminkey}) {
 			Echolot::Tools::send_message(
 				'To' => $remailer->{'address'},
 				'Subject' => 'remailer-'.$type,
@@ -42,7 +62,7 @@ sub send_requests() {
 	Echolot::Globals::get()->{'storage'}->enable_commit();
 };
 
-sub remailer_conf($$$;$) {
+sub remailer_caps($$$;$) {
 	my ($conf, $token, $time, $dontexpire) = @_;
 
 	my ($id) = $token =~ /^conf\.(\d+)$/;
@@ -52,9 +72,9 @@ sub remailer_conf($$$;$) {
 
 	cluck("Could not find id in token '$token'"), return 0 unless defined $id;
 	my ($remailer_type) = ($conf =~ /^\s*Remailer-Type:\s* (.*?) \s*$/imx);
-	cluck("No remailer type found in remailer_conf from '$token'"), return 0 unless defined $remailer_type;
+	cluck("No remailer type found in remailer_caps from '$token'"), return 0 unless defined $remailer_type;
 	my ($remailer_caps) = ($conf =~ /^\s*(  \$remailer{".*"}  \s*=\s*  "<.*@.*>.*";   )\s*$/imx);
-	cluck("No remailer caps found in remailer_conf from '$token'"), return 0 unless defined $remailer_caps;
+	cluck("No remailer caps found in remailer_caps from '$token'"), return 0 unless defined $remailer_caps;
 	my ($remailer_nick, $remailer_address) = ($remailer_caps =~ /^\s*  \$remailer{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
 	cluck("No remailer nick found in remailer_caps from '$token': '$remailer_caps'"), return 0 unless defined $remailer_nick;
 	cluck("No remailer address found in remailer_caps from '$token': '$remailer_caps'"), return 0 unless defined $remailer_address;
@@ -121,6 +141,19 @@ sub remailer_conf($$$;$) {
 	return 1;
 };
 
+sub remailer_conf($$$) {
+	my ($reply, $token, $time) = @_;
+
+	my ($id) = $token =~ /^conf\.(\d+)$/;
+	(defined $id) or
+		cluck ("Returned token '$token' has no id at all"),
+		return 0;
+	
+	save_thesaurus('conf', $id, $reply);
+
+	remailer_caps($reply, $token, $time);
+};
+
 sub set_caps_manually($$) {
 	my ($addr, $caps) = @_;
 
@@ -145,7 +178,7 @@ sub set_caps_manually($$) {
 	my $token = 'conf.'.$id;
 
 	my $conf = "Remailer-Type: set-manually\n$caps";
-	remailer_conf($conf, $token, time, 1);
+	remailer_caps($conf, $token, time, 1);
 
 	return 1;
 };
@@ -325,32 +358,56 @@ sub parse_cpunk_key($$$) {
 sub remailer_key($$$) {
 	my ($reply, $token, $time) = @_;
 
-	$reply =~ s/^- -/-/gm; # PGP Signed messages
+	my $cp_reply = $reply;
+	$cp_reply =~ s/^- -/-/gm; # PGP Signed messages
 
 	my ($id) = $token =~ /^key\.(\d+)$/;
 	(defined $id) or
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
+	
+	save_thesaurus('key', $id, $reply);
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
 	cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
 
-	parse_mix_key($reply, $time, $remailer);
-	parse_cpunk_key($reply, $time, $remailer);
+	parse_mix_key($cp_reply, $time, $remailer);
+	parse_cpunk_key($cp_reply, $time, $remailer);
 
 	return 1;
 };
 
 sub remailer_stats($$$) {
-	my ($conf, $token, $time) = @_;
+	my ($reply, $token, $time) = @_;
 
-	#print "Remailer stats\n";
+	my ($id) = $token =~ /^stats\.(\d+)$/;
+	(defined $id) or
+		cluck ("Returned token '$token' has no id at all"),
+		return 0;
+	
+	save_thesaurus('stats', $id, $reply);
 };
 
 sub remailer_help($$$) {
-	my ($conf, $token, $time) = @_;
+	my ($reply, $token, $time) = @_;
 
-	#print "Remailer help\n";
+	my ($id) = $token =~ /^help\.(\d+)$/;
+	(defined $id) or
+		cluck ("Returned token '$token' has no id at all"),
+		return 0;
+	
+	save_thesaurus('help', $id, $reply);
+};
+
+sub remailer_adminkey($$$) {
+	my ($reply, $token, $time) = @_;
+
+	my ($id) = $token =~ /^adminkey\.(\d+)$/;
+	(defined $id) or
+		cluck ("Returned token '$token' has no id at all"),
+		return 0;
+	
+	save_thesaurus('adminkey', $id, $reply);
 };
 
 1;

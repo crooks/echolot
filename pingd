@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.16 2002/07/03 12:54:31 weasel Exp $
+# $Id: pingd,v 1.17 2002/07/06 00:50:27 weasel Exp $
 #
 
 =pod
@@ -204,6 +204,7 @@ use Echolot::Mailin;
 use Echolot::Pinger;
 use Echolot::Stats;
 use Echolot::Commands;
+use Echolot::Thesaurus;
 
 $ENV{'PATH'} = '/bin:/usr/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
@@ -341,6 +342,7 @@ sub daemon_run() {
 	$scheduler->add('processmail'         , Echolot::Config::get()->{'processmail'}        , 0, \&Echolot::Mailin::process );
 	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}    , 0, \&Echolot::Pinger::send_pings );
 	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}         , 0, \&Echolot::Stats::build );
+	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'build_thesaurus'}    , 0, \&Echolot::Thesaurus::build_thesaurus );
 
 	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'} , 0, \&commit_prospective_address );
 	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}             , 0, \&expire );
@@ -383,6 +385,7 @@ sub daemon_stop() {
 sub make_dirs() {
 	for my $dir (
 		Echolot::Config::get()->{'resultdir'},
+		Echolot::Config::get()->{'thesaurusdir'},
 		Echolot::Config::get()->{'private_resultdir'},
 		Echolot::Config::get()->{'gnupghome'},
 		Echolot::Config::get()->{'tmpdir'},

@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.3 2002/06/11 10:00:38 weasel Exp $
+# $Id: Mailin.pm,v 1.4 2002/07/06 00:50:27 weasel Exp $
 #
 
 =pod
@@ -76,6 +76,7 @@ sub handle($) {
 	Echolot::Conf::remailer_key($body, $type, $timestamp), return 1 if ($type =~ /^key\./);
 	Echolot::Conf::remailer_help($body, $type, $timestamp), return 1 if ($type =~ /^help\./);
 	Echolot::Conf::remailer_stats($body, $type, $timestamp), return 1 if ($type =~ /^stats\./);
+	Echolot::Conf::remailer_adminkey($body, $type, $timestamp), return 1 if ($type =~ /^adminkey\./);
 
 	Echolot::Pinger::receive($body, $type, $timestamp), return 1 if ($type eq 'ping');
 
