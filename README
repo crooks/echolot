@@ -1,4 +1,4 @@
-$Id: README,v 1.32 2002/09/12 16:38:11 weasel Exp $
+$Id: README,v 1.33 2002/09/12 17:04:38 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -83,8 +83,8 @@ o If the Mixmaster executable »mix« is not in your PATH, set the
   the same machine. (Frequently found in /home/remailer/Mix/mix.)
 
   Echolot will not share the Mixmaster pool or key rings with the
-  existing Mixmaster installation. Instead, Echolot uses pools and key
-  rings as specified by the MIXPATH environment variable.  FIXME
+  existing Mixmaster installation. Instead, Echolot uses pools and
+  keyrings as specified by the mixhome configuration option.
 
   If you prefer, you can build a second Mixmaster binary for the
   exclusive use of Echolot and place that binary in /home/pinger/Mix.
