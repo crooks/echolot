@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.2 2003/02/18 06:57:07 weasel Exp $
+# $Id: Fromlines.pm,v 1.3 2003/02/18 10:30:35 weasel Exp $
 #
 
 =pod
@@ -29,6 +29,7 @@ sub build_fromlines() {
 	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
 
 	for my $remailer (@remailers) {
+		next unless $remailer->{'showit'};
 		my $addr = $remailer->{'address'};
 		my $nick = Echolot::Globals::get()->{'storage'}->get_nick($addr);
 		next unless defined $nick;
