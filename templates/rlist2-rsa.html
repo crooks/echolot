@@ -6,8 +6,7 @@
 <h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
 
 <p>
-This is an automatically generated list of remailer reliability
-statistics.
+<a HREF="./">Up</a> <a href="rlist2-rsa.txt">Plaintext version</a>
 
 <p>
 Available Stats:
@@ -46,15 +45,19 @@ Available Stats:
 </tr>
 </table>
 
-<p>
-<a HREF="./">Up</a>
-
 <h2>Cypherpunk Remailers (v2, RSA only)</h2>
+
+<p>
+This is an automatically generated list of remailer reliability
+statistics.
+Please see the <a href="#legend">Legend</a> below for interpretative data.
 
 <p>
 <pre>
 <TMPL_VAR NAME="list">
 </pre>
+
+<TMPL_INCLUDE NAME="templates/v2legend.html">
 
 <hr>
 Created by <a href="http://savannah.gnu.org/projects/echolot/">Echolot</a>.<br>

@@ -1,0 +1,85 @@
+<H2><a name="legend">Legend</a></H2>
+<p>
+The stats table shows the 12-day performance history of each remailer.
+Pings (test messages) are sent to each remailer and response time is
+measured.
+
+<p>
+Latent-Hist shows the average default response time for each day:
+<blockquote>
+<table CELLPADDING=0 CELLSPACING=0>
+<tr><td>0</td><td>less than 20 minutes</td></tr>
+<tr><td>0</td><td>less than 20 minutes</td></tr>
+<tr><td>1</td><td>less than 1 hour</td></tr>
+<tr><td>...</td></tr>
+<tr><td>9</td><td>less than 9 hours</td></tr>
+
+<tr><td>A</td><td>less than 12 hours</td></tr>
+<tr><td>B</td><td>less than 18 hours</td></tr>
+<tr><td>C</td><td>less than 24 hours</td></tr>
+<tr><td>...</td></tr>
+<tr><td>G</td><td>less than 48 hours</td></tr>
+<tr><td>H</td><td>more than 48 hours</td></tr>
+
+<tr><td>?</td><td>No responses received / No data</td></tr>
+</table>
+</blockquote>
+
+<p>
+<strong>Latent</strong> shows the average default response time in HH:MM format.
+
+<p>
+<strong>Uptime-Hist</strong> shows the Uptime percentage (responses received divided by pings
+sent) for each day:
+<blockquote>
+<table CELLPADDING=0 CELLSPACING=0>
+<tr><td>+</td><td>100% (Responses were received for all pings sent)</td></tr>
+<tr><td>9</td><td>90-99.9% (About 9 responses were received for every 10 pings)</td></tr>
+<tr><td>...</td></tr>
+<tr><td>1</td><td>10-19.9%</td></tr>
+
+<tr><td>0</td><td>0-9.9%</td></tr>
+<tr><td>?</td><td>No pings sent / No data</td></tr>
+</table>
+</blockquote>
+
+<p>
+<strong>Uptime</strong> shows the average Uptime percentage for 12 days.
+
+<p>
+<strong>Options</strong> shows an abbreviated form of the strings listed in the
+Remailer-Capabilities section above:
+<blockquote>
+<table CELLPADDING=0 CELLSPACING=0>
+<tr><td>D</td><td>middle (Remailer is middleman and chains to other remailers)</td></tr>
+<tr><td>P</td><td>post (Supports news posting (Anon-Post-To or Post)</td></tr>
+
+<tr><td>M/R/2</td><td>mix/remix/remix2 (Supported Mixmaster features)</td></tr>
+<tr><td>H</td><td>hybrid (Supports CPunk directives in Mix messages)</td></tr>
+<tr><td>G/2</td><td>repgp/repgp2</td></tr>
+<tr><td>O</td><td>pgponly (Requires Cypherpunk messages to be PGP encrypted)</td></tr>
+<tr><td>X</td><td>ext (Supports extended directive features)</td></tr>
+<tr><td>A</td><td>max (Supports Max-Size, Max-Count, and Max-Date directives)</td></tr>
+
+<tr><td>T</td><td>test (Supports the Test-To directive)</td></tr>
+<tr><td>L</td><td>latent (Supports the Latent-Time directive)</td></tr>
+<tr><td>e/E</td><td>ek/ekx (Supports Encrypt-Key/-3DES,-CAST directives)</td></tr>
+<tr><td>U</td><td>esub (Supports the Encrypt-Subject directive)</td></tr>
+<tr><td>I</td><td>inflt (Supports the Inflate directive)</td></tr>
+<tr><td>N</td><td>rhop (Supports the Rand-Hop directive)</td></tr>
+
+<tr><td VALIGN=TOP>#</td><td>klen - The digit indicates the maximum message size:
+  <blockquote>
+  <table CELLPADDING=0 CELLSPACING=0>
+  <tr><td>9</td><td>Max is greater than 900K</td></tr>
+  <tr><td>8</td><td>Max is less than 900K</td></tr>
+  <tr><td>...</td></tr>
+  <tr><td>1</td><td>Max is less than 200K</td></tr>
+
+  <tr><td>0</td><td>Max is less than 100K</td></tr>
+  </table>
+  </blockquote>
+  </td></tr>
+</table>
+</blockquote>
+
