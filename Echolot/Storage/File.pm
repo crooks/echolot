@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.47 2003/02/14 04:53:57 weasel Exp $
+# $Id: File.pm,v 1.48 2003/02/14 06:01:29 weasel Exp $
 #
 
 =pod
@@ -74,6 +74,8 @@ sub new {
 		confess ('Reading Metadata from Storage failed. Exiting');
 	$self->pingdata_open() or
 		confess ('Opening Ping files failed. Exiting');
+	$self->chainpingdata_open() or
+		confess ('Opening Ping files failed. Exiting');
 	$self->enable_commit();
 	
 	return $self;
@@ -128,6 +130,7 @@ sub finish($) {
 	my ($self) = @_;
 
 	$self->pingdata_close();
+	$self->chainpingdata_close();
 	$self->metadata_write();
 	$self->metadata_close();
 };
@@ -396,7 +399,6 @@ sub get_ping_fh($$$$$) {
 		Echolot::Log::cluck("$remailer_addr does not exist in Metadata."),
 		return undef;
 	
-	my @pings;
 	my $fh = $self->{'PING_FHS'}->{$remailer_addr}->{$type}->{$key}->{$direction};
 
 	defined ($fh) or
@@ -426,8 +428,8 @@ sub pingdata_close_one($$$$;$) {
 			Echolot::Log::warn("Error when releasing lock on $remailer_addr type $type key $key direction $direction pings: $!."),
 			return undef;
 		close ($fh) or
-				Echolot::Log::warn("Error when closing $remailer_addr type $type key $key direction $direction pings: $!."),
-				return undef;
+			Echolot::Log::warn("Error when closing $remailer_addr type $type key $key direction $direction pings: $!."),
+			return undef;
 
 		if ((defined $delete) && ($delete eq 'delete')) {
 			my $basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'stats'};
@@ -517,7 +519,7 @@ Register a ping sent to I<$remailer_addr>, I<$type>, I<$key> and I$<sent_time>.
 Returns 1 on success, undef on errors.
 
 =cut
-sub register_pingout($$$$) {
+sub register_pingout($$$$$) {
 	my ($self, $remailer_addr, $type, $key, $sent_time) = @_;
 	
 	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
@@ -544,11 +546,11 @@ I$<sent_time> has returned with latency I<$latency>.
 Returns 1 on success, undef on errors.
 
 =cut
-sub register_pingdone($$$$$) {
+sub register_pingdone($$$$$$) {
 	my ($self, $remailer_addr, $type, $key, $sent_time, $latency) = @_;
 	
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}) or
-		Echolot::Log::cluck ("$remailer_addr does not exist in Metadata."),
+		Echolot::Log::warn ("$remailer_addr does not exist in Metadata."),
 		return undef;
 
 	my @outpings = $self->get_pings($remailer_addr, $type, $key, 'out');
@@ -563,13 +565,13 @@ sub register_pingdone($$$$$) {
 		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for done pings."),
 		return undef;
 	seek($fh, 0, SEEK_END) or
-		Echolot::Log::warn("Cannot seek to end of $remailer_addr out pings: $!."),
+		Echolot::Log::warn("Cannot seek to end of $remailer_addr done pings: $!."),
 		return undef;
 	print($fh $sent_time." ".$latency."\n") or
-		Echolot::Log::warn("Error when writing to $remailer_addr out pings: $!."),
+		Echolot::Log::warn("Error when writing to $remailer_addr done pings: $!."),
 		return undef;
 	$fh->flush();
-	
+
 	# rewrite outstanding pings
 	$fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
 		Echolot::Log::cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings."),
@@ -585,12 +587,188 @@ sub register_pingdone($$$$$) {
 		return undef;
 	$fh->flush();
 	Echolot::Log::info("registering pingdone from ".(scalar localtime $sent_time)." with latency $latency for $remailer_addr ($type; $key).");
-	
+
 	return 1;
 };
 
 
 
+
+
+
+=item $storage->B<chainpingdata_open_one>( I<$chaintype> )
+
+Open the pingdata file for I<$chaintype> type chain pings.
+
+Returns 1 on success, undef on errors.
+
+=cut
+sub chainpingdata_open_one($$) {
+	my ($self, $type) = @_;
+
+	my $filename = $self->{'datadir'} .'/chainpings.'.$type;
+
+	for my $direction ('out', 'done') {
+		my $fh = new IO::Handle;
+		if ( -e $filename.'.'.$direction ) {
+			open($fh, '+<' . $filename.'.'.$direction) or 
+				Echolot::Log::warn("Cannot open $filename.$direction for reading: $!."),
+				return undef;
+			$self->{'CHAINPING_FHS'}->{$type}->{$direction} = $fh;
+		} else {
+			open($fh, '+>' . $filename.'.'.$direction) or 
+				Echolot::Log::warn("Cannot open $filename.$direction for reading: $!."),
+				return undef;
+			$self->{'CHAINPING_FHS'}->{$type}->{$direction} = $fh;
+		};
+		flock($fh, LOCK_EX) or
+			Echolot::Log::warn("Cannot get exclusive lock on $filename.$direction pings: $!."),
+			return undef;
+	};
+
+	return 1;
+};
+
+=item $storage->B<chainpingdata_open>( )
+
+Open all chainpingdata files.
+
+Returns 1.
+
+=cut
+sub chainpingdata_open($) {
+	my ($self) = @_;
+
+	for my $type ( keys %{Echolot::Config::get()->{'do_chainpings'}} ) {
+		$self->chainpingdata_open_one($type);
+	};
+
+	return 1;
+};
+
+
+=item $storage->B<get_chainping_fh>( I<$type>, I<$direction> )
+
+Return the FH for the chainpingdata file of I<$type>, and I<$direction>.
+
+Returns undef on error;
+
+=cut
+sub get_chainping_fh($$$) {
+	my ($self, $type, $direction) = @_;
+
+	my $fh = $self->{'CHAINPING_FHS'}->{$type}->{$direction};
+
+	defined ($fh) or
+		$self->chainpingdata_open_one($type),
+		$fh = $self->{'CHAINPING_FHS'}->{$type}->{$direction};
+		defined ($fh) or
+			Echolot::Log::warn ("chainping $type has no assigned filehandle for $direction chainpings."),
+			return undef;
+
+	return $fh;
+};
+
+=item $storage->B<chainpingdata_close_one>( I<$type> )
+
+Close the chainpingdata file for I<$type>.
+
+Returns 1 on success, undef on errors.
+
+=cut
+sub chainpingdata_close_one($) {
+	my ($self, $type) = @_;
+
+	for my $direction ( keys %{$self->{'CHAINPING_FHS'}->{$type}} ) {
+		my $fh = $self->{'CHAINPING_FHS'}->{$type}->{$direction};
+
+		flock($fh, LOCK_UN) or
+			Echolot::Log::warn("Error when releasing lock on $type direction $direction chainpings: $!."),
+			return undef;
+		close ($fh) or
+			Echolot::Log::warn("Error when closing $type direction $direction chainpings: $!."),
+			return undef;
+	};
+
+	delete $self->{'CHAINPING_FHS'}->{$type};
+
+	return 1;
+};
+
+=item $storage->B<chainpingdata_close>( )
+
+Close all chainpingdata files.
+
+Returns 1 on success, undef on errors.
+
+=cut
+sub chainpingdata_close($) {
+	my ($self) = @_;
+
+	for my $type ( keys %{$self->{'CHAINPING_FHS'}} ) {
+		$self->chainpingdata_close_one($type) or
+			Echolot::Log::debug("Error when calling chainpingdata_close_one with type $type."),
+			return undef;
+	};
+	return 1;
+};
+
+
+
+=item $storage->B<register_chainpingout>( I<$chaintype>, I<$addr1>, I<$type1>, I<$key1>, I<$addr2>, I<$type2>, I<$key2>, I<$sent_time> >
+
+Register a chain ping of type I<$chaintype> sent through I<$addr1> (I<$type1>, I<$key1>)
+and I<$addr2> (I<$type2>, I<$key2>) at I$<sent_time>.
+
+Returns 1 on success, undef on errors.
+
+=cut
+sub register_chainpingout($$$$$$$$$) {
+	my ($self, $chaintype, $addr1, $type1, $key1, $addr2, $type2, $key2, $sent_time) = @_;
+	
+	my $fh = $self->get_chainping_fh($chaintype, 'out') or
+		Echolot::Log::cluck ("chaintype $chaintype/out has no assigned filehandle."),
+		return undef;
+
+	seek($fh, 0, SEEK_END) or
+		Echolot::Log::warn("Cannot seek to end of chaintype $chaintype out pings: $!."),
+		return undef;
+	print($fh join(' ', $sent_time, $addr1, $type1, $key1, $addr2, $type2, $key2)."\n") or
+		Echolot::Log::warn("Error when writing to chaintype $chaintype out pings: $!."),
+		return undef;
+	$fh->flush();
+	Echolot::Log::info("registering chainping $chaintype out through $addr1 ($type1; $key1) via $addr1 ($type2; $key2).");
+
+	return 1;
+};
+
+=item $storage->B<register_chainpingdone>( I<$chaintype>, I<$addr1>, I<$type1>, I<$key1>, I<$addr2>, I<$type2>, I<$key2>, I<$sent_time>, I<$latency> )
+
+Register that the chain ping of type I<$chaintype> sent through I<$addr1> (I<$type1>, I<$key1>)
+and I<$addr2> (I<$type2>, I<$key2>) at I$<sent_time>
+has returned with latency I<$latency>.
+
+Returns 1 on success, undef on errors.
+
+=cut
+sub register_chainpingdone($$$$$$$$$$) {
+	my ($self, $chaintype, $addr1, $type1, $key1, $addr2, $type2, $key2, $sent_time, $latency) = @_;
+	
+	# write ping to done
+	my $fh = $self->get_chainping_fh($chaintype, 'done') or
+		Echolot::Log::cluck ("chaintype $chaintype/done has no assigned filehandle."),
+		return undef;
+	seek($fh, 0, SEEK_END) or
+		Echolot::Log::warn("Cannot seek to end of $chaintype/done pings: $!."),
+		return undef;
+	print($fh join(' ', $sent_time, $latency, $addr1, $type1, $key1, $addr2, $type2, $key2)."\n") or
+		Echolot::Log::warn("Error when writing to $chaintype/done pings: $!."),
+		return undef;
+	$fh->flush();
+	Echolot::Log::info("registering pingdone from ".(scalar localtime $sent_time)." with latency $latency chainping $chaintype out through $addr1 ($type1; $key1) via $addr1 ($type2; $key2).");
+
+	return 1;
+};
 
 =item $storage->B<add_prospective_address>( I<$addr>, I<$reason>, I<$additional> )
 
