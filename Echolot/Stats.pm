@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.3 2002/06/13 15:29:29 weasel Exp $
+# $Id: Stats.pm,v 1.4 2002/06/18 17:22:28 weasel Exp $
 #
 
 =pod
@@ -56,7 +56,7 @@ sub makeMinHr($$) {
 		$m = $sec / 60 % 60;
 		$h = int ($sec / 60 / 60);
 	};
-	if ((! defined $h) || ($h > 99)) {
+	if ((! defined $sec) || ($sec < 0) || ($h > 99)) {
 		$h = 99;
 		$m = 59;
 		$s = 59;
@@ -72,7 +72,7 @@ sub makeMinHr($$) {
 	};
 };
 															  
-sub build_mlist1_latencystr($) {
+sub build_list1_latencystr($) {
 	my ($lat) = @_;
 
 	my $str = '?' x DAYS;
@@ -91,7 +91,7 @@ sub build_mlist1_latencystr($) {
 	return $str;
 }
 
-sub build_mlist2_latencystr($) {
+sub build_list2_latencystr($) {
 	my ($lat) = @_;
 
 	my $str = '?' x DAYS;
@@ -122,7 +122,7 @@ sub build_mlist2_latencystr($) {
 	return $str;
 }
 
-sub build_mlist2_reliabilitystr($) {
+sub build_list2_reliabilitystr($) {
 	my ($rel) = @_;
 
 	my $str = '?' x DAYS;
@@ -137,7 +137,7 @@ sub build_mlist2_reliabilitystr($) {
 	return $str;
 }
 
-sub build_mlist2_capsstr($) {
+sub build_list2_capsstr($) {
 	my ($caps) = @_;
 
 	my %caps;
@@ -193,19 +193,19 @@ sub build_mlist2_capsstr($) {
 
 
 sub calculate($$) {
-	my ($addr, $type) = @_;
+	my ($addr, $types) = @_;
 	my $now = time();
 
-	my @keys = Echolot::Globals::get()->{'storage'}->get_keys($addr, $type) or 
-		carp ("No keys asoziated with $addr, $type"),
-		return undef;
-	
 	my @out;
 	my @done;
 	
-	for my $key (@keys) {
-		push @out,  grep {$_      > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'out');
-		push @done, grep {$_->[0] > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'done');
+	for my $type (@$types) {
+		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, $type);
+		my @keys = Echolot::Globals::get()->{'storage'}->get_keys($addr, $type);
+		for my $key (@keys) {
+			push @out,  grep {$_      > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'out');
+			push @done, grep {$_->[0] > $now - DAYS * SECS_PER_DAY} Echolot::Globals::get()->{'storage'}->get_pings($addr, $type, $key, 'done');
+		};
 	};
 
 	my $latency = 0;
@@ -220,6 +220,7 @@ sub calculate($$) {
 		$received ++;             $received[int(($now - $done->[0]) / SECS_PER_DAY)] ++;
 	};
 	$latency /= (scalar @done) if (scalar @done);
+	$latency = undef unless (scalar @done);
 	for ( 0 .. DAYS - 1 ) {
 		$latency[$_] /= $received[$_] if ($received[$_]);
 	};
@@ -231,7 +232,10 @@ sub calculate($$) {
 	my $deviation = sqrt($variance);
 
 	if (scalar @out) {
-		my @p = $NORMAL->utp( map { ($now - $_ - $latency) / $deviation } @out );
+		my @p = 
+			($deviation != 0) ?
+				$NORMAL->utp( map { ($now - $_ - $latency) / $deviation } @out ) :
+				map { 0 } @out;
 		for (my $i=0; $i < scalar @out; $i++) {
 			$sent ++;            $sent    [int(($now - $out[$i]) / SECS_PER_DAY)] ++;
 			$received += $p[$i]; $received[int(($now - $out[$i]) / SECS_PER_DAY)] += $p[$i];
@@ -254,10 +258,10 @@ sub calculate($$) {
 
 
 
-sub build_mlist1($) {
-	my ($rems) = @_;
+sub build_mlist1($$) {
+	my ($rems, $filebasename) = @_;
 
-	my $filename = Echolot::Config::get()->{'resultdir'}.'/mlist.txt';
+	my $filename = Echolot::Config::get()->{'resultdir'}.'/'.$filebasename.'.txt';
 	open(F, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
@@ -268,17 +272,51 @@ sub build_mlist1($) {
 	for my $remailer (@$rems) {
 		printf F "%-14s %-12s %8s %6.2f%%\n",
 			$remailer->{'nick'},
-			build_mlist1_latencystr($remailer->{'stats'}->{'latency_day'}),
+			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
 			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 1),
 			$remailer->{'stats'}->{'avr_reliability'} * 100;
 	};
 	close (F);
 };
 
-sub build_mlist2($) {
-	my ($rems) = @_;
+sub build_rlist1($$) {
+	my ($rems, $filebasename) = @_;
 
-	my $filename = Echolot::Config::get()->{'resultdir'}.'/mlist2.txt';
+	my $filename = Echolot::Config::get()->{'resultdir'}.'/'.$filebasename.'.txt';
+	open(F, '>'.$filename) or
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
+	
+	
+	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
+		print F $remailer->{'caps'},"\n"
+	}
+
+	#printf F "Groups of remailers sharing a machine or operator:\n\n";
+	#printf F "Broken type-I remailer chains:\n\n";
+	#printf F "Broken type-II remailer chains:\n\n";
+
+	printf F "Last update: %s\n", makeDate();
+	printf F "remailer  email address                        history  latency  uptime\n";
+	printf F "-----------------------------------------------------------------------\n";
+
+	for my $remailer (@$rems) {
+		printf F "%-11s %-28s %-12s %8s %6.2f%%\n",
+			$remailer->{'nick'},
+			$remailer->{'address'},
+			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
+			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 1),
+			$remailer->{'stats'}->{'avr_reliability'} * 100;
+	};
+
+	close (F);
+};
+
+
+sub build_list2($$) {
+	my ($rems, $filebasename) = @_;
+
+	my $filename = Echolot::Config::get()->{'resultdir'}.'/'.$filebasename.'.txt';
 	open(F, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
@@ -290,12 +328,16 @@ sub build_mlist2($) {
 	for my $remailer (@$rems) {
 		printf F "%-12s %-12s %6s   %-12s  %5.1f%%  %s\n",
 			$remailer->{'nick'},
-			build_mlist2_latencystr($remailer->{'stats'}->{'latency_day'}),
+			build_list2_latencystr($remailer->{'stats'}->{'latency_day'}),
 			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 0),
-			build_mlist2_reliabilitystr($remailer->{'stats'}->{'reliability_day'}),
+			build_list2_reliabilitystr($remailer->{'stats'}->{'reliability_day'}),
 			$remailer->{'stats'}->{'avr_reliability'} * 100,
-			build_mlist2_capsstr($remailer->{'caps'});
+			build_list2_capsstr($remailer->{'caps'});
 	};
+
+	#printf F "Groups of remailers sharing a machine or operator:\n\n";
+	#printf F "Broken type-I remailer chains:\n\n";
+	#printf F "Broken type-II remailer chains:\n\n";
 
 	printf F "\n\n\nRemailer-Capabilities:\n\n";
 	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
@@ -306,28 +348,44 @@ sub build_mlist2($) {
 };
 
 
-sub build_mlists() {
+sub build_rems($) {
+	my ($types) = @_;
+
 	my %rems;
 	for my $addr (Echolot::Globals::get()->{'storage'}->get_remailers()) {
-		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, 'mix');
+		my $has_type = 0;
+		for my $type (@$types) {
+			$has_type = 1, last if (Echolot::Globals::get()->{'storage'}->has_type($addr, $type));
+		};
+		next unless $has_type;
 
 		my $rem = {
-			'stats' => calculate($addr,'mix'),
-			'nick'  => Echolot::Globals::get()->{'storage'}->get_nick($addr),
-			'caps'  => Echolot::Globals::get()->{'storage'}->get_capabilities($addr)
+			'stats'    => calculate($addr,$types),
+			'nick'     => Echolot::Globals::get()->{'storage'}->get_nick($addr),
+			'caps'     => Echolot::Globals::get()->{'storage'}->get_capabilities($addr),
+			'address'  => $addr
 			};
 
-		$rems{$addr} = $rem if (defined $rem->{'stats'} && defined $rem->{'nick'} && defined $rem->{'caps'} );
+		$rems{$addr} = $rem if (defined $rem->{'stats'} && defined $rem->{'nick'} && defined $rem->{'address'} && defined $rem->{'caps'} );
 	};
 
-	my @rems = map { $rems{$_} }
+	my @rems =
 		sort {
-			- $rems{$a}->{'stats'}->{'avr_latency'} <=> $rems{$b}->{'stats'}->{'avr_latency'} ||
-			$rems{$a}->{'nick'} cmp $rems{$b}->{'nick'}
-			} keys %rems;
+			- ($a->{'stats'}->{'avr_reliability'} <=> $b->{'stats'}->{'avr_reliability'})
+			} map { $rems{$_} } keys %rems;
+	
+	return \@rems;
+};
 
-	build_mlist1(\@rems);
-	build_mlist2(\@rems);
+sub build_lists() {
+
+	my $rems = build_rems(['mix']);
+	build_mlist1( $rems, 'mlist');
+	build_list2( $rems, 'mlist2');
+
+	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa']);
+	build_rlist1( $rems, 'rlist');
+	build_list2( $rems, 'rlist2');
 };
 
 
@@ -366,7 +424,7 @@ sub build_mixring() {
 };
 
 sub build() {
-	build_mlists();
+	build_lists();
 	build_mixring();
 };
 
