@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.37 2002/07/16 02:48:57 weasel Exp $
+# $Id: File.pm,v 1.38 2002/07/16 02:59:17 weasel Exp $
 #
 
 =pod
@@ -24,7 +24,8 @@ use IO::Handle;
 use English;
 use Carp qw{cluck confess carp};
 use Fcntl ':flock'; # import LOCK_* constants
-use Fcntl ':seek'; # import SEEK_* constants
+#use Fcntl ':seek'; # import SEEK_* constants
+use POSIX; # import SEEK_* constants (older perls don't have SEEK_ in Fcntl)
 use Echolot::Tools;
 
 =item B<new> (I<%args>)
