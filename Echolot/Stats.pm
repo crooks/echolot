@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.29 2002/08/14 23:56:14 weasel Exp $
+# $Id: Stats.pm,v 1.30 2002/08/15 00:06:53 weasel Exp $
 #
 
 =pod
@@ -615,7 +615,7 @@ sub build_mixring() {
 	close(T2L_PRIV);
 
 	for my $filename (@filenames) {
-		Echolot::Tools::writeMetaInformation($filename,
+		Echolot::Tools::write_meta_information($filename,
 			Expires => time + Echolot::Config::get()->{'buildkeys'}) or
 			cluck ("Error while writing meta information for $filename"),
 			return 0;
@@ -718,7 +718,7 @@ sub build_pgpring_export($$$$) {
 	print F $stdout;
 	close F;
 
-	Echolot::Tools::writeMetaInformation($file,
+	Echolot::Tools::write_meta_information($file,
 		Expires => time + Echolot::Config::get()->{'buildkeys'}) or
 		cluck ("Error while writing meta information for $file"),
 		return 0;
