@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.16 2002/07/02 17:03:42 weasel Exp $
+# $Id: File.pm,v 1.17 2002/07/02 17:36:20 weasel Exp $
 #
 
 =pod
@@ -509,6 +509,7 @@ sub get_addresses($) {
 		$tmp{'status'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'status'};
 		$tmp{'id'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'id'};
 		$tmp{'address'} = $_;
+		$tmp{'fetch'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'fetch'};
 		\%tmp;
 		} @addresses;
 	return @return_data;
