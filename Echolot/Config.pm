@@ -134,7 +134,7 @@ sub init($) {
 		addresses_default_ttl       => 5, # getkeyconf seconds (days)
 		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
 		prospective_addresses_ttl   => 5*24*60*60, # 5 days
-		reliable_auto_add_min       => 3, # 3 remailes need to list new address
+		reliable_auto_add_min       => 6, # 6 remailes need to list new address
 
 		expire_keys                 => 5*24*60*60, # 5 days
 		expire_confs                => 5*24*60*60, # 5 days

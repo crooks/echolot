@@ -4,6 +4,8 @@ Changes in version XXXXX - 2004
 	* Check if syswrite's return value is defined.
 	* Tell Mixmaster to create no dummies.  It has no remailer keys
 	  and reliability information anyway.
+	* Increase the number of remailers that need to list an address
+	  before it is added to 6.  It was 3 previously.
 
 Changes in version 2.1.4 - 2004-06-10
 	* Have new disable and enable commands which are shortcut

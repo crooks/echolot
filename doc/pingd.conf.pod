@@ -393,8 +393,8 @@ expired after this time.
 How many different remailers need to list an address in a remailer-conf
 reply to get it committed to the list of remailer addresses.
 
-	Default: 'reliable_auto_add_min' => 3,
-	Example: 'reliable_auto_add_min' => 5,
+	Default: 'reliable_auto_add_min' => 6,
+	Example: 'reliable_auto_add_min' => 3,
 
 =item B<expire_keys> [seconds]
 
