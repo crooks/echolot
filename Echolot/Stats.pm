@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.54 2003/02/28 18:06:01 weasel Exp $
+# $Id: Stats.pm,v 1.55 2003/02/28 18:12:21 weasel Exp $
 #
 
 =pod
@@ -521,7 +521,7 @@ sub compress_broken_chain($@) {
 	%unique = ();
 	@result = sort { $a cmp $b} grep { ! $unique{$_}++; } @result;
 
-	return @list;
+	return @result;
 };
 
 sub find_broken_chains($$$) {
