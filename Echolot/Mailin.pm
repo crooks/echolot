@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.7 2002/08/12 03:06:53 weasel Exp $
+# $Id: Mailin.pm,v 1.8 2002/08/12 03:17:17 weasel Exp $
 #
 
 =pod
@@ -109,7 +109,7 @@ sub read_mbox($) {
 	my $mail = [];
 	my $blank = 1;
 
-	open(FH, '<+', $file) or
+	open(FH, '+<', $file) or
 		cluck("cannot open '$file': $!\n"),
 		return undef;
 	flock(FH, LOCK_EX) or
