@@ -1,4 +1,4 @@
-$Id: TODO,v 1.45 2003/02/13 00:03:18 weasel Exp $
+$Id: TODO,v 1.46 2003/02/16 14:11:28 weasel Exp $
 
 Legend:
         - Not done
@@ -8,19 +8,20 @@ Legend:
         D Deferred
         X Abandoned
 
+  - help riot admin's export?
+
 can be done later:
+ - allow capsstring overrides/additions
+ - check gnupg version number on startup
  - have a way to always have certain keys in the keyring
    (manually add nym's keyrings)
    This is not necessary if we add real nymserv pinging
  - ping nymservers
- - check for mixmaster binary on startup
- - check gnupg version number on startup
- - detect broken chains
  - chain preload and postload
+ D rotate secret
  D parse bounces and mark pings as dead immediatly
- - rotate secret
  D separate keys in remailer-key reply if they share the same armor (cmeclex is
    the only one doing this. AARG)
  D query other stat pages for new remailers
- D get rid of dependency on mix
- D get rid of dependency on gnupg
+ X get rid of dependency on mix
+ X get rid of dependency on gnupg
