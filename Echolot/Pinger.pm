@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.14 2002/07/17 02:36:07 weasel Exp $
+# $Id: Pinger.pm,v 1.15 2002/07/17 16:14:23 weasel Exp $
 #
 
 =pod
@@ -22,13 +22,12 @@ use English;
 use Echolot::Pinger::Mix;
 use Echolot::Pinger::CPunk;
 
-my @primes = qw{13 1997 173 1051 59 6 97883 197 3 2 109 127 7};
 sub makeHash($) {
 	my ($text) = @_;
-	my $sum = 0;
-	for (my $i=0; $i < length($text); $i++) {
-		$sum += ord( substr($text, $i, 1) ) * $primes[ $i % (scalar @primes) ];
-	};
+
+	my $hash = Echolot::Tools::make_mac($text);
+	$hash = substr($hash, 0, 4);
+	my $sum = hex($hash);
 	return $sum;
 };
 

@@ -1,5 +1,9 @@
 Changes in version
 	* Do not send all pings for the same remailer at the same time
+	* The cheap hashing function that was used for determining when to ping
+	  was replaced by md5. The local secret also is an input to the
+	  function so not all echolot pingers ping the same remailer at the
+	  same time.
 
 Changes in version 2.0beta15 - 2002-07-16
 	* Have echolot version in stats HTML pages
