@@ -4,6 +4,7 @@ echolot (2.1.4-1) unstable; urgency=low
   * Update debian/copyright to include 2004.
   * Add dutch translation for debconf templates (closes: #249406).
   * Update Standards-Version to 3.6.1.
+  * debian/rules: there is no lib/ to copy any longer.
 
  -- Peter Palfrader <weasel@debian.org>  Thu, 10 Jun 2004 15:47:52 +0200
 
