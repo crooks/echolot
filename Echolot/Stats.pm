@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.60 2003/09/02 10:11:43 weasel Exp $
+# $Id: Stats.pm,v 1.61 2003/10/17 23:49:36 weasel Exp $
 #
 
 =pod
@@ -471,7 +471,7 @@ sub build_rems($) {
 			'caps'     => Echolot::Globals::get()->{'storage'}->get_capabilities($addr),
 			'address'  => $addr,
 			};
-		$rem->{'list-it'} = $remailer->{'showit'} && $rem->{'caps'} !~ m/\btesting\b/i;
+		$rem->{'list-it'} = $remailer->{'showit'} && defined $rem->{'caps'} && ($rem->{'caps'} !~ m/\btesting\b/i);
 		$rem->{'latency'} = $rem->{'stats'}->{'avr_latency'}; # for sorting purposes only
 		$rem->{'latency'} = 9999 unless defined $rem->{'latency'};
 
@@ -801,7 +801,8 @@ sub build_mixring() {
 			};
 		};
 
-		$key{'list-it'} = $remailer->{'list-it'};
+		my $caps = Echolot::Globals::get()->{'storage'}->get_capabilities($addr);
+		$key{'list-it'} = $remailer->{'showit'} && defined $caps && ($caps !~ m/\btesting\b/i);
 		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
 			$data->{$key{'summary'}} = \%key;
 			$data->{$key{'summary'}} = \%key;
@@ -889,7 +890,8 @@ sub build_pgpring_type($$$$) {
 			} elsif ($count_imported < 1) {
 				Echolot::Log::info("GnuPG status '$status' didn't indicate key for '$addr' was imported correctly. Ignoring.");
 			};
-			$keyids->{$final_keyid} = $remailer->{'list-it'};
+			my $caps = Echolot::Globals::get()->{'storage'}->get_capabilities($addr);
+			$keyids->{$final_keyid} = $remailer->{'showit'} && defined $caps && ($caps !~ m/\btesting\b/i);
 		};
 	};
 	
