@@ -3,9 +3,10 @@ for 2.0:
  only ping remailers if pingit is set
  only show remailers if showit is set
  make a private [rm]list showing all remailers
+ ping cpunk without pgponly in clear too
+ configure pinging options (i.e. cpunkt-{rsa,dsa,none}, mix)
 
 for later:
  rotate secret
- ping cpunk without pgponly in clear too
  get rid of dependency on mix
  get rid of dependency on gnupg
