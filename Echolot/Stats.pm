@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.28 2002/08/14 22:54:20 weasel Exp $
+# $Id: Stats.pm,v 1.29 2002/08/14 23:56:14 weasel Exp $
 #
 
 =pod
@@ -289,7 +289,7 @@ sub write_file($$$$) {
 		$output =~ s/</&lt;/g;
 		$output =~ s/>/&gt;/g;
 	};
-	Echolot::Tools::write_HTML_file($filebasename.'.html', $html_template, $expires, output => $output);
+	Echolot::Tools::write_HTML_file($filebasename.'.html', $html_template, $expires, list => $output);
 
 	return 1;
 };
