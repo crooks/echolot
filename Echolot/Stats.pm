@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.1 2002/06/11 15:34:53 weasel Exp $
+# $Id: Stats.pm,v 1.2 2002/06/11 15:56:23 weasel Exp $
 #
 
 =pod
@@ -269,8 +269,8 @@ sub build_mlist2($) {
 
 	my $filename = Echolot::Config::get()->{'resultdir'}.'/mlist2.txt';
 	open(F, '>'.$filename) or
-		#cluck("Cannot open $filename: $!\n"),
-		#return 0;
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
 	printf F "Stats-Version: 2.0\n";
 	printf F "Generated: %s\n", makeDate();
 	printf F "Mixmaster    Latent-Hist   Latent  Uptime-Hist   Uptime  Options\n";
@@ -311,8 +311,41 @@ sub build_mlists() {
 	build_mlist2(\@rems);
 };
 
+
+sub build_mixring() {
+	my $filename = Echolot::Config::get()->{'resultdir'}.'/pubring.mix';
+	open(F, '>'.$filename) or
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
+	$filename = Echolot::Config::get()->{'resultdir'}.'/type2.list';
+	open(T2L, '>'.$filename) or
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
+
+	for my $addr (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, 'mix');
+
+		my %key;
+		for my $keyid (Echolot::Globals::get()->{'storage'}->get_keys($addr, 'mix')) {
+			my %new_key = Echolot::Globals::get()->{'storage'}->get_key($addr, 'mix', $keyid);
+
+			if (!defined $key{'last_update'} || $key{'last_update'} < $new_key{'last_update'} ) {
+				%key = %new_key;
+			};
+		};
+
+		print F $key{'summary'},"\n\n";
+		print F $key{'key'},"\n\n";
+		print T2L $key{'summary'},"\n";
+	};
+
+	close(F);
+	close(T2L);
+};
+
 sub build() {
 	build_mlists();
+	build_mixring();
 };
 
 1;
