@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.25 2003/02/16 10:07:27 weasel Exp $
+# $Id: Pinger.pm,v 1.26 2003/02/17 14:44:15 weasel Exp $
 #
 
 =pod
@@ -22,8 +22,8 @@ use Echolot::Log;
 use Echolot::Pinger::Mix;
 use Echolot::Pinger::CPunk;
 
-sub do_mix_ping($$$$$) {
-	my ($address, $type, $keyid, $to, $body) = @_;
+sub do_mix_ping($$$$$$) {
+	my ($address, $type, $keyid, $to, $with_from, $body) = @_;
 
 	($type eq 'mix') or
 		Echolot::Log::warn("types should really be mix ($type)."),
@@ -33,6 +33,7 @@ sub do_mix_ping($$$$$) {
 	Echolot::Pinger::Mix::ping(
 		$body,
 		$to,
+		$with_from,
 		[ $key{'nick'} ],
 		{ $keyid => \%key } ) or
 		return 0;
@@ -40,8 +41,8 @@ sub do_mix_ping($$$$$) {
 	return 1;
 };
 
-sub do_cpunk_ping($$$$$) {
-	my ($address, $type, $keyid, $to, $body) = @_;
+sub do_cpunk_ping($$$$$$) {
+	my ($address, $type, $keyid, $to, $with_from, $body) = @_;
 
 	my $keyhash = {};
 	if ($type ne 'cpunk-clear') {
@@ -51,6 +52,7 @@ sub do_cpunk_ping($$$$$) {
 	Echolot::Pinger::CPunk::ping(
 		$body,
 		$to,
+		$with_from,
 		[ { address    => $address,
 		    keyid      => $keyid,
 		    encrypt    => ($type ne 'cpunk-clear'),
@@ -61,15 +63,16 @@ sub do_cpunk_ping($$$$$) {
 	return 1;
 };
 
-sub do_ping($$$) {
-	my ($type, $address, $key) = @_;
+sub do_ping($$$$) {
+	my ($type, $address, $key, $with_from) = @_;
 	
 	my $now = time();
-	my $token = join(':', $address, $type, $key, $now);
+	my $token = join(':', $address, $type, $key, $with_from, $now);
 	my $mac = Echolot::Tools::make_mac($token);
 	my $body = "remailer: $address\n".
 		"type: $type\n".
 		"key: $key\n".
+		"with_from: $with_from\n".
 		"sent: $now\n".
 		"mac: $mac\n".
 		Echolot::Tools::make_garbage();
@@ -77,9 +80,9 @@ sub do_ping($$$) {
 		
 	my $to = Echolot::Tools::make_address('ping');
 	if ($type eq 'mix') {
-		do_mix_ping($address, $type, $key, $to, $body);
+		do_mix_ping($address, $type, $key, $to, $with_from, $body);
 	} elsif ($type eq 'cpunk-rsa' || $type eq 'cpunk-dsa' || $type eq 'cpunk-clear') {
-		do_cpunk_ping($address, $type, $key, $to, $body);
+		do_cpunk_ping($address, $type, $key, $to, $with_from, $body);
 	} else {
 		Echolot::Log::warn("Don't know how to handle ping type $type.");
 		return 0;
@@ -119,8 +122,9 @@ sub send_pings($;$) {
 					$which eq 'all' ||
 					(($which eq '') && ($this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type.$key.$session_id) % $send_every_n_calls))));
 
-				Echolot::Log::debug("ping calling $type, $address, $key.");
-				do_ping($type, $address, $key);
+				my $with_from = (int($timemod / $send_every_n_calls)) % 2;
+				Echolot::Log::debug("ping calling $type, $address, $key, $with_from.");
+				do_ping($type, $address, $key, $with_from);
 			}
 		};
 	};
@@ -128,12 +132,13 @@ sub send_pings($;$) {
 };
 
 
-sub receive($$$) {
-	my ($msg, $token, $timestamp) = @_;
+sub receive($$$$) {
+	my ($header, $msg, $token, $timestamp) = @_;
 
 	my $now = time();
 
 	my $body;
+	# < 2.0beta34 didn't encrypt pings.
 	if ($msg =~ /^-----BEGIN PGP MESSAGE-----/m) {
 		# work around borken middleman remailers that have a problem with some
 		# sort of end of line characters and randhopping them through reliable
@@ -148,23 +153,33 @@ sub receive($$$) {
 	my ($type) = $body =~ /^type: (.*)$/m;
 	my ($key) = $body =~ /^key: (.*)$/m;
 	my ($sent) = $body =~ /^sent: (.*)$/m;
+	my ($with_from) = $body =~ /^with_from: (.*)$/m;
 	my ($mac) = $body =~ /^mac: (.*)$/m;
 
-	my @values = ($addr, $type, $key, $sent, $mac);
+	my @values = ($addr, $type, $key, defined $with_from ? $with_from : 'undef', $sent, $mac); # undef was added after 2.0.10
 	my $cleanstring = join ":", map { defined() ? $_ : "undef" } @values;
+	my @values_obsolete = ($addr, $type, $key, $sent, $mac); # <= 2.0.10
 
-	(grep { ! defined() } @values) and
+	(grep { ! defined() } @values_obsolete) and
 		Echolot::Log::warn("Received ping at $timestamp has undefined values: $cleanstring."),
 		return 0;
 
 	pop @values;
+	pop @values_obsolete;
 	Echolot::Tools::verify_mac(join(':', @values), $mac) or
-		Echolot::Log::warn("Received ping at $timestamp has wrong mac; $cleanstring."),
-		return 0;
+		Echolot::Tools::verify_mac(join(':', @values_obsolete), $mac) or # old style without with_from
+			Echolot::Log::warn("Received ping at $timestamp has wrong mac; $cleanstring."),
+			return 0;
 
 	Echolot::Globals::get()->{'storage'}->register_pingdone($addr, $type, $key, $sent, $now - $sent) or
 		return 0;
-	
+
+	if (defined $with_from) { # <= 2.0.10 didn't have with_from
+		my ($from) = $header =~ /From: (.*)/i;
+		$from = 'undefined' unless defined $from;
+		Echolot::Globals::get()->{'storage'}->register_fromline($addr, $type, $with_from, $from);
+	};
+
 	return 1;
 };
 

@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.14 2003/02/15 23:35:16 weasel Exp $
+# $Id: CPunk.pm,v 1.15 2003/02/17 14:44:15 weasel Exp $
 #
 
 =pod
@@ -175,15 +175,23 @@ sub encrypt_to($$$$) {
 	return $result;
 };
 
-sub ping($$$$) {
-	my ($body, $to, $chain, $keys) = @_;
+sub ping($$$$$) {
+	my ($body, $to, $with_from, $chain, $keys) = @_;
 
 	my $msg = $body;
 
 	for my $hop (reverse @$chain) {
+		my $header = '';
+		if ($with_from) {
+			my $address = Echolot::Config::get()->{'my_localpart'} . '@' .
+			              Echolot::Config::get()->{'my_domain'};
+			$header = "##\nFrom: Echolot Pinger <$address>\n\n";
+			$with_from = 0;
+		};
 		$msg = "::\n".
 			"Anon-To: $to\n".
 			"\n".
+			$header.
 			$msg;
 
 		if ($hop->{'encrypt'}) {

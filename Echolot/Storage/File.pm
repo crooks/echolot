@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.51 2003/02/16 09:09:57 weasel Exp $
+# $Id: File.pm,v 1.52 2003/02/17 14:44:15 weasel Exp $
 #
 
 =pod
@@ -1545,12 +1545,13 @@ sub expire($) {
 	my $expire_conf = $now - Echolot::Config::get()->{'expire_confs'};
 	my $expire_pings = $now - Echolot::Config::get()->{'expire_pings'};
 	my $expire_chainpings = $now - Echolot::Config::get()->{'expire_chainpings'};
+	my $expire_fromlines = $now - Echolot::Config::get()->{'expire_fromlines'};
 
+	# Remailer Information and pings
 	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
 				if ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'last_update'} < $expire_keys) {
-					# FIXME logging and such
 					Echolot::Log::info("Expiring $remailer_addr, key, $type, $key.");
 					$self->pingdata_close_one($remailer_addr, $type, $key, 'delete');
 					delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key};
@@ -1614,6 +1615,7 @@ sub expire($) {
 		};
 	};
 
+	# Chainpings
 	for my $type ( keys %{$self->{'CHAINPING_FHS'}} ) {
 		my $pings = $self->get_chainpings($type);
 
@@ -1647,6 +1649,20 @@ sub expire($) {
 				return undef;
 			$fh->flush();
 		};
+	};
+
+	# From Header lines
+	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'fromlines'}} ) {
+		for my $type ( keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}} ) {
+			for my $user_supplied ( keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}} ) {
+				delete $self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}->{$user_supplied}
+					if ($self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}->{$user_supplied}->{'last_update'} < $expire_fromlines);
+			};
+			delete $self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}
+				unless (scalar keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}});
+		};
+		delete $self->{'METADATA'}->{'fromlines'}->{$remailer_addr}
+			unless (scalar keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}});
 	};
 
 	$self->commit();
@@ -1687,6 +1703,9 @@ sub delete_remailer($$) {
 		delete $self->{'METADATA'}->{'remailers'}->{$address}
 	};
 
+	delete $self->{'METADATA'}->{'fromlines'}->{$address}
+		if (defined $self->{'METADATA'}->{'fromlines'}->{$address});
+
 	$self->commit();
 	
 	return 1;
@@ -1716,6 +1735,73 @@ sub delete_remailercaps($$) {
 };
 
 
+=item $storage->B<register_fromline>( I<$address>, I<$with_from>, I<$from> )
+
+Register that the remailer I<$address> returned the From header
+line I<$from>.  If I<$with_from> is 1 we had tried to supply our own
+From, otherwhise not.
+
+Returns 1, undef on error.
+
+=cut
+
+sub register_fromline($$$$) {
+	my ($self, $address, $type, $with_from, $from) = @_;
+
+	defined ($self->{'METADATA'}->{'addresses'}->{$address}) or
+		Echolot::Log::cluck ("$address does not exist in Metadata address list."),
+		return undef;
+	defined ($from) or
+		Echolot::Log::cluck ("from is not defined in register_fromline."),
+		return undef;
+	defined ($with_from) or
+		Echolot::Log::cluck ("from is not defined in register_fromline."),
+		return undef;
+	($with_from == 0 || $with_from == 1) or
+		Echolot::Log::cluck ("with_from has evil value $with_from in register_fromline."),
+		return undef;
+
+	Echolot::Log::debug("registering fromline $address, $type, $with_from, $from.");
+
+	$self->{'METADATA'}->{'fromlines'}->{$address}->{$type}->{$with_from} = {
+		last_update => time(),
+		from => $from
+	};
+	$self->commit();
+
+	return 1;
+};
+
+
+=item $storage->B<get_fromlines>()
+
+Return a hash reference with header From line information.
+
+The key is the remailer address. This points to a hash of types (mix,
+cpunk-rsa, ..) which point to another hash with keys B<0> (no user supplied
+From header tried) and B<1> (a user supplied From header was given). These
+point to yet another hash with keys B<last_update> and B<from>.
+
+=cut
+
+sub get_fromlines($) {
+	my ($self) = @_;
+
+	my $result;
+	# rebuilding it so that external things cannot screw up our structure
+	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'fromlines'}} ) {
+		for my $type ( keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}} ) {
+			for my $user_supplied ( keys %{$self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}} ) {
+				$result->{$remailer_addr}->{$user_supplied} = {
+					last_update => $self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}->{$user_supplied}->{'last_update'},
+					from        => $self->{'METADATA'}->{'fromlines'}->{$remailer_addr}->{$type}->{$user_supplied}->{'from'}
+				};
+			};
+		};
+	};
+
+	return $result;
+}
 
 
 # sub convert($) {

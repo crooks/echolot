@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.7 2003/02/17 07:22:49 weasel Exp $
+# $Id: Chain.pm,v 1.8 2003/02/17 14:44:15 weasel Exp $
 #
 
 =pod
@@ -36,6 +36,7 @@ sub do_mix_chainping($$$$$$$$) {
 	Echolot::Pinger::Mix::ping(
 		$body,
 		$to,
+		0,
 		[ $key1{'nick'}    , $key2{'nick'}     ],
 		{ $keyid1 => \%key1, $keyid2 => \%key2 } ) or
 		return 0;
@@ -58,6 +59,7 @@ sub do_cpunk_chainping($$$$$$$$) {
 	Echolot::Pinger::CPunk::ping(
 		$body,
 		$to,
+		0,
 		[ { address    => $addr1,
 		    keyid      => $keyid1,
 		    encrypt    => ($type1 ne 'cpunk-clear'),
@@ -202,8 +204,8 @@ sub set_intensive_care($@) {
 	};
 };
 
-sub receive($$$) {
-	my ($msg, $token, $timestamp) = @_;
+sub receive($$$$) {
+	my ($header, $msg, $token, $timestamp) = @_;
 
 	my $now = time();
 

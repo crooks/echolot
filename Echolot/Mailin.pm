@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.14 2003/02/16 03:06:51 weasel Exp $
+# $Id: Mailin.pm,v 1.15 2003/02/17 14:44:15 weasel Exp $
 #
 
 =pod
@@ -50,11 +50,13 @@ sub handle($) {
 
 	my $i=0;
 	my $body = '';
+	my $header = '';
 	my $to;
 	for ( ; $i < scalar @$lines; $i++) {
 		my $line = $lines->[$i];
 		chomp($line);
 		last if $line eq '';
+		$header .= $line."\n";
 
 		if ($line =~ m/^To:\s*(.*?)\s*$/) {
 			$to = $1;
@@ -81,8 +83,8 @@ sub handle($) {
 	Echolot::Conf::remailer_stats($body, $type, $timestamp), return 1 if ($type =~ /^stats\./);
 	Echolot::Conf::remailer_adminkey($body, $type, $timestamp), return 1 if ($type =~ /^adminkey\./);
 
-	Echolot::Pinger::receive($body, $type, $timestamp), return 1 if ($type eq 'ping');
-	Echolot::Chain::receive($body, $type, $timestamp), return 1 if ($type eq 'chainping');
+	Echolot::Pinger::receive($header, $body, $type, $timestamp), return 1 if ($type eq 'ping');
+	Echolot::Chain::receive($header, $body, $type, $timestamp), return 1 if ($type eq 'chainping');
 
 	Echolot::Log::warn("Didn't know what to do with '$to'."),
 	return 0;

@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.12 2003/01/14 06:40:24 weasel Exp $
+# $Id: Mix.pm,v 1.13 2003/02/17 14:44:15 weasel Exp $
 #
 
 =pod
@@ -20,8 +20,8 @@ use strict;
 use English;
 use Echolot::Log;
 
-sub ping($$$$) {
-	my ($body, $to, $chain, $keys) = @_;
+sub ping($$$$$) {
+	my ($body, $to, $with_from, $chain, $keys) = @_;
 
 	my $chaincomma = join (',', @$chain);
 
@@ -70,6 +70,8 @@ sub ping($$$$) {
 	open(MIX, "|".Echolot::Config::get()->{'mixmaster'}." -m -S -l $chaincomma 2>/dev/null") or
 		Echolot::Log::warn("Cannot exec mixpinger: $!."),
 		return 0;
+	print MIX "From: Echolot Pinger <$address>\n"
+		if $with_from;
 	print MIX "To: $to\n\n$body\n";
 	close (MIX);
 	    
