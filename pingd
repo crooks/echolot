@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.100 2003/02/20 19:39:03 weasel Exp $
+# $Id: pingd,v 1.101 2003/02/21 06:37:52 weasel Exp $
 #
 
 =pod
@@ -36,6 +36,8 @@ pingd - echolot ping daemon
 
 =item B<pingd> B<sendpings> [I<address> [I<address> ...]]
 
+=item B<pingd> B<sendchainpings> I<address>B<:>I<address> [I<address>B<:>I<address> ...]
+
 =item B<pingd> B<buildstats>
 
 =item B<pingd> B<buildkeys>
@@ -43,6 +45,8 @@ pingd - echolot ping daemon
 =item B<pingd> B<buildthesaurus>
 
 =item B<pingd> B<buildfromlines>
+
+=item B<pingd> B<summary>
 
 =item B<pingd> B<dumpconf>
 
@@ -140,6 +144,11 @@ If no addresses are given requests will be sent to all remailers.
 Send a command to immediatly send pings to the given remailers.
 If no addresses are given requests will be sent to all remailers.
 
+=item B<sendchainpings> I<address>B<:>I<address> [I<address>B<:>I<address> ...]
+
+Send a command to immediatly send chain pings to the given chains.
+A chain is two remailer addresses seperated by a colon.
+
 =item B<buildstats>
 
 Send a command to immediatly rebuild stats.
@@ -194,8 +203,9 @@ Print version number and exit sucessfully.
 =item B<--nohup>
 
 Usefull only with the B<add>, B<set>, B<setremailercaps>,
-B<deleteremailercaps>, B<getkeyconf>, B<sendpings>, B<buildstats>,
-B<buildkeys>, B<buildthesaurus>, B<buildfromlines> or B<summary> command.
+B<deleteremailercaps>, B<getkeyconf>, B<sendpings>, B<sendchainpings>,
+B<buildstats>, B<buildkeys>, B<buildthesaurus>, B<buildfromlines>,
+or B<summary> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
@@ -456,6 +466,23 @@ sub command_sendpings(@) {
 	};
 };
 
+sub command_sendchainpings(@) {
+	my @argv = @_;
+
+	my @args;
+	for my $arg (@argv) {
+		my ($addr1, $addr2) = split /:/, $arg;
+		die ("Argument $arg is not in the form address1:address2") unless defined $addr1 && defined $addr2;
+		die ("Address 1 in $arg ('$addr1') is not a valid email address\n") unless ($addr1 =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
+		die ("Address 2 in $arg ('$addr2') is not a valid email address\n") unless ($addr2 =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
+		push @args, [ $addr1, $addr2 ];
+	};
+
+	for my $arg (@args) {
+		Echolot::Commands::addCommand("sendchainpings $arg->[0] $arg->[1]");
+	};
+};
+
 
 sub pid_exists($) {
 	my ($remove_stale) = @_;
@@ -651,6 +678,7 @@ if ($params->{'help'}) {
 	print ("  deleteremailercaps ... delete remailer capabilities manually\n");
 	print ("  getkeyconf         ... request remailer-xxx data immediatly\n");
 	print ("  sendpings          ... request immediate sending of pings\n");
+	print ("  sendchainpings     ... request immediate sending of chainpings\n");
 	print ("  buildstats         ... build remailer stats immediatly\n");
 	print ("  buildkeys          ... buid keyrings immediatly\n");
 	print ("  buildthesaurus     ... build thesaurus immediatly\n");
@@ -693,6 +721,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'sendpings') {
 	command_sendpings(@ARGV);
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'sendchainpings') {
+	command_sendchainpings(@ARGV);
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'buildstats') {
 	Echolot::Commands::addCommand("buildstats");
