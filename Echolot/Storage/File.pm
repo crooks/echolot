@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.1 2002/06/05 04:05:40 weasel Exp $
+# $Id: File.pm,v 1.2 2002/06/10 05:13:37 weasel Exp $
 #
 
 =pod
@@ -176,10 +176,17 @@ sub metadata_read($) {
 sub metadata_write($) {
 	my ($self) = @_;
 
+	# FIXME XML::Dumper bug workaround
+	# There is a bug in pl2xml that changes data passed (cf. Debian Bug #148969 and #148970
+	# at http://bugs.debian.org/148969 and http://bugs.debian.org/148970
+	require Data::Dumper;
+	my $storedata;
+	eval ( Data::Dumper->Dump( [ $self->{'METADATA'} ], [ 'storedata' ] ));
+
 	my $dump = new XML::Dumper;
-	my $data = $dump->pl2xml($self->{'METADATA'});
+	my $data = $dump->pl2xml($storedata);
 	my $fh = $self->{'METADATA_FH'};
-	
+
 	seek($fh, 0, SEEK_SET) or
 		cluck("Cannot seek to start of metadata file: $!"),
 		return 0;
@@ -192,6 +199,7 @@ sub metadata_write($) {
 	print($fh $data) or
 		cluck("Error when writing to metadata file: $!"),
 		return 0;
+
 
 	return 1;
 };
@@ -369,7 +377,7 @@ sub get_addresses($) {
 sub get_address_by_id($$) {
 	my ($self, $id) = @_;
 
-	my @addresses = grep {$self->{'METADATA'}->{'addresses'}->{$_}->{'id'} = $id}
+	my @addresses = grep {$self->{'METADATA'}->{'addresses'}->{$_}->{'id'} == $id}
 		keys %{$self->{'METADATA'}->{'addresses'}};
 	return undef unless (scalar @addresses);
 	if (scalar @addresses >= 2) {
@@ -387,8 +395,10 @@ sub decrease_ttl($$) {
 		cluck ("$address does not exist in Metadata address list"),
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} --;
-	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'disabled'
+	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'disabled',
+		warn("Remailer $address disablesd: ttl expired\n")
 		if ($self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} <= 0);
+		# FIXME have proper logging
 	$self->commit();
 	return 1;
 };
@@ -438,6 +448,53 @@ sub set_caps($$$$$$) {
 		if ($conf->{'type'} ne $type) {
 			warn ("$nick has a new type string '$type'\n");
 			$conf->{'type'} = $type;
+		};
+	};
+	$self->commit();
+	
+	return 1;
+};
+
+sub set_key($$$$$$$$$) {
+	my ($self, $type, $nick, $address, $key, $keyid, $version, $caps, $summary, $timestamp) = @_;
+	
+	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
+		$self->{'METADATA'}->{'remailers'}->{$address} =
+			{
+				status => 'active',
+				pingit => Echolot::Config::get()->{'ping_new'},
+				showit => Echolot::Config::get()->{'show_new'},
+			};
+	};
+
+	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}) {
+		$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'} = {};
+	};
+	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}) {
+		$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type} = {};
+	};
+
+	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}->{$keyid}) {
+		$self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}->{$keyid} =
+			{
+				key => $key,
+				summary => $summary,
+				last_update => $timestamp
+			};
+	} else {
+		my $keyref = $self->{'METADATA'}->{'remailers'}->{$address}->{'keys'}->{$type}->{$keyid};
+		if ($keyref->{'last_update'} >= $timestamp) {
+			warn ("Stored data is already newer for remailer $nick\n");
+			return 1;
+		};
+		$keyref->{'last_update'} = $timestamp;
+		if ($keyref->{'summary'} ne $summary) {
+			warn ("$nick has a new key summary string '$summary' old: '".$keyref->{'summary'}."'\n");
+			$keyref->{'summary'} = $summary;
+		};
+		if ($keyref->{'key'} ne $key) {
+			warn ("$nick has a new key string '$key' old: '".$keyref->{'key'}."' - This probably should not happen\n");
+			$keyref->{'key'} = $key;
 		};
 	};
 	$self->commit();
