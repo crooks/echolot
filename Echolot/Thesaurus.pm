@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.3 2002/07/06 20:15:12 weasel Exp $
+# $Id: Thesaurus.pm,v 1.4 2002/07/07 00:42:46 weasel Exp $
 #
 
 =pod
@@ -33,6 +33,9 @@ sub build_thesaurus() {
 	my @files = grep { ! /^\./ } readdir(DIR);
 	closedir(DIR);
 
+
+	my $exire_date = time() - Echolot::Config::get()->{'expire_thesaurus'};
+
 	my $data;
 	for my $filename (@files) {
 	    my ($id, $what) = $filename =~ /^(\d+)-(adminkey|conf|help|key|stats)$/;
@@ -44,6 +47,14 @@ sub build_thesaurus() {
 		my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
 			$atime,$mtime,$ctime,$blksize,$blocks)
 			= stat($dir.'/'.$filename);
+
+		if ($mtime < $expire_date) {
+			unlink ($filename) or
+				cluck("Cannot unlink expired $filename");
+			print ("Expired thesaurus file $filename\n") if
+				Echolot::Config::get()->{'verbose'};
+			next;
+		};
 
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday)
 			= gmtime($mtime);
@@ -109,6 +120,7 @@ sub build_thesaurus() {
 	print F '</table></body>';
 	close (F);
 };
+
 
 1;
 # vim: set ts=4 shiftwidth=4:

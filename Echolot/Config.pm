@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.15 2002/07/06 21:35:04 weasel Exp $
+# $Id: Config.pm,v 1.16 2002/07/07 00:42:46 weasel Exp $
 #
 
 =pod
@@ -94,6 +94,7 @@ sub init($) {
 		expire_keys                 => 5*24*60*60, # 5 days
 		expire_confs                => 5*24*60*60, # 5 days
 		expire_pings                => 12*24*60*60, # 12 days
+		expire_thesaurus            => 21*24*60*60, # 21 days
 		storage                     => {
 			backend                 	=> 'File',
 			File                    	=> {
