@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+find -name .cvsignore -print0 | xargs -0 rm
+pod2man pingd > pingd.1
+version=`grep 'VERSION =' pingd | sed -e "s/.* '//" -e "s/'.*//"`
+dirname=`basename \`pwd\``
+
+if [ "$dirname" != "echolot-$version" ] ; then
+	echo "WARN: Version $version might be wrong"
+	echo "Enter to continue"
+	read
+fi
+
+cd ..
+tar czf $dirname.tar.gz $dirname
+gpg --detach-sign $dirname.tar.gz
