@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.41 2002/09/21 03:24:41 weasel Exp $
+# $Id: Config.pm,v 1.42 2002/10/25 10:46:52 weasel Exp $
 #
 
 =pod
@@ -225,7 +225,7 @@ sub init($) {
 	}
 
 	for my $key (keys %$DEFAULT) {
-		$CONFIG->{$key} = $DEFAULT->{$key} unless defined $CONFIG->{$key};
+		$CONFIG->{$key} = $DEFAULT->{$key} unless exists $CONFIG->{$key};
 	};
 	$CONFIG->{'homedir'} = $params->{'basedir'} unless (defined $CONFIG->{'homedir'});
 	$CONFIG->{'verbose'} = $params->{'verbose'} if ($params->{'verbose'});
