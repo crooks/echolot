@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.9 2002/06/18 17:18:20 weasel Exp $
+# $Id: File.pm,v 1.10 2002/06/20 04:25:10 weasel Exp $
 #
 
 =pod
@@ -128,8 +128,8 @@ sub metadata_open($) {
 			cluck("Cannot open $filename for reading: $!"),
 			return 0;
 	};
-	flock($self->{'METADATA_FH'}, LOCK_SH) or
-		cluck("Cannot get shared lock on $filename: $!"),
+	flock($self->{'METADATA_FH'}, LOCK_EX) or
+		cluck("Cannot get exclusive lock on $filename: $!"),
 		return 0;
 };
 
@@ -420,13 +420,98 @@ sub add_prospective_address($$$$) {
 	$self->commit();
 };
 
+sub commit_prospective_address($) {
+	my ($self) = @_;
+	
+	for my $addr (keys %{$self->{'METADATA'}->{'prospective_addresses'}}) {
+		if (defined $self->{'METADATA'}->{'addresses'}->{$addr}) {
+			delete $self->{'METADATA'}->{'prospective_addresses'}->{$addr};
+			next;
+		};
+
+		# expire old prospective addresses
+		while (@{ $self->{'METADATA'}->{'prospective_addresses'}->{$addr} }) {
+			my ($time, $reason, $additional) = split(/;\s*/, $self->{'METADATA'}->{'prospective_addresses'}->{$addr}->[0] );
+			if ($time < time() - Echolot::Config::get()->{'prospective_addresses_ttl'} ) {
+				shift @{ $self->{'METADATA'}->{'prospective_addresses'}->{$addr} };
+			} else {
+				last;
+			};
+		};
+
+		unless (scalar @{ $self->{'METADATA'}->{'prospective_addresses'}->{$addr} }) {
+			delete $self->{'METADATA'}->{'prospective_addresses'}->{$addr};
+			next;
+		};
+		
+		my %reasons;
+		for my $line ( @{ $self->{'METADATA'}->{'prospective_addresses'}->{$addr} } ) {
+			my ($time, $reason, $additional) = split(/;\s*/, $line);
+			push @{ $reasons{$reason} }, $additional;
+		};
+
+		# got prospective by reply to own remailer-conf or remailer-key request
+		if ( defined $reasons{'self-capsstring-conf'} || defined $reasons{'self-capsstring-key'} ) {
+			$self->add_address($addr);
+			delete $self->{'METADATA'}->{'prospective_addresses'}->{$addr};
+			next;
+		}
+
+		# was listed in reliable's remailer-conf reply; @adds holds suggestors
+		my @adds;
+		push @adds, @{ $reasons{'reliable-caps-reply-type1'} } if defined $reasons{'reliable-caps-reply-type1'};
+		push @adds, @{ $reasons{'reliable-caps-reply-type2'} } if defined $reasons{'reliable-caps-reply-type2'};
+		if (scalar @adds) {
+			my %unique;
+			@adds = grep { ! $unique{$_}++; } @adds;
+			if (scalar @adds >= Echolot::Config::get()->{'reliable_auto_add_min'} ) {
+				$self->add_address($addr);
+				delete $self->{'METADATA'}->{'prospective_addresses'}->{$addr};
+				next;
+			};
+		};
+	};
+	
+	$self->commit();
+};
+
 sub get_addresses($) {
 	my ($self) = @_;
 
 	my @addresses = keys %{$self->{'METADATA'}->{'addresses'}};
-	my @return_data = map { my %tmp = %{$self->{'METADATA'}->{'addresses'}->{$_}}; $tmp{'address'} = $_; \%tmp; } @addresses;
+	my @return_data = map {
+		my %tmp;
+		$tmp{'status'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'status'};
+		$tmp{'id'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'id'};
+		$tmp{'address'} = $_;
+		\%tmp;
+		} @addresses;
 	return @return_data;
 };
+
+sub add_address($$) {
+	my ($self, $addr) = @_;
+	
+	my @all_addresses = $self->get_addresses();
+	my $maxid = 0;
+	for my $addr (@all_addresses) {
+		if ($addr->{'id'} > $maxid) {
+			$maxid = $addr->{'id'};
+		};
+	};
+	
+	my $remailer = {
+		id => $maxid + 1,
+		status => 'active',
+		ttl => Echolot::Config::get()->{'addresses_default_ttl'}
+	};
+	
+	# FIXME logging and such
+	print "Adding address $addr\n";
+
+	$self->{'METADATA'}->{'addresses'}->{$addr} = $remailer;
+};
+
 
 sub get_address_by_id($$) {
 	my ($self, $id) = @_;
@@ -449,7 +534,7 @@ sub decrease_ttl($$) {
 		cluck ("$address does not exist in Metadata address list"),
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} --;
-	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'disabled',
+	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'ttl timeout',
 		warn("Remailer $address disablesd: ttl expired\n")
 		if ($self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} <= 0);
 		# FIXME have proper logging
@@ -464,6 +549,8 @@ sub restore_ttl($$) {
 		cluck ("$address does not exist in Metadata address list"),
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} = Echolot::Config::get()->{'addresses_default_ttl'};
+	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'active' if
+		($self->{'METADATA'}->{'addresses'}->{$address}->{'status'} eq 'ttl timeout');
 	$self->commit();
 	return 1;
 };
