@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.47 2003/02/14 05:03:15 weasel Exp $
+# $Id: Config.pm,v 1.48 2003/02/14 05:14:43 weasel Exp $
 #
 
 =pod
@@ -96,6 +96,9 @@ sub init($) {
 
 		pinger_interval             => 5*60, # send out pings every 5 minutes
 		ping_every_nth_time         => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
+
+		chainpinger_interval        => 5*60, # send out pings every 5 minutes
+		chainping_every_nth_time    => 810,  # send out pings to the same chain every 810 calls, i.e. every 3 days
 
 		addresses_default_ttl       => 5, # getkeyconf seconds (days)
 		check_resurrection_ttl      => 8, # check_resurrection seconds (weeks)
