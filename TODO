@@ -1,4 +1,4 @@
-$Id: TODO,v 1.58 2003/06/06 10:15:02 weasel Exp $
+$Id: TODO,v 1.59 2003/06/06 10:15:53 weasel Exp $
 
 Legend:
         - Not done
@@ -18,9 +18,6 @@ Legend:
       (like the Debian package already does)
  - optimize chain pinger:
    cache callids in chainpinging - md5 is not that cheap
- - check behaviour if we lag behind schedule
-   - some events can't be missed (there's no point in scheduling 20 buildstats)
-     some can't (pinging)
  - clean up tmp files
 
 

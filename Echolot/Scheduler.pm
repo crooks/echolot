@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.14 2003/01/14 05:25:35 weasel Exp $
+# $Id: Scheduler.pm,v 1.15 2003/06/06 10:15:02 weasel Exp $
 #
 
 =pod
@@ -37,16 +37,19 @@ sub new {
 	return $self;
 };
 
-=item B<add> (I<name>, I<interval>, I<offset>, I<what>)
+=item B<add> (I<name>, I<interval>, I<offset>, I<missok>, I<what>)
 
 Adds a task with I<name> to the list of tasks. Every I<interval> seconds
 I<what> is called. If for example I<interval> is 3600 - meaning I<what>
 should be executed hourly - setting I<offset> to 600 would mean that
 it get's called 10 minutes after the hour.
 
+I<missok> indicates that it is ok to miss one run of this job.  This can happen
+if we run behind schedule for instance.
+
 =cut
-sub add($$$$$) {
-	my ($self, $name, $interval, $offset, $what) = @_;
+sub add($$$$$$) {
+	my ($self, $name, $interval, $offset, $missok, $what) = @_;
 
 	Echolot::Log::logdie("Must not add zero intervall for job $name.")
 		unless $interval;
@@ -60,7 +63,8 @@ sub add($$$$$) {
 			interval  => $interval,
 			offset    => $offset,
 			what      => $what,
-			order     => $ORDER++
+			order     => $ORDER++,
+			missok    => $missok,
 		};
 
 	$self->schedule($name, 1);
@@ -93,6 +97,12 @@ sub schedule($$$;$$) {
 		my $now = time();
 		$for = $now - $now % $interval + $offset;
 		($for <= $now) and $for += $interval;
+		my $cnt = 0;
+		while ($self->{'tasks'}->{$name}->{'missok'} && ($for <= $now)) {
+			$for += $interval;
+			$cnt ++;
+		};
+		Echolot::Log::debug("Skipping n runs of $name.") if $cnt;
 	};
 
 	$arguments = [] unless defined $arguments;
@@ -130,7 +140,8 @@ sub run($) {
 		my $now = time();
 		my $task = $self->{'schedule'}->[0];
 		if ($task->{'start'} < $now) {
-			Echolot::Log::warn("Task $task->{'name'} could not be started on time.");
+			Echolot::Log::warn("Task $task->{'name'} could not be started on time.")
+				unless ($task->{'start'} == 0);
 		} else {
 			Echolot::Log::debug("zZzZZzz.");
 			$PROGRAM_NAME = "pingd [sleeping]";

@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.104 2003/06/06 09:44:01 weasel Exp $
+# $Id: pingd,v 1.105 2003/06/06 10:15:02 weasel Exp $
 #
 
 =pod
@@ -539,24 +539,24 @@ sub daemon_run($) {
 
 	Echolot::Globals::get()->{'scheduler'} = new Echolot::Scheduler;
 	my $scheduler = Echolot::Globals::get()->{'scheduler'};
-	$scheduler->add('exit'                ,     -1                                           , 0, 'exit' );
-	$scheduler->add('readcommands'        ,     -1                                           , 0, \&Echolot::Commands::processCommands );
+	$scheduler->add('exit'                ,     -1                                           , 0, 0, 'exit' );
+	$scheduler->add('readcommands'        ,     -1                                           , 0, 1, \&Echolot::Commands::processCommands );
 
-	$scheduler->add('processmail'         , Echolot::Config::get()->{'processmail'}          , 0, \&Echolot::Mailin::process );
-	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}      , 0, \&Echolot::Pinger::send_pings );
-	$scheduler->add('chainping'           , Echolot::Config::get()->{'chainpinger_interval'} , 0, \&Echolot::Chain::send_pings );
-	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}           , 0, \&Echolot::Stats::build_stats );
-	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}            , 0, \&Echolot::Stats::build_keys );
-	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'buildthesaurus'}       , 0, \&Echolot::Thesaurus::build_thesaurus );
-	$scheduler->add('buildfromlines'      , Echolot::Config::get()->{'buildfromlines'}       , 0, \&Echolot::Fromlines::build_fromlines );
+	$scheduler->add('processmail'         , Echolot::Config::get()->{'processmail'}          , 0, 1, \&Echolot::Mailin::process );
+	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}      , 0, 0, \&Echolot::Pinger::send_pings );
+	$scheduler->add('chainping'           , Echolot::Config::get()->{'chainpinger_interval'} , 0, 0, \&Echolot::Chain::send_pings );
+	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}           , 0, 1, \&Echolot::Stats::build_stats );
+	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}            , 0, 1, \&Echolot::Stats::build_keys );
+	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'buildthesaurus'}       , 0, 1, \&Echolot::Thesaurus::build_thesaurus );
+	$scheduler->add('buildfromlines'      , Echolot::Config::get()->{'buildfromlines'}       , 0, 1, \&Echolot::Fromlines::build_fromlines );
 
-	$scheduler->add('metadata_backup'     , Echolot::Config::get()->{'metadata_backup'}      , 0, \&metadata_backup );
-	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'}   , 0, \&commit_prospective_address );
-	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}               , 0, \&expire );
-	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf_interval'}  , 0, \&Echolot::Conf::send_requests );
-	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'}   , 0, \&Echolot::Conf::check_resurrection );
+	$scheduler->add('metadata_backup'     , Echolot::Config::get()->{'metadata_backup'}      , 0, 1, \&metadata_backup );
+	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'}   , 0, 1, \&commit_prospective_address );
+	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}               , 0, 1, \&expire );
+	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf_interval'}  , 0, 0, \&Echolot::Conf::send_requests );
+	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'}   , 0, 0, \&Echolot::Conf::check_resurrection );
 
-	$scheduler->add('summary'             , Echolot::Config::get()->{'summary'}              , 0, \&Echolot::Report::print_summary );
+	$scheduler->add('summary'             , Echolot::Config::get()->{'summary'}              , 0, 1, \&Echolot::Report::print_summary );
 
 	Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', 0, time() )
 		if ($process);
