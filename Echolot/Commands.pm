@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.2 2002/07/02 14:06:51 weasel Exp $
+# $Id: Commands.pm,v 1.3 2002/07/02 17:03:13 weasel Exp $
 #
 
 =pod
@@ -61,10 +61,12 @@ sub processCommands($) {
 
 	while (<FH>) {
 		chomp;
-		my ($command, $args) = split;
+		my ($command, @args) = split;
 
 		if ($command eq 'add') {
-			Echolot::Globals::get()->{'storage'}->add_address($args);
+			Echolot::Globals::get()->{'storage'}->add_address(@args);
+		} elsif ($command eq 'set') {
+			Echolot::Globals::get()->{'storage'}->set_stuff(@args);
 		} else {
 			warn("Unkown command: $_\n");
 		};

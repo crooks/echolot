@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.8 2002/07/02 14:11:49 weasel Exp $
+# $Id: pingd,v 1.9 2002/07/02 17:03:12 weasel Exp $
 #
 
 =pod
@@ -18,7 +18,9 @@ pingd - echolot ping daemon
 
 =item B<pingd> B<stop>
 
-=item B<pingd> B<add> I<address>
+=item B<pingd> B<add> I<address> [I<address> ...]
+
+=item B<pingd> B<set> option=value [option=value..] I<address> [I<address> ...]
 
 =back
 
@@ -50,10 +52,33 @@ Start the ping daemon.
 
 Send the running pingd process a SIGTERM.
 
-=item B<add> I<address>
+=item B<add> I<address> [I<address> ...]
 
 Add I<address> to the list of remailers to query for
 keys and confs.
+
+=item B<set> option=value [option=value..] I<address> [I<address> ...]
+
+Possible options and values:
+
+=over
+
+=item B<showit=>{B<on>,B<off>}
+
+Set B<showit> (show remailer in mlist, rlist etc.) for remailer I<address> to
+either B<on> or B<off>.
+
+=item B<pingit=>{B<on>,B<off>}
+
+Set B<pingit> (send out pings to that remailer) for remailer I<address> to
+either B<on> or B<off>.
+
+=item B<fetch=>{B<on>,B<off>}
+
+Set B<fetch> (fetch remailer-key and remailer-conf) for remailer I<address> to
+either B<on> or B<off>.
+
+=back
 
 =head1 OPTIONS
 
@@ -161,10 +186,34 @@ Echolot::Globals::init();
 
 
 if ($COMMAND eq 'add') {
-	my $address = shift @ARGV;
-	die ("add requires argument <address>\n") unless defined $address;
-	die ("argument <address> is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+.-]+\@[a-zA-Z0-9+.-]+$/ );
-	Echolot::Commands::addCommand("add $address");
+	die ("add requires argument <address>\n") unless scalar @ARGV;
+	my @addresses;
+	for my $address (@ARGV) {
+		die ("argument <address> is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
+		push @addresses, $address;
+	};
+	for my $address (@addresses) {
+		Echolot::Commands::addCommand("add $address");
+	};
+	# FIXME send hup
+} elsif ($COMMAND eq 'set') {
+	my @settings;
+	while (scalar @ARGV && $ARGV[0] =~ /^(showit|pingit|fetch)=(on|off)$/) {
+		push @settings, $ARGV[0];
+		shift @ARGV;
+	};
+
+	my @addresses;
+	for my $address (@ARGV) {
+		die ("argument $address is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
+		push @addresses, $address;
+	};
+
+	for my $address (@ARGV) {
+		for my $setting (@settings) {
+			Echolot::Commands::addCommand("set $address $setting");
+		};
+	};
 	# FIXME send hup
 } elsif ($COMMAND eq 'stop') {
 	die ("stop not implemented yet");
@@ -185,6 +234,14 @@ if ($COMMAND eq 'add') {
 	$scheduler->add('getkeyconf'          , 24*60*60                                     , 0, \&Echolot::Conf::send_requests );
 
 	$scheduler->run();
+
+	Echolot::Globals::get()->{'storage'}->commit();
+	Echolot::Globals::get()->{'storage'}->finish();
+} elsif ($COMMAND eq 'convert') {
+	Echolot::Globals::initStorage();
+	setSigHandlers();
+
+	Echolot::Globals::get()->{'storage'}->convert();
 
 	Echolot::Globals::get()->{'storage'}->commit();
 	Echolot::Globals::get()->{'storage'}->finish();
