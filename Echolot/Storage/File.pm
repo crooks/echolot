@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.29 2002/07/10 11:54:52 weasel Exp $
+# $Id: File.pm,v 1.30 2002/07/10 13:01:03 weasel Exp $
 #
 
 =pod
@@ -172,7 +172,7 @@ sub metadata_read($) {
 			$self->{'METADATA'} = $METADATA;
 		};
 		$EVAL_ERROR and
-			cluck("Error when reading from metadata file: $EVAL_ERROR"),
+			croak("Error when reading from metadata file: $EVAL_ERROR"),
 			return 0;
 
 		defined($self->{'METADATA'}->{'version'}) or
