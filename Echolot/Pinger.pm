@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.7 2002/06/20 04:29:38 weasel Exp $
+# $Id: Pinger.pm,v 1.8 2002/07/02 13:57:09 weasel Exp $
 #
 
 =pod
@@ -106,7 +106,7 @@ sub send_pings() {
 
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($remailer)) {
 			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($remailer, $type)) {
-				print "ping calling $type, $remailer, $key\n";
+				print "ping calling $type, $remailer, $key\n" if Echolot::Config::get()->{'verbose'};
 				do_ping($type, $remailer, $key);
 			}
 		};

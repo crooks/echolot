@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.13 2002/07/02 13:51:00 weasel Exp $
+# $Id: File.pm,v 1.14 2002/07/02 13:57:09 weasel Exp $
 #
 
 =pod
@@ -369,9 +369,6 @@ sub get_pings($$$$$) {
 sub register_pingout($$$$) {
 	my ($self, $remailer_addr, $type, $key, $sent_time) = @_;
 	
-	#require Data::Dumper;
-	#print Data::Dumper->Dump( [ $self->{'PING_FHS'} ] );
-
 	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
 		cluck ("$remailer_addr; type=$type; key=$key has no assigned filehandle for out pings"),
 		return 0;
@@ -383,6 +380,8 @@ sub register_pingout($$$$) {
 		cluck("Error when writing to $remailer_addr; type=$type; key=$key; out pings: $!"),
 		return 0;
 	$fh->flush();
+	print "registering pingout at $sent_time for $remailer_addr ($type; $key)\n"
+		if Echolot::Config::get()->{'verbose'};
 
 	return 1;
 };
@@ -427,6 +426,8 @@ sub register_pingdone($$$$$) {
 		cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
 		return 0;
 	$fh->flush();
+	print "registering pingdone from $sent_time with latency $latency for $remailer_addr ($type; $key)\n"
+		if Echolot::Config::get()->{'verbose'};
 	
 	return 1;
 };
@@ -530,7 +531,8 @@ sub add_address($$) {
 	};
 	
 	# FIXME logging and such
-	print "Adding address $addr\n";
+	print "Adding address $addr\n" if
+		if Echolot::Config::get()->{'verbose'};
 
 	$self->{'METADATA'}->{'addresses'}->{$addr} = $remailer;
 };
@@ -788,7 +790,9 @@ sub expire($) {
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
 				if ($self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key}->{'last_update'} < $expire_keys) {
-					print "Expiring $remailer_addr, key, $type, $key\n";
+					# FIXME logging and such
+					print "Expiring $remailer_addr, key, $type, $key\n"
+						if Echolot::Config::get()->{'verbose'};
 					$self->pingdata_close_one($remailer_addr, $type, $key, 'delete');
 					delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}->{$key};
 				};

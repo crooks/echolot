@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.6 2002/07/02 13:51:30 weasel Exp $
+# $Id: Scheduler.pm,v 1.7 2002/07/02 13:57:09 weasel Exp $
 #
 
 =pod
@@ -123,6 +123,7 @@ sub run($) {
 		if ($task->{'start'} < $now) {
 			warn("Task $task->{'name'} could not be started on time\n");
 		} else {
+			print "zZzZZzz at $now\n" if Echolot::Config::get()->{'verbose'};
 			sleep ($task->{'start'} - $now);
 		};
 
@@ -137,6 +138,7 @@ sub run($) {
 				warn("Task $task->{'name'} is not defined\n");
 
 			my $what = $self->{'tasks'}->{$name}->{'what'};
+			print "Running $name at ".(time())." (scheduled for $now)\n" if Echolot::Config::get()->{'verbose'};
 			last if ($what eq 'exit');
 			&$what();
 			$self->schedule($name, $now + $self->{'tasks'}->{$name}->{'interval'}) if
