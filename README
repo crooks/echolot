@@ -1,4 +1,4 @@
-$Id: README,v 1.23 2002/08/02 02:20:47 weasel Exp $
+$Id: README,v 1.24 2002/08/10 01:36:47 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -128,6 +128,10 @@ o In the tools directory you find the »pingctl« wrapper for Echolot.
   /etc/init.d or similar and link it from the runlevel directories
   if your init is SysV style.
 
+o Echolot puts its stats in the result directory. It also produces
+  an index file name echolot.html. If you want to have it as your
+  default index page, symlink it to index.html with something like
+  »ln -s echolot.html index.html« in the result directory.
 
 CONFIGURATION
 -------------

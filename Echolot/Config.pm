@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.34 2002/08/05 17:46:17 weasel Exp $
+# $Id: Config.pm,v 1.35 2002/08/10 01:36:47 weasel Exp $
 #
 
 =pod
@@ -137,6 +137,7 @@ sub init($) {
 
 		# templates
 		templates => {
+			'indexfile'             => 'templates/echolot.html',
 			'thesaurusindexfile'    => 'templates/thesaurusindex.html',
 			'mlist'                 => 'templates/mlist.html',
 			'mlist2'                => 'templates/mlist2.html',

@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.26 2002/08/10 00:56:24 weasel Exp $
+# $Id: Stats.pm,v 1.27 2002/08/10 01:36:47 weasel Exp $
 #
 
 =pod
@@ -273,28 +273,35 @@ sub read_file($;$) {
 sub write_file($$;$) {
 	my ($filebasename, $html_template, $output) = @_;
 
-	my $filename = $filebasename.'.txt';
-	open(F, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
-		return 0;
-	print F $output;
-	close (F);
+	my $filename;
+	if (defined $output) {
+		$filename = $filebasename.'.txt';
+		open(F, '>'.$filename) or
+			cluck("Cannot open $filename: $!\n"),
+			return 0;
+		print F $output;
+		close (F);
+	};
 
 	return 1 unless defined $html_template;
 	
-	$output =~ s/&/&amp;/g;
-	$output =~ s/"/&quot;/g;
-	$output =~ s/</&lt;/g;
-	$output =~ s/>/&gt;/g;
 	my $template =  HTML::Template->new(
 		filename => $html_template,
 		strict => 0,
+		die_on_bad_params => 0,
 		global_vars => 1 );
-	$template->param ( list => $output );
+	if (defined $output) {
+		$output =~ s/&/&amp;/g;
+		$output =~ s/"/&quot;/g;
+		$output =~ s/</&lt;/g;
+		$output =~ s/>/&gt;/g;
+		$template->param ( list => $output );
+	};
 	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
 	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
 	$template->param ( seperate_rlist => Echolot::Config::get()->{'seperate_rlists'} );
 	$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
+	$template->param ( thesaurus => Echolot::Config::get()->{'thesaurus'} );
 	$template->param ( version => Echolot::Globals::get()->{'version'} );
 
 	$filename = $filebasename.'.html';
@@ -557,6 +564,9 @@ sub build_lists() {
 		build_clist( $clist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
 		build_clist( $pubclist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
 	};
+
+
+	write_file(Echolot::Config::get()->{'resultdir'}.'/'.'echolot', Echolot::Config::get()->{'templates'}->{'indexfile'});
 };
 
 
