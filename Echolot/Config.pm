@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.10 2002/07/02 23:16:53 weasel Exp $
+# $Id: Config.pm,v 1.11 2002/07/03 00:28:22 weasel Exp $
 #
 
 =pod
@@ -32,8 +32,8 @@ sub init($) {
 		hash_len                    => 8,
 		addresses_default_ttl       => 5, # days
 		smarthost                   => 'localhost',
-		mailindir                   => 'mail/IN',
-		mailerrordir                => 'mail/ERROR',
+		mailindir                   => 'mail',
+		mailerrordir                => 'mail-errors',
 		fetch_new                   => 1,
 		ping_new                    => 1,
 		show_new                    => 1,
