@@ -1,5 +1,7 @@
 Changes in version
 	* Have a consistent name for the ~/echolot directory in README.
+	* If you request keyconf from only a few remailers more requests could
+	  have been sent. Fixed that.
 
 Changes in version 2.0beta30 - 2002-08-15
 	* Write NAME and ADDRESS to mix.cfg - mix cannot figure it out
