@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.17 2002/07/13 19:58:27 weasel Exp $
+# $Id: Stats.pm,v 1.18 2002/07/13 20:33:33 weasel Exp $
 #
 
 =pod
@@ -269,10 +269,10 @@ sub write_file($$;$) {
 
 	return 1 unless defined $html_template;
 	
-	$output =~ s/"/&quot;/;
-	$output =~ s/</&lt;/;
-	$output =~ s/>/&gt;/;
-	$output =~ s/&/&amp;/;
+	$output =~ s/&/&amp;/g;
+	$output =~ s/"/&quot;/g;
+	$output =~ s/</&lt;/g;
+	$output =~ s/>/&gt;/g;
 	my $template =  HTML::Template->new(
 		filename => $html_template,
 		strict => 0,
