@@ -1,4 +1,4 @@
-$Id: README,v 1.40 2003/02/22 21:01:30 weasel Exp $
+$Id: README,v 1.41 2003/06/06 09:39:42 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -192,7 +192,11 @@ o Change into the directory where echolot is kept.
     $ cd echolot
 
 o In the first terminal window, type:
-    $ ./pingd --verbose start
+    [ you may want to set the log level to 'debug' in pingd.conf
+      to get an idea what exactly Echolot is doing ]
+
+    $ ./pingd --detach start
+    $ tail -f pingd.log
 
 o In the second terminal window, type:
     $ ./pingd add <address1> <address2> <address3> ...
@@ -200,7 +204,7 @@ o In the second terminal window, type:
   You can also use the following shell magic to add all addresses from
   an existing rlist.txt or mlist.txt:
     $ grep \$remailer rlist.txt | cut -f 2 -d \< | cut -f 1 -d \> |
-      xargs ./pingd add 
+      xargs ./pingd add
 
   Monitor the first terminal in which you started pingd. You should see
   mention of email addresses being added.
@@ -212,10 +216,8 @@ o In the second terminal window, execute
   remailers that you added in the previous step.
 
 o pingd can be stopped with the command
-    
-    $ ./pingd stop
 
-  or by issuing a Ctrl+C in the terminal in which pingd is running.
+    $ ./pingd stop
 
 
 
@@ -242,10 +244,12 @@ DAY-TO-DAY OPERATION
 --------------------
 
 o To run Echolot in the background, run
-      $ ./pingd --detach --verbose start
+      $ ./pingd --detach start
 
-o You can monitor the output file to obtain debugging output:
-      $ tail -f output
+o You can monitor the log file to obtain debugging output:
+      $ tail -f pingd.conf
+
+  Do not forget to set the appropriate log level in pingd.conf.
 
 o The tools directory contains the »pingctl« wrapper for Echolot.
   The wrapper takes care of checking ulimits, userid, and cd'ing to the
@@ -304,7 +308,7 @@ Please report bugs and feature requests at
 
 The Echolot homepage can be found at
     http://www.palfrader.org/echolot/
- 
+
 
 
 ACKNOWLEDGEMENTS

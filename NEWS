@@ -4,6 +4,7 @@ Changes in
 	  rather can using open("| ...") which ivokes a shell.
 	* Catch SIGPIPE.
 	* Document thesaurusindexfile.
+	* Minor documentation fixes.
 
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.56 2003/06/06 09:35:24 weasel Exp $
+$Id: TODO,v 1.57 2003/06/06 09:39:42 weasel Exp $
 
 Legend:
         - Not done
@@ -8,7 +8,6 @@ Legend:
         D Deferred
         X Abandoned
 
- - --verbose doesn't gain that much anymore.  update README.
  - normal distribution is plain out wrong for latency
    - change to median for the latency column
    - assumption on whether a ping is lost should be
