@@ -1,3 +1,7 @@
+Changes in version
+	* Write NAME and ADDRESS to mix.cfg - mix cannot figure it out
+	  if detached.
+
 Changes in version 2.0beta29 - 2002-08-14
 	* Create .meta files with the expiry date of pages.
 	* Also put the expiry date in HTML meta headers.

@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.6 2002/08/13 05:58:10 weasel Exp $
+# $Id: Mix.pm,v 1.7 2002/08/15 03:27:47 weasel Exp $
 #
 
 =pod
@@ -49,16 +49,18 @@ sub ping($$$$) {
 		return 0;
 	
 	my $mixcfg = Echolot::Config::get()->{'mixhome'}.'/mix.cfg';
-	unless ( -e $mixcfg ) {
-		open (F, ">$mixcfg") or
-			cluck("Cannot open $mixcfg for writing: $!"),
-			return 0;
-		print (F "PUBRING         pubring.mix\n");
-		print (F "TYPE2LIST       type2.list\n");
-		close (F) or
-			cluck("Cannot close $mixcfg: $!"),
-			return 0;
-	};
+	my $address = Echolot::Config::get()->{'my_localpart'} . '@' .
+	              Echolot::Config::get()->{'my_domain'};
+	open (F, ">$mixcfg") or
+		cluck("Cannot open $mixcfg for writing: $!"),
+		return 0;
+	print (F "NAME            Echolot Pinger\n");
+	print (F "ADDRESS         $address\n");
+	print (F "PUBRING         pubring.mix\n");
+	print (F "TYPE2LIST       type2.list\n");
+	close (F) or
+		cluck("Cannot close $mixcfg: $!"),
+		return 0;
 	
 	$ENV{'MIXPATH'} = Echolot::Config::get()->{'mixhome'};
 	open(MIX, "|".Echolot::Config::get()->{'mixmaster'}." -m -S -l $chaincomma") or
