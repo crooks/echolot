@@ -1,4 +1,4 @@
-$Id: README,v 1.29 2002/08/17 18:20:58 weasel Exp $
+$Id: README,v 1.30 2002/08/25 09:33:43 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -28,12 +28,12 @@ REQUIREMENTS
 ------------
 	in general:
 		Data::Dumper (should be part of perl-base)
-		Digest::MD5
+		Digest::MD5 (or perl >= 5.8)
 		HTML::Template
 		a local Mail Transfer Agent
 	for type1 pings
-		GnuPG (1.0.7)
-		GnuPG::Interface (0.33)
+		GnuPG ( >= 1.0.7)
+		GnuPG::Interface ( >= 0.33)
 	for type2 pings
 		a Mixmaster installation
 
