@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.23 2002/07/10 12:27:51 weasel Exp $
+# $Id: pingd,v 1.24 2002/07/10 12:42:56 weasel Exp $
 #
 
 =pod
@@ -146,13 +146,19 @@ Print version number and exit sucessfully.
 
 =item --nohup
 
-Usefull only when passwd with the B<add>, B<set>, B<setremailercaps>,
+Usefull only when passed with the B<add>, B<set>, B<setremailercaps>,
 B<deleteremailercaps> or B<getkeyconf> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
 
 Per default such a signal is sent.
+
+=item --process
+
+Usefull only when passed with the B<start> command.
+
+Read and process the commands file on startup.
 
 =item --detach
 
@@ -367,6 +373,9 @@ sub daemon_run() {
 	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf'}         , 0, \&Echolot::Conf::send_requests );
 	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'} , 0, \&Echolot::Conf::check_resurrection );
 
+	Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', time() )
+		if ($params->{'process'});
+
 	$scheduler->run();
 
 	Echolot::Globals::get()->{'storage'}->commit();
@@ -451,6 +460,7 @@ if (!GetOptions (
 	'verbose' =>  \$params->{'verbose'},
 	'nohup'   =>  \$params->{'nohup'},
 	'detach'  =>  \$params->{'detach'},
+	'process' =>  \$params->{'process'},
 	)) {
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
 };
