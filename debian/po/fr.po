@@ -1,0 +1,126 @@
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+#    Developers do not need to manually edit POT or PO files.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: echolot (2.1-1)\n"
+"POT-Creation-Date: 2003-09-18 17:36+0200\n"
+"PO-Revision-Date: 2003-09-19 07:20+0100\n"
+"Last-Translator: Christian Perrier <bubulle@debian.org>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Description
+#: ../echolot.templates:3
+msgid "E-mail address of your pinger"
+msgstr "Adresse électronique de votre testeur"
+
+#. Description
+#: ../echolot.templates:3
+msgid ""
+"Email to this address must reach your pinger somehow. Either it gets "
+"delivered to your box directly or you have fetchmail installed or some other "
+"way."
+msgstr ""
+"Les courriels envoyés à cette adresse doivent atteindre votre testeur (« pinger ») "
+"d'une manière ou d'une autre. Cela peut se faire soit par distribution directe "
+"dans une boîte aux lettres, soit par l'intermédiaire de fetchmail ou d'une "
+"autre méthode."
+
+#. Description
+#: ../echolot.templates:10
+msgid "Operator address for your pinger"
+msgstr "Adresse électronique de l'opérateur de votre testeur"
+
+#. Description
+#: ../echolot.templates:10
+msgid "Specify an address for the pinger operator."
+msgstr ""
+"Veuillez indiquer l'adresse électronique de l'opérateur de votre testeur."
+
+#. Description
+#: ../echolot.templates:15
+msgid "Site name"
+msgstr "Nom de site"
+
+#. Description
+#: ../echolot.templates:15
+msgid ""
+"Choose a name for your pinger site. This will be shown in all pages echolot "
+"produces."
+msgstr ""
+"Veuillez choisir un nom pour votre site testeur. Ce nom sera affiché sur "
+"toutes les pages générées par echolot."
+
+#. Description
+#: ../echolot.templates:22
+msgid "Add known remailers?"
+msgstr "Faut-il ajouter des redirecteurs de courriel connus ?"
+
+#. Description
+#: ../echolot.templates:22
+msgid ""
+"This package has a built in list of some remailers. If you want they can be "
+"added to Echolot's database now. Otherwise you have to populate it by hand."
+msgstr ""
+"Ce paquet inclut une liste de redirecteurs de courriel (« remailers ») connus. Ils "
+"peuvent être ajoutés à la base de données d'Echolot maintenant, si vous le "
+"souhaitez. Dans le cas contraire, vous devrez renseigner cette liste vous-"
+"même."
+
+#. Description
+#: ../echolot.templates:22
+msgid ""
+"If you choose to add them Echolot will also fetch keys and configuration "
+"data immediatly."
+msgstr ""
+"Si vous choisissez de les ajouter, Echolot récupérera les clés et les "
+"données de configuration immédiatement."
+
+#. Description
+#: ../echolot.templates:32
+msgid "Recipient delimiter"
+msgstr "Délimiteur de destinataire (« recipient delimiter »)"
+
+#. Description
+#: ../echolot.templates:32
+msgid ""
+"Echolot strongly recommends using user defined mailboxes, i.e. mail sent to "
+"echolot+<somerandomstring>@yourdomain should reach echolot too."
+msgstr ""
+"Echolot recommande fortement l'utilisation de boîtes aux lettres "
+"personnalisables. En d'autres termes, les courriels envoyés à echolot"
+"+<chaînequelconque>@votredomaine doivent parvenir à echolot."
+
+#. Description
+#: ../echolot.templates:32
+msgid ""
+"In postfix this can be done by adding\n"
+" recipient_delimiter = +\n"
+"to your main.cf file. (If you know the procedure for other MTAs, please file "
+"a wishlist bug)"
+msgstr ""
+"Avec postfix, cela peut se faire en ajoutant\n"
+" recipient_delimiter = +\n"
+"au fichier main.cf (si vous connaissez la méthode appropriée pour les autres "
+"agents de distribution de courriel, veuillez envoyer un rapport de bogue de "
+"type « wishlist »)."
+
+#. Description
+#: ../echolot.templates:32
+msgid "If you cannot or do not want to enable this please use an empty string."
+msgstr ""
+"Si vous ne pouvez ou ne voulez pas activer cette fonctionnalité, veuillez ne "
+"rien indiquer ici."

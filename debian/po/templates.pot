@@ -1,0 +1,105 @@
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+#    Developers do not need to manually edit POT or PO files.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-09-18 17:36+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Description
+#: ../echolot.templates:3
+msgid "E-mail address of your pinger"
+msgstr ""
+
+#. Description
+#: ../echolot.templates:3
+msgid ""
+"Email to this address must reach your pinger somehow. Either it gets "
+"delivered to your box directly or you have fetchmail installed or some other "
+"way."
+msgstr ""
+
+#. Description
+#: ../echolot.templates:10
+msgid "Operator address for your pinger"
+msgstr ""
+
+#. Description
+#: ../echolot.templates:10
+msgid "Specify an address for the pinger operator."
+msgstr ""
+
+#. Description
+#: ../echolot.templates:15
+msgid "Site name"
+msgstr ""
+
+#. Description
+#: ../echolot.templates:15
+msgid ""
+"Choose a name for your pinger site. This will be shown in all pages echolot "
+"produces."
+msgstr ""
+
+#. Description
+#: ../echolot.templates:22
+msgid "Add known remailers?"
+msgstr ""
+
+#. Description
+#: ../echolot.templates:22
+msgid ""
+"This package has a built in list of some remailers. If you want they can be "
+"added to Echolot's database now. Otherwise you have to populate it by hand."
+msgstr ""
+
+#. Description
+#: ../echolot.templates:22
+msgid ""
+"If you choose to add them Echolot will also fetch keys and configuration "
+"data immediatly."
+msgstr ""
+
+#. Description
+#: ../echolot.templates:32
+msgid "Recipient delimiter"
+msgstr ""
+
+#. Description
+#: ../echolot.templates:32
+msgid ""
+"Echolot strongly recommends using user defined mailboxes, i.e. mail sent to "
+"echolot+<somerandomstring>@yourdomain should reach echolot too."
+msgstr ""
+
+#. Description
+#: ../echolot.templates:32
+msgid ""
+"In postfix this can be done by adding\n"
+" recipient_delimiter = +\n"
+"to your main.cf file. (If you know the procedure for other MTAs, please file "
+"a wishlist bug)"
+msgstr ""
+
+#. Description
+#: ../echolot.templates:32
+msgid "If you cannot or do not want to enable this please use an empty string."
+msgstr ""

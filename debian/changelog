@@ -1,3 +1,12 @@
+echolot (2.1-2) unstable; urgency=low
+
+  * debconf internationialization.
+    Thanks to Christian Perrier for providing the patches and information.
+    closes: #212885 [INTL:fr] French translation of gettext debconf templates
+    closes: #211633 [INTL] Please switch to gettext-based debconf templates
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 12 Oct 2003 12:15:38 +0200
+
 echolot (2.1-1) unstable; urgency=low
 
   * New upstream version.
