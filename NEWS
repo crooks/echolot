@@ -7,6 +7,11 @@ Changes in version
 	* In the distribution the pingd.conf file has been renamed to pingd.conf.
 	  So it should be possible to just untar the new tar.gz over the old
 	  installation (you have a backup anyway, don't you?).
+	* The getkeyconf command takes optional addresses to request config
+	  data from.
+	* The getkeyconf config option was replaced by getkeyconf_interval and
+	  getkeyconf_every_nth_time. Not all requests are sent at the same time
+	  any more.
 
 Changes in version 2.0beta15 - 2002-07-16
 	* Have echolot version in stats HTML pages

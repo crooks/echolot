@@ -251,13 +251,19 @@ How often to expire old keys, pingds and remailers
 	Default: 'expire' => 24*60*60, # daily
 	Example: 'expire' => 8*60*60, # every 8 hours
 
-=item B<getkeyconf> [seconds]
+=item B<getkeyconf_interval> [seconds]
+
+=item B<getkeyconf_every_nth_time> [integer]
 
 How often to query remailers for new keys and configuration data
-(remailer-xxx).
+(remailer-xxx). Some requests are sent every B<getkeyconf_interval>
+seconds. The same request to the same remailer is sent only every 
+B<getkeyconf_every_nth_time> time.
 
-	Default: 'getkeyconf' => 24*60*60, # daily
-	Example: 'getkeyconf' => 2*24*60*60, # every other day
+	Default: 'getkeyconf_interval'       => 5*60,    # send out requests every 5 minutes
+	         'getkeyconf_every_nth_time' => 24*60/5, # send out the same request to the same remailer once a day
+	Example: 'getkeyconf_interval'       => 10*60,
+	         'getkeyconf_every_nth_time' => 2*24*60/10, # new request every other day
 
 =item B<check_resurrection> [seconds]
 

@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.9 2002/07/16 02:48:57 weasel Exp $
+# $Id: Scheduler.pm,v 1.10 2002/07/17 17:53:44 weasel Exp $
 #
 
 =pod
@@ -20,7 +20,7 @@ the ping daemon.
 =cut
 
 use strict;
-use Carp qw{cluck};
+use Carp qw{cluck confess};
 
 my $ORDER = 1;
 
@@ -47,6 +47,9 @@ it get's called 10 minutes after the hour.
 sub add($$$$$) {
 	my ($self, $name, $interval, $offset, $what) = @_;
 
+	confess("Must not add zero intervall for job $name")
+		unless $interval;
+
 	if (defined $self->{'tasks'}->{$name}) {
 		@{ $self->{'schedule'} } = grep { $_->{'name'} ne $name } @{ $self->{'schedule'} };
 	};
@@ -70,8 +73,8 @@ Schedule execution of I<name> for I<for>. If I<for> is not given it is calculate
 from I<interval> and I<offset> passed to B<new>.
 
 =cut
-sub schedule($$;$) {
-	my ($self, $name, $for) = @_;
+sub schedule($$;$$) {
+	my ($self, $name, $for, $arguments) = @_;
 	
 	(defined $self->{'tasks'}->{$name}) or
 		cluck("Task $name is not defined"),
@@ -89,11 +92,14 @@ sub schedule($$;$) {
 		($for <= $now) and $for += $interval;
 	};
 
+	$arguments = [] unless defined $arguments;
+
 	push @{ $self->{'schedule'} },
 		{
 			start => $for,
 			order => $self->{'tasks'}->{$name}->{'order'},
-			name => $name
+			name => $name,
+			arguments => $arguments
 		};
 
 	@{ $self->{'schedule'} } = sort { $a->{'start'} <=> $b->{'start'} or $a->{'order'} <=> $b->{'order'} }
@@ -139,7 +145,7 @@ sub run($) {
 			my $what = $self->{'tasks'}->{$name}->{'what'};
 			print "Running $name at ".(time())." (scheduled for $now)\n" if Echolot::Config::get()->{'verbose'};
 			last if ($what eq 'exit');
-			&$what();
+			&$what( @{ $task->{'arguments'} } );
 			$self->schedule($name, $now + $self->{'tasks'}->{$name}->{'interval'}) if
 				($self->{'tasks'}->{$name}->{'interval'} > 0);
 

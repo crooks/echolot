@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.16 2002/07/17 17:06:44 weasel Exp $
+# $Id: Pinger.pm,v 1.17 2002/07/17 17:53:44 weasel Exp $
 #
 
 =pod
@@ -87,14 +87,13 @@ sub send_pings() {
 	my $call_intervall = Echolot::Config::get()->{'pinger_interval'};
 	my $send_every_n_calls = Echolot::Config::get()->{'ping_every_nth_time'};
 
-	my $now = time();
+	my $timemod = (time() / $call_intervall);
+	my $this_call_id = $timemod % $send_every_n_calls;
 
 	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
 	for my $remailer (@remailers) {
 		next unless $remailer->{'pingit'};
 		my $address = $remailer->{'address'};
-		my $timemod = ($now / $call_intervall);
-		my $this_call_id = $timemod % $send_every_n_calls;
 
 
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($address)) {

@@ -1,10 +1,9 @@
-$Id: TODO,v 1.34 2002/07/17 02:35:29 weasel Exp $
+$Id: TODO,v 1.35 2002/07/17 17:53:44 weasel Exp $
 
 for 2.0:
  Why does austria perform that bad with mix pings.
 
 can be done later, nice if for 2.0:
- getkeyconf command could take option:  address [address ...]
  list broken chains
  ping nymservers
  chain preload and postload

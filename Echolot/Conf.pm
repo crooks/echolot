@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.19 2002/07/17 16:50:04 weasel Exp $
+# $Id: Conf.pm,v 1.20 2002/07/17 17:53:44 weasel Exp $
 #
 
 =pod
@@ -37,31 +37,50 @@ sub is_not_a_remailer($) {
 	};
 };
 
-sub send_requests() {
+sub send_requests(;$) {
+	my ($which) = @_;
+
+	$which = '' unless defined $which;
+
+	my $call_intervall = Echolot::Config::get()->{'getkeyconf_interval'};
+	my $send_every_n_calls = Echolot::Config::get()->{'getkeyconf_every_nth_time'};
+
+	my $timemod = (time() / $call_intervall);
+	my $this_call_id = $timemod % $send_every_n_calls;
+
 	Echolot::Globals::get()->{'storage'}->delay_commit();
+	
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
 		next unless ($remailer->{'status'} eq 'active');
 		next unless ($remailer->{'fetch'});
-		print "Sending requests to ".$remailer->{'address'}."\n"
-			if Echolot::Config::get()->{'verbose'};
-
-		my $source_text = Echolot::Config::get()->{'remailerxxxtext'};
-		my $template =  HTML::Template->new(
-			scalarref => \$source_text,
-			strict => 0,
-			global_vars => 1 );
-		$template->param ( address => $remailer->{'address'} );
-		$template->param ( operator_address => Echolot::Config::get()->{'operator_address'} );
-		my $body = $template->output();
+		my $address = $remailer->{'address'};
 
 		for my $type (qw{conf key help stats adminkey}) {
+
+			next if ($this_call_id ne (Echolot::Tools::makeShortNumHash($address.$type) % $send_every_n_calls) &&
+				$which ne 'all' &&
+				$which ne $address );
+
+			print "Sending $type requests to ".$address."\n"
+				if Echolot::Config::get()->{'verbose'};
+
+			my $source_text = Echolot::Config::get()->{'remailerxxxtext'};
+			my $template =  HTML::Template->new(
+				scalarref => \$source_text,
+				strict => 0,
+				global_vars => 1 );
+			$template->param ( address => $address );
+			$template->param ( operator_address => Echolot::Config::get()->{'operator_address'} );
+			my $body = $template->output();
+
 			Echolot::Tools::send_message(
-				'To' => $remailer->{'address'},
+				'To' => $address,
 				'Subject' => 'remailer-'.$type,
 				'Token' => $type.'.'.$remailer->{'id'},
-				'Body' => $body)
+				'Body' => $body);
+
+			Echolot::Globals::get()->{'storage'}->decrease_ttl($address) if ($type eq 'conf');
 		};
-		Echolot::Globals::get()->{'storage'}->decrease_ttl($remailer->{'address'});
 	};
 	Echolot::Globals::get()->{'storage'}->enable_commit();
 };

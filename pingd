@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.44 2002/07/16 03:02:53 weasel Exp $
+# $Id: pingd,v 1.45 2002/07/17 17:53:44 weasel Exp $
 #
 
 =pod
@@ -32,7 +32,7 @@ pingd - echolot ping daemon
 
 =item B<pingd> B<deleteremailercaps> I<address>
 
-=item B<pingd> B<getkeyconf>
+=item B<pingd> B<getkeyconf> [I<address> [I<address> ...]]
 
 =item B<pingd> B<buildstats>
 
@@ -126,9 +126,10 @@ For instance:
 Delete remailer-conf data for I<address>. The config data will be reset from
 the next valid remailer-conf reply by the remailer.
 
-=item B<getkeyconf>
+=item B<getkeyconf> [I<address> [I<address> ...]]
 
 Send a command to immediatly request keys and configuration from remailers.
+If no addresses are given, then requests will be sent to all remailers.
 
 =item B<buildstats>
 
@@ -356,8 +357,24 @@ sub command_deleteremailercaps(@) {
 		push @addresses, $address;
 	};
 
-	for my $address (@argv) {
+	for my $address (@addresses) {
 		Echolot::Commands::addCommand("deleteremailercaps $address");
+	};
+};
+
+sub command_getkeyconf(@) {
+	my @argv = @_;
+
+	my @addresses;
+	for my $address (@argv) {
+		die ("argument $address is not a valid email address\n") unless ($address =~ /^[a-zA-Z0-9+._-]+\@[a-zA-Z0-9+.-]+$/ );
+		push @addresses, $address;
+	};
+
+	push @addresses, 'all' unless (scalar @addresses);
+
+	for my $address (@addresses) {
+		Echolot::Commands::addCommand("getkeyconf $address");
 	};
 };
 
@@ -392,7 +409,7 @@ sub daemon_run($) {
 
 	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'} , 0, \&commit_prospective_address );
 	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}             , 0, \&expire );
-	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf'}         , 0, \&Echolot::Conf::send_requests );
+	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf_interval'}, 0, \&Echolot::Conf::send_requests );
 	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'} , 0, \&Echolot::Conf::check_resurrection );
 
 	Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', time() )
@@ -529,7 +546,7 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	command_setremailercaps(@ARGV);
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'getkeyconf') {
-	Echolot::Commands::addCommand("getkeyconf");
+	command_getkeyconf(@ARGV);
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'buildstats') {
 	Echolot::Commands::addCommand("buildstats");

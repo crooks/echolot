@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.8 2002/07/16 02:59:17 weasel Exp $
+# $Id: Commands.pm,v 1.9 2002/07/17 17:53:44 weasel Exp $
 #
 
 =pod
@@ -68,7 +68,7 @@ sub processCommands($) {
 		} elsif ($command eq 'set') {
 			Echolot::Globals::get()->{'storage'}->set_stuff(@args);
 		} elsif ($command eq 'getkeyconf') {
-			Echolot::Globals::get()->{'scheduler'}->schedule('getkeyconf', time() );
+			Echolot::Globals::get()->{'scheduler'}->schedule('getkeyconf', time(), \@args );
 		} elsif ($command eq 'buildstats') {
 			Echolot::Globals::get()->{'scheduler'}->schedule('buildstats', time() );
 		} elsif ($command eq 'buildkeys') {
