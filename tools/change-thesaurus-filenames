@@ -1,0 +1,42 @@
+#! /bin/sh
+
+# In 2.0beta4 files in the Thesaurus were named <id>-<type>. E.g: 25-adminkey
+# 2.0beta5 uses dots now instead of dashes: 25.adminkey
+
+# This script reads renames files in the Thesaurus
+
+# It is assumed that the largest id in use is 999
+
+set -e
+
+FILES=`ls [0-9]-conf [0-9]-key [0-9]-stats [0-9]-help [0-9]-adminkey [0-9][0-9]-conf \
+          [0-9][0-9]-key [0-9][0-9]-stats [0-9][0-9]-help [0-9][0-9]-adminkey \
+          [0-9][0-9][0-9]-key [0-9][0-9][0-9]-stats [0-9][0-9][0-9]-help [0-9][0-9][0-9]-adminkey 2>/dev/null` || true
+
+if [ -z "$FILES" -a -d "results/thesaurus/" ]; then
+	echo Changing to directory results/thesaurus/
+	cd results/thesaurus/
+	FILES=`ls [0-9]-conf [0-9]-key [0-9]-stats [0-9]-help [0-9]-adminkey [0-9][0-9]-conf \
+		  [0-9][0-9]-key [0-9][0-9]-stats [0-9][0-9]-help [0-9][0-9]-adminkey \
+		  [0-9][0-9][0-9]-key [0-9][0-9][0-9]-stats [0-9][0-9][0-9]-help [0-9][0-9][0-9]-adminkey 2>/dev/null` || true
+fi
+if [ -z "$FILES" -a -d "thesaurus/" ]; then
+	echo Changing to directory thesaurus/
+	cd results/thesaurus/
+	FILES=`ls [0-9]-conf [0-9]-key [0-9]-stats [0-9]-help [0-9]-adminkey [0-9][0-9]-conf \
+		  [0-9][0-9]-key [0-9][0-9]-stats [0-9][0-9]-help [0-9][0-9]-adminkey \
+		  [0-9][0-9][0-9]-key [0-9][0-9][0-9]-stats [0-9][0-9][0-9]-help [0-9][0-9][0-9]-adminkey 2>/dev/null` || true
+fi
+
+if [ -z "$FILES" ]; then
+	echo "Could not find any old style filenames in '.', 'results/thesaurus/', or 'thesaurus/'" >&2
+	exit 1
+fi
+
+echo "Renaming files..."
+for file in $FILES ; do
+	mv $file `echo $file | tr '-' '.'`
+done
+
+echo "done."
+echo "The next buildthesaurus run (per default every hour) will fix the index file"

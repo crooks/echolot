@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.14 2002/07/07 01:12:00 weasel Exp $
+# $Id: Conf.pm,v 1.15 2002/07/10 16:22:49 weasel Exp $
 #
 
 =pod
@@ -23,26 +23,6 @@ use Carp qw{cluck};
 use GnuPG::Interface;
 use IO::Handle;
 
-
-sub save_thesaurus($$$) {
-	my ($otype, $oid, $data) = @_;
-
-	return 1 unless Echolot::Config::get()->{'thesaurus'};
-
-	my ($type) = $otype =~ /^([a-z-]+)$/;
-	cluck("type '$otype' is not clean in save_thesaurus"), return 0 unless defined $type;
-	my ($id) = $oid =~ /^([0-9]+)$/;
-	cluck("id '$oid' is not clean in save_thesaurus"), return 0 unless defined $id;
-
-	my $file = Echolot::Config::get()->{'thesaurusdir'}.'/'.$id.'-'.$type;
-	open (F, ">$file") or
-		cluck ("Cannot open '$file': $!"),
-		return 0;
-	print F $data;
-	close (F);
-
-	return 1;
-};
 
 sub send_requests() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
@@ -169,7 +149,7 @@ sub remailer_conf($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
-	save_thesaurus('conf', $id, $reply);
+	Echolot::Thesaurus::save_thesaurus('conf', $id, $reply);
 
 	remailer_caps($reply, $token, $time);
 };
@@ -386,7 +366,7 @@ sub remailer_key($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
-	save_thesaurus('key', $id, $reply);
+	Echolot::Thesaurus::save_thesaurus('key', $id, $reply);
 
 	my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
 	cluck("No remailer found for id '$id'"), return 0 unless defined $remailer;
@@ -405,7 +385,7 @@ sub remailer_stats($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
-	save_thesaurus('stats', $id, $reply);
+	Echolot::Thesaurus::save_thesaurus('stats', $id, $reply);
 };
 
 sub remailer_help($$$) {
@@ -416,7 +396,7 @@ sub remailer_help($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
-	save_thesaurus('help', $id, $reply);
+	Echolot::Thesaurus::save_thesaurus('help', $id, $reply);
 };
 
 sub remailer_adminkey($$$) {
@@ -427,7 +407,7 @@ sub remailer_adminkey($$$) {
 		cluck ("Returned token '$token' has no id at all"),
 		return 0;
 	
-	save_thesaurus('adminkey', $id, $reply);
+	Echolot::Thesaurus::save_thesaurus('adminkey', $id, $reply);
 };
 
 1;

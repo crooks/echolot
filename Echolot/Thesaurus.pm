@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.5 2002/07/07 01:12:00 weasel Exp $
+# $Id: Thesaurus.pm,v 1.6 2002/07/10 16:22:49 weasel Exp $
 #
 
 =pod
@@ -23,6 +23,26 @@ use English;
 use HTML::Template;
 
 
+sub save_thesaurus($$$) {
+	my ($otype, $oid, $data) = @_;
+
+	return 1 unless Echolot::Config::get()->{'thesaurus'};
+
+	my ($type) = $otype =~ /^([a-z-]+)$/;
+	cluck("type '$otype' is not clean in save_thesaurus"), return 0 unless defined $type;
+	my ($id) = $oid =~ /^([0-9]+)$/;
+	cluck("id '$oid' is not clean in save_thesaurus"), return 0 unless defined $id;
+
+	my $file = Echolot::Config::get()->{'thesaurusdir'}.'/'.$id.'.'.$type;
+	open (F, ">$file") or
+		cluck ("Cannot open '$file': $!"),
+		return 0;
+	print F $data;
+	close (F);
+
+	return 1;
+};
+
 sub build_thesaurus() {
 	return 1 unless Echolot::Config::get()->{'thesaurus'};
 
@@ -38,7 +58,7 @@ sub build_thesaurus() {
 
 	my $data;
 	for my $filename (@files) {
-	    my ($id, $what) = $filename =~ /^(\d+)-(adminkey|conf|help|key|stats)$/;
+	    my ($id, $what) = $filename =~ /^(\d+)\.(adminkey|conf|help|key|stats)$/;
 		next unless (defined $id && defined $what);
 
 	    my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
