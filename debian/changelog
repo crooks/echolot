@@ -1,6 +1,6 @@
-echolot (2.0-0.beta25.1) unstable; urgency=low
+echolot (2.0-0.beta26.1) unstable; urgency=low
 
   * Initial Release.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 11 Aug 2002 16:21:18 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 12 Aug 2002 05:44:24 +0200
 

@@ -1,4 +1,4 @@
-Changes in version
+Changes in version 2.0beta26 - 2002-08-12
 	* Fix a few typos in the echolot.html template.
 	* Added /etc/echolot/pingd.conf to the list of configfiles.
 	* Have a debian/ directory to build a Debian package.
