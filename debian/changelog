@@ -1,12 +1,12 @@
-echolot (2.1.3-0) unstable; urgency=low
+echolot (2.1.3-1) unstable; urgency=low
 
-  * New upstream version. (NOT RELEASED YET)
+  * New upstream version.
     closes: #243504 echolot: typo in month abbreviations
   * Document exim's local_part_suffix in the recipient_delimiter
     debconf question.
     closes: #243496 Exim4 mailbox delimiter
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 20 Apr 2004 13:39:52 +0200
+ -- Peter Palfrader <weasel@debian.org>  Tue, 20 Apr 2004 13:42:32 +0200
 
 echolot (2.1.2-1) unstable; urgency=low
 
