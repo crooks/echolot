@@ -3,7 +3,7 @@
 	<title>From Headers [<TMPL_VAR NAME="SITE_NAME">]</title>
 	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
 	<link href="echolot.css" rel="stylesheet" type="text/css">
-	<!-- $Id: fromlinesindex.html,v 1.1 2003/02/18 06:38:34 weasel Exp $ -->
+	<!-- $Id: fromlinesindex.html,v 1.2 2003/02/20 14:04:25 weasel Exp $ -->
 </head>
 <body>
 <h1>From Headers [<TMPL_VAR NAME="SITE_NAME">]</h1>
@@ -15,7 +15,7 @@
 <p>
 <table border=1>
 
-<tr><tr><th>nick</th><th>From Lines</th><th>type</th></tr>
+<tr><tr><th>nick</th><th>From Line</th><th>type</th></tr>
 
 <TMPL_LOOP NAME="default">
 	<TMPL_LOOP NAME="data">
@@ -33,7 +33,7 @@
 <p>
 <table border=1>
 
-<tr><tr><th>nick</th><th>From Lines</th><th>type</th></tr>
+<tr><tr><th>nick</th><th>From Line</th><th>type</th></tr>
 
 <TMPL_LOOP NAME="usersupplied">
 	<TMPL_LOOP NAME="data">
