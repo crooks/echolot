@@ -1,4 +1,4 @@
-$Id: README,v 1.35 2002/10/25 10:47:54 weasel Exp $
+$Id: README,v 1.36 2002/12/13 06:49:09 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -254,7 +254,7 @@ o Echolot puts its stats in the result directory. Echolot also produces
       $ ln -sf echolot.html index.html
 
   Alternatively, you can set the indexfilebasename option in pingd.conf
-  to index.html.
+  to »index« (no .html extension).
 
 o Echolot additionally produces .meta files by default. These files
   include extra headers that your http server should send to clients. If
