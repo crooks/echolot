@@ -775,6 +775,18 @@ This means that in case of cpunk chain pings we prefer
 using cpunk-dsa over cpunk-rsa which in return we prefer
 to cpunk-clear.  For mix there's only mix.
 
+=item B<pings_weight>
+
+Not all pings have the same influence on the average reliability
+calcluated.  Very new pings don't count fully since there is some
+margin of error.  Similarly very old pings are not that interesting
+either.
+
+By default days 1 to 4 count fully (with weight 1), the older they
+are the less they count.
+
+	Default: pings_weight => [ qw{0.5 1.0 1.0 1.0 1.0 0.9 0.8 0.5 0.3 0.2 0.2 0.1 } ],
+
 =back
 
 =head2 TEMPLATES
