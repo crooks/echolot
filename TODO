@@ -18,7 +18,6 @@ Legend:
  - close and open files instead of keeping all the files open
  - make 'not a remailer' check not that strict
 
-
 can be done later:
  - allow capsstring overrides/additions
  - check gnupg version number on startup

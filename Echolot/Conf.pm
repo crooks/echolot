@@ -289,6 +289,8 @@ sub parse_mix_key($$$) {
 			address => $address,
 			version => $version,
 			caps    => $caps,
+			created => $created,
+			expires => $expires,
 			summary => $_
 		};
 	};
@@ -311,6 +313,14 @@ sub parse_mix_key($$$) {
 			next;
 		(! defined $mixmasters{$keyid}->{'nick'} && defined $mixmasters{$keyid}->{'key'}) and
 			Echolot::Log::info("Mixmaster key without key header in reply from $remailer_address."),
+			next;
+		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime();
+		my $today = sprintf("%04d-%02d-%02d", $year+1900, $mon+1, $mday);
+		(defined $mixmasters{$keyid}->{'created'} && ($today lt $mixmasters{$keyid}->{'created'})) and
+			Echolot::Log::info("Mixmaster key for $remailer_address created in the future ($today < $created)."),
+			next;
+		(defined $mixmasters{$keyid}->{'expires'} && ($mixmasters{$keyid}->{'expires'} lt $today)) and
+			Echolot::Log::info("Mixmaster key for $remailer_address expired ($expires < $today)."),
 			next;
 
 		if ($remailer->{'address'} ne $remailer_address) {
