@@ -21,6 +21,9 @@ Changes in version
 	   Several other settings control the details of chain pinging.
 	   You probably don't want or need to tweak them. See
 	   the pingd.conf(5) manual page for details.
+	* Create an index.txt file in the thesaurus directory which
+	  holds id, nick, and address for each remailer in the thesaurus.
+	  This helps additional tools to utilize Echolot's data.
 
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.

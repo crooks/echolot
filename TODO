@@ -1,4 +1,4 @@
-$Id: TODO,v 1.46 2003/02/16 14:11:28 weasel Exp $
+$Id: TODO,v 1.47 2003/02/17 09:14:47 weasel Exp $
 
 Legend:
         - Not done
@@ -7,8 +7,6 @@ Legend:
         o Done
         D Deferred
         X Abandoned
-
-  - help riot admin's export?
 
 can be done later:
  - allow capsstring overrides/additions

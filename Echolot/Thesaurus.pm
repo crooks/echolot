@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.14 2003/01/14 05:25:35 weasel Exp $
+# $Id: Thesaurus.pm,v 1.15 2003/02/17 09:14:47 weasel Exp $
 #
 
 =pod
@@ -56,7 +56,7 @@ sub build_thesaurus() {
 
 	my $data;
 	for my $filename (@files) {
-	    my ($id, $what) = $filename =~ /^(\d+)\.(adminkey|conf|help|key|stats)$/;
+		my ($id, $what) = $filename =~ /^(\d+)\.(adminkey|conf|help|key|stats)$/;
 		next unless (defined $id && defined $what);
 
 		my $remailer = Echolot::Globals::get()->{'storage'}->get_address_by_id($id);
@@ -84,6 +84,7 @@ sub build_thesaurus() {
 		$data->{$remailer->{'address'}}->{$what.'_href'} = $filename;
 		$data->{$remailer->{'address'}}->{$what.'_date'} = $date;
 		$data->{$remailer->{'address'}}->{$what.'_time'} = $time;
+		$data->{$remailer->{'address'}}->{'id'} = $id;
 	};
 
 
@@ -105,6 +106,16 @@ sub build_thesaurus() {
 		'thesaurusindexfile',
 		Echolot::Config::get()->{'buildthesaurus'},
 		remailers => \@data);
+
+	open(F, ">$dir/index.txt") or
+		Echolot::Log::warn ("Cannot open '$dir/index.txt': $!."),
+		return 0;
+	for my $remailer (@data) {
+		printf F "%s\t%s\t%s\n", $remailer->{'nick'}, $remailer->{'id'}, $remailer->{'address'};
+	};
+	close(F) or
+		Echolot::Log::warn ("Cannot close '$dir/index.txt': $!."),
+		return 0;
 };
 
 
