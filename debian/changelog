@@ -1,3 +1,9 @@
+echolot (000.2.0rc1-1) unstable; urgency=low
+
+  * New version number.
+
+ -- Peter Palfrader <weasel@debian.org>  Thu,  5 Sep 2002 16:51:42 +0200
+
 echolot (000.2.0beta34-1) unstable; urgency=low
 
   * New upstream version
