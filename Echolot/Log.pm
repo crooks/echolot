@@ -1,7 +1,7 @@
 package Echolot::Log;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Log.pm,v 1.2 2003/01/14 06:27:41 weasel Exp $
+# $Id: Log.pm,v 1.3 2003/01/14 06:32:22 weasel Exp $
 #
 
 =pod
@@ -41,8 +41,8 @@ sub reopen() {
 	$LOG->remove( 'file1' );
 	$LOG->add( Log::Dispatch::File->new(
 		name       => 'file1',
-		min_level  => 'debug',
-		filename   => 'pingd.log',
+		min_level  => Echolot::Config::get()->{'loglevel'},
+		filename   => Echolot::Config::get()->{'logfile'},
 		mode       => 'append',
 	));
 };
@@ -99,7 +99,7 @@ sub confess($) {
 	my $longmess = Carp::longmess();
 	$longmess =~ s/^/	/mg;
 	$msg .= "\n".$longmess;
-	critical($msg);
+	error($msg);
 	die($msg);
 };
 
