@@ -1,4 +1,4 @@
-Changes in version 2.0.5
+Changes in version 2.0.5 - 2002-10-25
 	* Only take default parameters if they are not set in
 	  pingd.conf (as opposed to set to undef).
 	* Also support setups without user defined mailboxes
