@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.2 2002/06/11 00:09:29 weasel Exp $
+# $Id: pingd,v 1.3 2002/06/11 10:10:34 weasel Exp $
 #
 
 use strict;
@@ -12,9 +12,10 @@ use lib '.';
 use Echolot::Config;
 use Echolot::Globals;
 use Echolot::Storage::File;
-#use Echolot::Scheduler;
+use Echolot::Scheduler;
 use Echolot::Conf;
 use Echolot::Mailin;
+use Echolot::Pinger;
 
 $ENV{'PATH'} = '/bin:/usr/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
@@ -22,19 +23,14 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 Echolot::Config::init();
 Echolot::Globals::init();
 
-#my $storage = new Echolot::Storage::File ( datadir => 'data' );
-#my $conf = new Echolot::Conf( storage => $storage );
+my $scheduler = new Echolot::Scheduler;
 
-#$conf->send_requests();
- 
-#my @addr = $storage->get_query_addresses();
+$scheduler->add('processmail' ,     60                                      , 0, \&Echolot::Mailin::process );
+$scheduler->add('getkeyconf'  ,  10*60                                      , 0, \&Echolot::Conf::send_requests );
+$scheduler->add('ping'        ,  Echolot::Config::get()->{'pinger_interval'}, 0, \&Echolot::Pinger::send_pings );
 
-#require Data::Dumper;
-#print Data::Dumper->Dump([Echolot::Globals::get()]);
-#Echolot::Conf::send_requests();
-Echolot::Mailin::process();
+$scheduler->run();
 
-Echolot::Globals::get()->{'storage'}->commit();
-
+#Echolot::Globals::get()->{'storage'}->commit();
 
 # vim: set ts=4 shiftwidth=4:
