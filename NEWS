@@ -1,6 +1,6 @@
 Changes in version
 	* Fix a few typos in the echolot.html template.
-	* Added /etc/echolot.conf to the list of configfiles.
+	* Added /etc/echolot/pingd.conf to the list of configfiles.
 
 Changes in version 2.0beta25 - 2002-08-10
 	* Produce echolot.html, an index file for echolot results.
