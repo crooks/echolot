@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.32 2003/01/02 23:51:15 weasel Exp $
+# $Id: Conf.pm,v 1.33 2003/01/02 23:58:53 weasel Exp $
 #
 
 =pod
@@ -168,6 +168,7 @@ sub remailer_caps($$$;$) {
 			last if ($head eq 'SUPPORTED CPUNK (TYPE I) REMAILERS' ||
 				 $head eq 'SUPPORTED MIXMASTER (TYPE II) REMAILERS');
 		};
+		last unless defined $head;
 		my $wanting = $head eq 'SUPPORTED CPUNK (TYPE I) REMAILERS' ? 1 :
 		              $head eq 'SUPPORTED MIXMASTER (TYPE II) REMAILERS' ? 2 :
 		              undef;
