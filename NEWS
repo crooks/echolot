@@ -1,3 +1,9 @@
+Changes in version
+	* Create .meta files with the expiry date of pages.
+	* Also put the expiry date in HTML meta headers.
+	* Make indexfilebasename a configure option.
+	* Code cleanup: renamed some functions.
+
 Changes in version 2.0beta28 - 2002-08-13
 	* Write a standard mix.cfg configuration file for mixmaster.
 	  It only sets PUBRING and TYPE2LIST. Needed for systems where

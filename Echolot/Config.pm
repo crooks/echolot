@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.38 2002/08/12 03:06:53 weasel Exp $
+# $Id: Config.pm,v 1.39 2002/08/14 22:54:20 weasel Exp $
 #
 
 =pod
@@ -111,6 +111,7 @@ sub init($) {
 		thesaurusdir                => 'results/thesaurus',
 		thesaurusindexfile          => 'results/thesaurus/index.html',
 		private_resultdir           => 'results.private',
+		indexfilebasename           => 'echolot.html',
 		gnupghome                   => 'gnupghome',
 		gnupg                       => '',
 		mixhome                     => 'mixhome',
@@ -122,6 +123,9 @@ sub init($) {
 
 		commands_file               => 'commands.txt',
 		pidfile                     => 'pingd.pid',
+
+		write_meta_files            => 1,
+		meta_extension              => '.meta',
 
 		storage                     => {
 			backend                 	=> 'File',

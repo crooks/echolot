@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.27 2002/08/10 01:36:47 weasel Exp $
+# $Id: Stats.pm,v 1.28 2002/08/14 22:54:20 weasel Exp $
 #
 
 =pod
@@ -23,30 +23,26 @@ use Carp qw{cluck};
 use constant DAYS => 12;
 use constant SECS_PER_DAY => 24 * 60 * 60;
 use English;
-use HTML::Template;
 
 use Statistics::Distrib::Normal qw{};
-
-my @WDAY = qw{Sun Mon Tue Wed Thu Fri Sat};
-my @MON  = qw{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec};
 
 my $NORMAL = new Statistics::Distrib::Normal;
 $NORMAL->mu(0);
 $NORMAL->sigma(1);
 
-sub makeDate() {
+sub make_date() {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime();
 	sprintf("%s %02d %s %4d %02d:%02d:%02d GMT",
-		$WDAY[$wday],
+		Echolot::Tools::make_dayname($wday),
 		$mday,
-		$MON[$mon],
+		Echolot::Tools::make_monthname($mon),
 		$year + 1900,
 		$hour,
 		$min,
 		$sec);
 };
 
-sub makeMinHr($$) {
+sub make_min_hr($$) {
 	my ($sec, $includesec) = @_;
 	my ($s, $m, $h);
 
@@ -270,46 +266,30 @@ sub read_file($;$) {
 	return $result;
 };
 
-sub write_file($$;$) {
-	my ($filebasename, $html_template, $output) = @_;
+sub write_file($$$$) {
+	my ($filebasename, $html_template, $expires, $output) = @_;
 
-	my $filename;
-	if (defined $output) {
-		$filename = $filebasename.'.txt';
-		open(F, '>'.$filename) or
-			cluck("Cannot open $filename: $!\n"),
+	my $filename = $filebasename.'.txt';
+	open(F, '>'.$filename) or
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
+	print F $output;
+	close (F);
+	if (defined $expires) {
+		Echolot::Tools::write_meta_information($filename,
+			Expires => time + $expires) or
+			cluck ("Error while writing meta information for $filename"),
 			return 0;
-		print F $output;
-		close (F);
 	};
-
 	return 1 unless defined $html_template;
 	
-	my $template =  HTML::Template->new(
-		filename => $html_template,
-		strict => 0,
-		die_on_bad_params => 0,
-		global_vars => 1 );
 	if (defined $output) {
 		$output =~ s/&/&amp;/g;
 		$output =~ s/"/&quot;/g;
 		$output =~ s/</&lt;/g;
 		$output =~ s/>/&gt;/g;
-		$template->param ( list => $output );
 	};
-	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
-	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
-	$template->param ( seperate_rlist => Echolot::Config::get()->{'seperate_rlists'} );
-	$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
-	$template->param ( thesaurus => Echolot::Config::get()->{'thesaurus'} );
-	$template->param ( version => Echolot::Globals::get()->{'version'} );
-
-	$filename = $filebasename.'.html';
-	open(F, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
-		return 0;
-	print F $template->output();
-	close (F);
+	Echolot::Tools::write_HTML_file($filebasename.'.html', $html_template, $expires, output => $output);
 
 	return 1;
 };
@@ -322,7 +302,7 @@ sub build_mlist1($$$$$;$) {
 	$output .= sprintf "\nBroken type-I remailer chains:\n$broken1\n" if (defined $broken1);
 	$output .= sprintf "\nBroken type-II remailer chains:\n$broken2\n" if (defined $broken2);
 
-	$output .= sprintf "Last update: %s\n", makeDate();
+	$output .= sprintf "Last update: %s\n", make_date();
 	$output .= sprintf "mixmaster           history  latency  uptime\n";
 	$output .= sprintf "--------------------------------------------\n";
 
@@ -330,11 +310,11 @@ sub build_mlist1($$$$$;$) {
 		$output .= sprintf "%-14s %-12s %8s %6.2f%%\n",
 			substr($remailer->{'nick'},0,14),
 			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
-			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 1),
+			make_min_hr($remailer->{'stats'}->{'avr_latency'}, 1),
 			$remailer->{'stats'}->{'avr_reliability'} * 100;
 	};
 
-	write_file($filebasename, $html_template, $output) or
+	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
 		cluck("writefile failed"),
 		return 0;
 	return 1;
@@ -353,7 +333,7 @@ sub build_rlist1($$$$$;$) {
 	$output .= sprintf "\nBroken type-II remailer chains:\n$broken2\n" if (defined $broken2);
 
 	$output .= sprintf "\n";
-	$output .= sprintf "Last update: %s\n", makeDate();
+	$output .= sprintf "Last update: %s\n", make_date();
 	$output .= sprintf "remailer  email address                        history  latency  uptime\n";
 	$output .= sprintf "-----------------------------------------------------------------------\n";
 
@@ -362,12 +342,12 @@ sub build_rlist1($$$$$;$) {
 			substr($remailer->{'nick'},0,8),
 			substr($remailer->{'address'},0,32),
 			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
-			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 1),
+			make_min_hr($remailer->{'stats'}->{'avr_latency'}, 1),
 			$remailer->{'stats'}->{'avr_reliability'} * 100;
 	};
 
 
-	write_file($filebasename, $html_template, $output) or
+	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
 		cluck("writefile failed"),
 		return 0;
 	return 1;
@@ -380,7 +360,7 @@ sub build_list2($$$$$;$) {
 	my $output = '';
 
 	$output .= sprintf "Stats-Version: 2.0\n";
-	$output .= sprintf "Generated: %s\n", makeDate();
+	$output .= sprintf "Generated: %s\n", make_date();
 	$output .= sprintf "Mixmaster    Latent-Hist   Latent  Uptime-Hist   Uptime  Options\n";
 	$output .= sprintf "------------------------------------------------------------------------\n";
 
@@ -388,7 +368,7 @@ sub build_list2($$$$$;$) {
 		$output .= sprintf "%-12s %-12s %6s   %-12s  %5.1f%%  %s\n",
 			substr($remailer->{'nick'},0,12),
 			build_list2_latencystr($remailer->{'stats'}->{'latency_day'}),
-			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 0),
+			make_min_hr($remailer->{'stats'}->{'avr_latency'}, 0),
 			build_list2_reliabilitystr($remailer->{'stats'}->{'reliability_day'}),
 			$remailer->{'stats'}->{'avr_reliability'} * 100,
 			build_list2_capsstr($remailer->{'caps'});
@@ -403,7 +383,7 @@ sub build_list2($$$$$;$) {
 		$output .= $remailer->{'caps'}."\n" if defined $remailer->{'caps'};
 	}
 
-	write_file($filebasename, $html_template, $output) or
+	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
 		cluck("writefile failed"),
 		return 0;
 	return 1;
@@ -415,7 +395,7 @@ sub build_clist($$$$$;$) {
 	my $output = '';
 
 	$output .= sprintf "Stats-Version: 2.0.1\n";
-	$output .= sprintf "Generated: %s\n", makeDate();
+	$output .= sprintf "Generated: %s\n", make_date();
 	$output .= sprintf "Mixmaster    Latent-Hist   Latent  Uptime-Hist   Uptime  Options         Type\n";
 	$output .= sprintf "------------------------------------------------------------------------------------\n";
 
@@ -431,7 +411,7 @@ sub build_clist($$$$$;$) {
 			$output .= sprintf "%-12s %-12s %6s   %-12s  %5.1f%%  %s %s\n",
 				$nick,
 				build_list2_latencystr($all->{$nick}->{$type}->{'stats'}->{'latency_day'}),
-				makeMinHr($all->{$nick}->{$type}->{'stats'}->{'avr_latency'}, 0),
+				make_min_hr($all->{$nick}->{$type}->{'stats'}->{'avr_latency'}, 0),
 				build_list2_reliabilitystr($all->{$nick}->{$type}->{'stats'}->{'reliability_day'}),
 				$all->{$nick}->{$type}->{'stats'}->{'avr_reliability'} * 100,
 				build_list2_capsstr($all->{$nick}->{$type}->{'caps'}),
@@ -450,7 +430,7 @@ sub build_clist($$$$$;$) {
 		};
 	}
 
-	write_file($filebasename, $html_template, $output) or
+	write_file($filebasename, $html_template, Echolot::Config::get()->{'buildstats'}, $output) or
 		cluck("writefile failed"),
 		return 0;
 	return 1;
@@ -565,25 +545,33 @@ sub build_lists() {
 		build_clist( $pubclist, $broken1, $broken2, $sameop, Echolot::Config::get()->{'resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
 	};
 
-
-	write_file(Echolot::Config::get()->{'resultdir'}.'/'.'echolot', Echolot::Config::get()->{'templates'}->{'indexfile'});
+	Echolot::Tools::write_HTML_file(
+		Echolot::Config::get()->{'resultdir'}.'/'.Echolot::Config::get()->{'indexfilebasename'},
+		Echolot::Config::get()->{'templates'}->{'indexfile'},
+		Echolot::Config::get()->{'buildstats'});
 };
 
 
 sub build_mixring() {
+	my @filenames;
+
 	my $filename = Echolot::Config::get()->{'resultdir'}.'/pubring.mix';
+	push @filenames, $filename;
 	open(F, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
 	$filename = Echolot::Config::get()->{'resultdir'}.'/type2.list';
+	push @filenames, $filename;
 	open(T2L, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
 	$filename = Echolot::Config::get()->{'private_resultdir'}.'/pubring.mix';
+	push @filenames, $filename;
 	open(F_PRIV, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
 	$filename = Echolot::Config::get()->{'private_resultdir'}.'/type2.list';
+	push @filenames, $filename;
 	open(T2L_PRIV, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
@@ -625,6 +613,13 @@ sub build_mixring() {
 	close(T2L);
 	close(F_PRIV);
 	close(T2L_PRIV);
+
+	for my $filename (@filenames) {
+		Echolot::Tools::writeMetaInformation($filename,
+			Expires => time + Echolot::Config::get()->{'buildkeys'}) or
+			cluck ("Error while writing meta information for $filename"),
+			return 0;
+	};
 };
 
 
@@ -722,6 +717,12 @@ sub build_pgpring_export($$$$) {
 		return 0;
 	print F $stdout;
 	close F;
+
+	Echolot::Tools::writeMetaInformation($file,
+		Expires => time + Echolot::Config::get()->{'buildkeys'}) or
+		cluck ("Error while writing meta information for $file"),
+		return 0;
+
 	return 1;
 };
 

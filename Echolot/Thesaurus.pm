@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.10 2002/08/07 23:33:19 weasel Exp $
+# $Id: Thesaurus.pm,v 1.11 2002/08/14 22:54:20 weasel Exp $
 #
 
 =pod
@@ -19,7 +19,6 @@ This package provides necessary functions for the thesaurus.
 use strict;
 use Carp qw{cluck};
 use English;
-use HTML::Template;
 
 
 sub save_thesaurus($$$) {
@@ -100,48 +99,12 @@ sub build_thesaurus() {
 
 	my @data = map {$data->{$_}} (sort { $data->{$a}->{'nick'} cmp $data->{$b}->{'nick'} } keys (%$data));
 
-	my $template =  HTML::Template->new(
-		filename => Echolot::Config::get()->{'templates'}->{'thesaurusindexfile'},
-		global_vars => 1 );
-	$template->param ( remailers => \@data );
-	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
-	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
-	
 
-	my $file = Echolot::Config::get()->{'thesaurusindexfile'};
-	open (F, ">$file") or
-		cluck ("Cannot open '$file': $!"),
-		return 0;
-	print F $template->output();
-	close F;
-
-	return;
-
-	print F '<html><head><title>Thesaurus</title></head><body><h1>Thesaurus</h1><table border=1>'."\n";
-	print F "<tr><tr><th>nick</th><th>Address</th><th>conf</th><th>help</th><th>key</th><th>stats</th><th>adminkey</th></tr>\n";
-
-	for my $addr (sort { $data->{$a}->{'nick'} cmp $data->{$b}->{'nick'} } keys (%$data)) {
-		printf F '<tr><td>%s</td><td>%s</td><td align="center">%s</td><td align="center">%s</td><td align="center">%s</td><td align="center">%s</td><td align="center">%s</td></tr>'."\n",
-			$data->{$addr}->{'nick'},
-			$addr,
-			defined ($data->{$addr}->{'conf'}) ?
-				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'conf'}->{'href'}, $data->{$addr}->{'conf'}->{'date'},
-				                                                                         $data->{$addr}->{'conf'}->{'time'}) : 'N/A',
-			defined ($data->{$addr}->{'help'}) ?
-				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'help'}->{'href'}, $data->{$addr}->{'help'}->{'date'},
-				                                                                         $data->{$addr}->{'help'}->{'time'}) : 'N/A',
-			defined ($data->{$addr}->{'key'}) ?
-				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'key'}->{'href'}, $data->{$addr}->{'key'}->{'date'},
-				                                                                        $data->{$addr}->{'key'}->{'time'}) : 'N/A',
-			defined ($data->{$addr}->{'stats'}) ?
-				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'stats'}->{'href'}, $data->{$addr}->{'stats'}->{'date'},
-				                                                                          $data->{$addr}->{'stats'}->{'time'}) : 'N/A',
-			defined ($data->{$addr}->{'adminkey'}) ?
-				sprintf('<a href="%s">%s<br>%s</a>', $data->{$addr}->{'adminkey'}->{'href'}, $data->{$addr}->{'adminkey'}->{'date'},
-				                                                                             $data->{$addr}->{'adminkey'}->{'time'}) : 'N/A',
-	};
-	print F '</table></body>';
-	close (F);
+	Echolot::Tools::write_HTML_file(
+		Echolot::Config::get()->{'thesaurusindexfile'},
+		Echolot::Config::get()->{'templates'}->{'thesaurusindexfile'},
+		Echolot::Config::get()->{'buildthesaurus'},
+		remailers => \@data);
 };
 
 
