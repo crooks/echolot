@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.4 2002/07/16 02:48:57 weasel Exp $
+# $Id: Mix.pm,v 1.5 2002/07/22 02:18:30 weasel Exp $
 #
 
 =pod
@@ -25,7 +25,7 @@ sub ping($$$$) {
 
 	my $chaincomma = join (',', @$chain);
 
-	my $keyring = Echolot::Config::get()->{'Pinger::Mix'}->{'mixdir'}.'/pubring.mix';
+	my $keyring = Echolot::Config::get()->{'mixhome'}.'/pubring.mix';
 	open (F, '>'.$keyring) or
 		cluck("Cannot open $keyring for writing: $!"),
 		return 0;
@@ -37,7 +37,7 @@ sub ping($$$$) {
 		cluck("Cannot close $keyring"),
 		return 0;
 
-	my $type2list = Echolot::Config::get()->{'Pinger::Mix'}->{'mixdir'}.'/type2.list';
+	my $type2list = Echolot::Config::get()->{'mixhome'}.'/type2.list';
 	open (F, '>'.$type2list) or
 		cluck("Cannot open $type2list for writing: $!"),
 		return 0;
@@ -48,10 +48,11 @@ sub ping($$$$) {
 		cluck("Cannot close $type2list"),
 		return 0;
 	
-	open(MIX, "|".Echolot::Config::get()->{'Pinger::Mix'}->{'mix'}." -m -S -l $chaincomma") or
+	$ENV{'MIXPATH'} = Echolot::Config::get()->{'mixhome'};
+	open(MIX, "|".Echolot::Config::get()->{'mixmaster'}." -m -S -l $chaincomma") or
 		cluck("Cannot exec mixpinger: $!"),
 		return 0;
-	print MIX "To: $to\n\n$body";
+	print MIX "To: $to\n\n$body\n";
 	close (MIX);
 	    
 	return 1;

@@ -1,4 +1,4 @@
-$Id: README,v 1.21 2002/07/17 16:53:38 weasel Exp $
+$Id: README,v 1.22 2002/07/22 02:18:30 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -45,16 +45,24 @@ o Create a new unix user named »pinger« (You can actually use any name
 o Make sure you have the perl libraries mentioned above and GnuPG
   installed properly.
 
-o Create a Mixmaster client installation in ~pinger/Mix echolot needs to
-  have its own installation because it will mess with mix' mlist.txt
-  file, the public Mixmaster keyring, and type2.list.  Don't bother
-  putting current keyrings there.
-
 o Copy all echolot files and directories to ~pinger/echolot
 
 o Copy/Rename the pingd.conf.sample file to pingd.conf.
 
 o Check the homedir setting and set sitename in pingd.conf.
+
+o If the Mixmaster executable »mix« is not in your PATH, set
+  the »mixmaster« config option in pingd.conf.
+
+  Echolot can use any available mixmaster binary (e.g. your remailer's mix).
+  It will not share pool or keyrings with the existing installation (it sets
+  the MIXPATH environment variable).
+  
+  If you prefer you can build one for Echolot and place it in ~/Mix. Don't
+  bother putting configuration or keyrings there though - they won't get used.
+
+o If the GnuPG executable »gpg« is not in your PATH, set
+  the »gnupg« config option in pingd.conf.
 
 o Set my_localpart and my_domain in pingd.conf to the appropriate values
   for your pinger. Mail to my_localpart@my_domain needs to reach

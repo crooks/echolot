@@ -8,10 +8,7 @@ $CONFIG = {
             'my_domain'        => 'example.com',
 	    'operator_address' => 'remop@example.org',
 
-            'Pinger::Mix'      => {
-                                    'mix' => '/home/pinger/Mix/mix',
-                                    'mixdir' => '/home/pinger/Mix'
-                                  },
+            #'mixmaster'        => '/home/pinger/Mix/mix',
 
             'seperate_rlists'  => 0,
             'combined_list'    => 0,

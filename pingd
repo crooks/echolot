@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.46 2002/07/17 19:16:06 weasel Exp $
+# $Id: pingd,v 1.47 2002/07/22 02:18:30 weasel Exp $
 #
 
 =pod
@@ -455,6 +455,7 @@ sub make_dirs() {
 		Echolot::Config::get()->{'thesaurusdir'},
 		Echolot::Config::get()->{'private_resultdir'},
 		Echolot::Config::get()->{'gnupghome'},
+		Echolot::Config::get()->{'mixhome'},
 		Echolot::Config::get()->{'tmpdir'},
 		Echolot::Config::get()->{'storage'}->{'File'}->{'basedir'}
 	) {

@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.5 2002/07/16 02:48:57 weasel Exp $
+# $Id: CPunk.pm,v 1.6 2002/07/22 02:18:30 weasel Exp $
 #
 
 =pod
@@ -35,6 +35,7 @@ sub encrypt_to($$$$) {
 		Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.keyring';
 	
 	my $GnuPG = new GnuPG::Interface;
+	$GnuPG->call( Echolot::Config::get()->{'gnupg'} ) if (Echolot::Config::get()->{'gnupg'});
 	$GnuPG->options->hash_init( 
 		homedir => Echolot::Config::get()->{'gnupghome'} );
 	$GnuPG->options->meta_interactive( 0 );

@@ -1,9 +1,25 @@
 Changes in version
+	* You no longer need an extra Mixmaster installation for your pinger.
+	  Echolot can make use of any Mixmaster binary you alread have
+	  installed.
+	* The config hash »Pinger::Mix« is obsolete now. Please set
+	  »mixmaster« to the path of your mix executeable. Echolot now
+	  uses its own mix directory below echolothome by default (config
+	  option mixhome).
+	* The default gnupghome has changed from »gnupg« to »gnupghome«.
+	* New config option »gnupg«.
 	* Not the current time but the scheduled start time is used when
 	  deciding which remailers to ping. This is nice if we get delayed for
 	  whatever reason.
 	* Changed URL in templates to point to www.palfrader.org/echolot
 	  instead of the savannah page.
+	
+	How to upgrade (assuming you have a default configuration):
+	   ./pingd stop
+	   mv gnupg gnupghome
+	   vi pingd.conf (remove Pinger::Mix, set mixmaster;
+	                  cf. pingd.conf.sample )
+	  ./pingd [...] start
 
 Changes in version 2.0beta16 - 2002-07-17
 	* Do not send all pings for the same remailer at the same time

@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.22 2002/07/17 18:53:15 weasel Exp $
+# $Id: Stats.pm,v 1.23 2002/07/22 02:18:30 weasel Exp $
 #
 
 =pod
@@ -679,6 +679,7 @@ sub build_pgpring_export($$$$) {
 
 sub build_pgpring() {
 	my $GnuPG = new GnuPG::Interface;
+	$GnuPG->call( Echolot::Config::get()->{'gnupg'} ) if (Echolot::Config::get()->{'gnupg'});
 	$GnuPG->options->hash_init( 
 		armor   => 1,
 		homedir => Echolot::Config::get()->{'gnupghome'} );

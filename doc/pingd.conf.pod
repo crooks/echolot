@@ -61,33 +61,6 @@ The email address of the human operator that runs this pinger.
 
 It is used in several templates.
 
-=item B<Pinger::Mix>
-
-B<Pinger::Mix> has some information for C<Echolot::Pinger::Mix>
-pinging module. It is a hash that has two keys:
-
-=over
-
-=item B<mix>
-
-The name (with complete path) of the mix binary. It is expected to support the
-same command line options as the canonical mixmaster client/server by
-Anonimizer Inc.
-
-=item B<mixdir>
-
-The directory where the files C<type2.list> and C<mixring.pub> are loated in.
-C<Echolot::Pinger::Mix> will overwrite these files before sending any pings.
-
-=back
-
-	Default: none
-	Example: 'Pinger::Mix' => {
-	           'mix'    => '/home/pinger/Mix/mix',
-	           'mixdir' => '/home/pinger/Mix',
-	          },
-
-
 =back
 
 
@@ -410,7 +383,34 @@ show set to false are shown here too).
 The directory which is used as temporal GnuPG home for all keyring and
 encryption/decryption actions.
 
-	Default: 'gnupghome' => 'gnupg',
+	Default: 'gnupghome' => 'gnupghome',
+
+=item B<gnupg>
+
+Name of the GnuPG executeable. If it is not in your PATH make sure to
+include path information.
+
+If B<gnupg> is an empty string, the C<GnuPG::Interfae> default (usually B<gpg>)
+is used.
+
+	Default: 'gnupg' => '',
+	Example: 'gnupg' => '/home/pinger/bin/myGnuPG',
+
+=item B<mixhome>
+
+The directory which is used as temporal Mixmaster home for all keyring and
+encryption/decryption actions.
+
+	Default: 'mixhome' => 'mixhome',
+	Example: 'mixmaster' => '/home/pinger/Mix',
+
+=item B<mixmaster>
+
+Name of the mixmaster executeable. If it is not in your PATH make sure to
+include path information.
+
+	Default: 'mixmaster' => 'mix',
+	Example: 'mixmaster' => '/home/pinger/Mix/mix',
 
 =item B<tmpdir>
 

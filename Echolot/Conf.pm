@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.22 2002/07/22 01:28:21 weasel Exp $
+# $Id: Conf.pm,v 1.23 2002/07/22 02:18:30 weasel Exp $
 #
 
 =pod
@@ -307,6 +307,7 @@ sub parse_cpunk_key($$$) {
 	my ($reply, $time, $remailer) = @_;
 
 	my $GnuPG = new GnuPG::Interface;
+	$GnuPG->call( Echolot::Config::get()->{'gnupg'} ) if (Echolot::Config::get()->{'gnupg'});
 	$GnuPG->options->hash_init(
 		homedir => Echolot::Config::get()->{'gnupghome'} );
 	$GnuPG->options->meta_interactive( 0 );
