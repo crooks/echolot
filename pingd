@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.72 2002/09/05 15:12:42 weasel Exp $
+# $Id: pingd,v 1.73 2002/09/08 18:17:31 weasel Exp $
 #
 
 =pod
@@ -287,7 +287,7 @@ use POSIX qw(setsid);
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 
-my $VERSION = '2.0rc1';
+my $VERSION = '2.0rc2';
 
 
 my $redirected_stdio = 0;
@@ -630,11 +630,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 		exit(0) if (fork());
 		POSIX::setsid();
 		exit(0) if (fork());
-		close STDOUT;
-		close STDERR;
 		open (STDOUT, ">>output") or die ("Cannot open 'output' as STDOUT\n");
 		open (STDERR, ">&STDOUT") or die ("Cannot dup STDOUT as STDERR\n");
-		close STDIN;
+		open (STDIN , "</dev/null") or die ("Cannot open /dev/null as STDIN\n");
 		$redirected_stdio = 1;
 		print "Startup at ".scalar localtime().".\n";
 		daemon_run( $params->{'process'} );
