@@ -35,8 +35,8 @@ wait_for_deaddaemon () {
 				cnt=`expr $cnt + 1`
 				if [ $cnt -gt 30 ]
 				then
-					echo -n " Failed.. "
-					break
+					echo " Failed.. "
+					exit 1;
 				fi
 				sleep 2
 				echo -n "."
