@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.53 2003/02/28 18:04:18 weasel Exp $
+# $Id: Stats.pm,v 1.54 2003/02/28 18:06:01 weasel Exp $
 #
 
 =pod
@@ -485,7 +485,7 @@ sub compress_broken_chain($@) {
 	my %bad_left;
 	my %bad_right;
 	for my $chain (@list) {
-		$chain = chomp $chain;
+		chomp $chain;
 		my ($left, $right) = $chain =~ m/\((\S+) \s (\S+)\)/x or
 			Echolot::Log::warn("Could not parse bad chain '$chain'."),
 			next;
@@ -508,7 +508,7 @@ sub compress_broken_chain($@) {
 	};
 
 	for my $chain (@list) {
-		$chain = chomp $chain;
+		chomp $chain;
 		my ($left, $right) = $chain =~ m/\((\S+) \s (\S+)\)/x or
 			# Echolot::Log::warn("Could not parse bad chain '$chain'."),    -- don't warn again
 			push(@result, $chain),
