@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.91 2003/01/14 06:59:41 weasel Exp $
+# $Id: pingd,v 1.92 2003/01/14 07:41:36 weasel Exp $
 #
 
 =pod
@@ -302,7 +302,7 @@ my $redirected_stdio = 0;
 
 sub setSigHandlers() {
 	$SIG{'HUP'} = sub {
-		Echolot::Log::info("Got SIGHUP. scheduling readcommands");
+		Echolot::Log::info("Got SIGHUP. scheduling readcommands.");
 		Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', 0, time() );
 		if ($redirected_stdio) {
 			close STDOUT;
@@ -314,15 +314,15 @@ sub setSigHandlers() {
 		Echolot::Log::reopen();
 	};
 	$SIG{'INT'} = sub {
-		Echolot::Log::info("Got SIGINT. scheduling exit");
+		Echolot::Log::info("Got SIGINT. scheduling exit.");
 		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 	$SIG{'QUIT'} = sub {
-		Echolot::Log::info("Got SIGINT. scheduling exit");
+		Echolot::Log::info("Got SIGINT. scheduling exit.");
 		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 	$SIG{'TERM'} = sub {
-		Echolot::Log::info("Got SIGINT. scheduling exit");
+		Echolot::Log::info("Got SIGINT. scheduling exit.");
 		Echolot::Globals::get()->{'scheduler'}->schedule('exit', 0, time() );
 	};
 };
