@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.6 2002/06/18 17:21:18 weasel Exp $
+# $Id: Conf.pm,v 1.7 2002/06/20 04:27:07 weasel Exp $
 #
 
 =pod
@@ -122,8 +122,6 @@ sub parse_mix_key($$$) {
 # AAAAAAAAAAAAAAAAAAAAAQAB
 # -----End Mix Key-----
 
-	$reply =~ s/^- -/-/gm; # PGP Signed messages
-
 	my %mixmasters;
 	# rot26 rot26@mix.uucico.de 7f6d997678b19ccac110f6e669143126 2.9b33 MC
 	my @mix_confs = ($reply =~ /^[a-z0-9]+ \s+ \S+\@\S+ \s+ [0-9a-f]{32} (?:\s+ \S+ \s+ \S+)?/xmg);
@@ -192,7 +190,7 @@ sub parse_cpunk_key($$$) {
 	my %cypherpunk;
 
 	my @pgp_keys = ($reply =~ /^-----BEGIN \s PGP \s PUBLIC \s KEY \s BLOCK-----\r?\n
-	                          (?:.+\r?\n)+
+	                          (?:.+\r?\n)*
 							  \r?\n
 							  (?:[a-zA-Z0-9+\/=]*\r?\n)+
 							  -----END \s PGP \s PUBLIC \s KEY \s BLOCK-----$/xmg );
@@ -281,6 +279,8 @@ sub parse_cpunk_key($$$) {
 
 sub remailer_key($$$) {
 	my ($reply, $token, $time) = @_;
+
+	$reply =~ s/^- -/-/gm; # PGP Signed messages
 
 	my ($id) = $token =~ /^key\.(\d+)$/;
 	(defined $id) or
