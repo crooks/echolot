@@ -2,7 +2,7 @@
 <head>
 	<title>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</title>
 	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
-	<!-- $Id: echolot.html,v 1.7 2002/09/04 01:47:01 weasel Exp $ -->
+	<!-- $Id: echolot.html,v 1.8 2002/09/10 20:44:45 weasel Exp $ -->
 </head>
 <body>
 <h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
@@ -14,40 +14,6 @@ offers current keyrings <TMPL_IF NAME="thesaurus">and each remailer's reply to <
 queries </TMPL_IF>for your convenience.
 
 <h2>Available Stats</h2>
-<table border=1>
-<tr>
-<TMPL_IF NAME="seperate_rlist">
-  <th colspan=4>Cypherpunk (Type I)</th>
-<TMPL_ELSE>
-  <th>Cypherpunk (Type I)</th> 
-</TMPL_IF>
-  <th>Mixmaster (Type II)</th>
-<TMPL_IF NAME="combined_list">
-	<th>Combined</th>
-</TMPL_IF>
-</tr>
-<tr>
-  <td><a href="rlist.html">v1</a></td>
-<TMPL_IF NAME="seperate_rlist">
-  <td><a href="rlist-rsa.html">(rsa)</a></td>
-  <td><a href="rlist-dsa.html">(dsa)</a></td>
-  <td><a href="rlist-clear.html">(cleartext)</a></td>
-</TMPL_IF>
-  <td><a href="mlist.html">v1</a></td>
-<TMPL_IF NAME="combined_list">
-	<td rowspan=2><a href="clist.html">V2</a></td>
-</TMPL_IF>
-</tr>
-<tr>
-  <td><a href="rlist2.html">v2</a></td>
-<TMPL_IF NAME="seperate_rlist">
-  <td><a href="rlist2-rsa.html">(rsa)</a></td>
-  <td><a href="rlist2-dsa.html">(dsa)</a></td>
-  <td><a href="rlist2-clear.html">(cleartext)</a></td>
-</TMPL_IF>
-  <td><a href="mlist2.html">v2</a></td>
-</tr>
-</table>
 
 <p>
 Out of the <TMPL_VAR NAME="CPUNK_TOTAL"> Cypherpunk and
@@ -55,6 +21,82 @@ Out of the <TMPL_VAR NAME="CPUNK_TOTAL"> Cypherpunk and
 (<TMPL_VAR NAME="UNIQUE_ADDRESSES"> unique addresses) on these stats there
 are <TMPL_VAR NAME="CPUNK_98"> CPunks and <TMPL_VAR NAME="MIX_98"> Mixes
 over 98.0% in terms of overall reliability.
+
+<h3>HTML</h3>
+<table border=1>
+<tr>
+  <th>Cypherpunk (Type I)</th> 
+  <th>Mixmaster (Type II)</th>
+<TMPL_IF NAME="combined_list">
+	<th>Combined</th>
+</TMPL_IF>
+</tr>
+<tr>
+  <td><a href="rlist.html"><code>rlist.html</code></a>
+<TMPL_IF NAME="seperate_rlist">
+     <SMALL>
+     (<a href="rlist-rsa.html">rsa</a>,
+      <a href="rlist-dsa.html">dsa</a>,
+      <a href="rlist-clear.html">unencrypted</a>)
+			</SMALL>
+</TMPL_IF>
+  </td>
+  <td><a href="mlist.html"><code>mlist.html</code></a></td>
+<TMPL_IF NAME="combined_list">
+	<td rowspan=2><a href="clist.html"><code>clist2.html</code></a></td>
+</TMPL_IF>
+</tr>
+<tr>
+  <td><a href="rlist2.html"><code>rlist2.html</code></a>
+<TMPL_IF NAME="seperate_rlist">
+     <SMALL>
+		 (<a href="rlist2-rsa.html">rsa</a>,
+      <a href="rlist2-dsa.html">dsa</a>,
+      <a href="rlist2-clear.html">unencrypted</a>)
+			</SMALL>
+</TMPL_IF>
+  </td>
+  <td><a href="mlist2.html"><code>mlist2.html</code></a></td>
+</tr>
+</table>
+
+<h3>Plain Text</h3>
+<table border=1>
+<tr>
+  <th>Cypherpunk (Type I)</th> 
+  <th>Mixmaster (Type II)</th>
+<TMPL_IF NAME="combined_list">
+	<th>Combined</th>
+</TMPL_IF>
+</tr>
+<tr>
+  <td><a href="rlist.txt"><code>rlist.txt</code></a>
+<TMPL_IF NAME="seperate_rlist">
+     <SMALL>
+     (<a href="rlist-rsa.txt">rsa</a>,
+      <a href="rlist-dsa.txt">dsa</a>,
+      <a href="rlist-clear.txt">unencrypted</a>)
+			</SMALL>
+</TMPL_IF>
+  </td>
+  <td><a href="mlist.txt"><code>mlist.txt</code></a></td>
+<TMPL_IF NAME="combined_list">
+	<td rowspan=2><a href="clist.txt"><code>clist2.txt</code></a></td>
+</TMPL_IF>
+</tr>
+<tr>
+  <td><a href="rlist2.txt"><code>rlist2.txt</code></a>
+<TMPL_IF NAME="seperate_rlist">
+     <SMALL>
+		 (<a href="rlist2-rsa.txt">rsa</a>,
+      <a href="rlist2-dsa.txt">dsa</a>,
+      <a href="rlist2-clear.txt">unencrypted</a>)
+			</SMALL>
+</TMPL_IF>
+  </td>
+  <td><a href="mlist2.txt"><code>mlist2.txt</code></a></td>
+</tr>
+</table>
 
 
 <h2>Available Keyrings</h2>

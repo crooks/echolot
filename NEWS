@@ -3,6 +3,8 @@ Changes in version 2.0rc3
 	* Only decrease a remailer's ttl during requesting -conf if
 	  it was requested by the usualy timer run and not by the
 	  user.
+	* Template cleanup: fix a link and add links to .txt versions
+	  to front page.
 
 Changes in version 2.0rc2 - 2002-09-08
 	* Reopen stdin to /dev/null instead of closing it to avoid
