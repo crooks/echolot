@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.5 2002/06/11 11:06:07 weasel Exp $
+# $Id: File.pm,v 1.6 2002/06/11 15:35:38 weasel Exp $
 #
 
 =pod
@@ -333,7 +333,7 @@ sub get_pings($$$$$) {
 		confess("What the hell am I doing here? $remailer_addr; $type; $key; $direction"),
 		return 0;
 	};
-	return \@pings;
+	return @pings;
 };
 
 
@@ -370,10 +370,10 @@ sub register_pingdone($$$$$) {
 		cluck ("$remailer_addr does not exist in Metadata"),
 		return 0;
 
-	my $outpings = $self->get_pings($remailer_addr, $type, $key, 'out');
-	my $origlen = scalar (@$outpings);
-	@$outpings = grep { print "_: '$_'; st: '$sent_time'\n" ; $_ != $sent_time } @$outpings;
-	($origlen == scalar (@$outpings)) and
+	my @outpings = $self->get_pings($remailer_addr, $type, $key, 'out');
+	my $origlen = scalar (@outpings);
+	@outpings = grep { print "_: '$_'; st: '$sent_time'\n" ; $_ != $sent_time } @outpings;
+	($origlen == scalar (@outpings)) and
 		warn("No ping outstanding for $remailer_addr, $key, $sent_time\n"),
 		return 1;
 	
@@ -399,7 +399,7 @@ sub register_pingdone($$$$$) {
 	truncate($fh, 0) or
 		cluck("Cannot truncate outgoing pings file for remailer $remailer_addr; key=$key file to zero length: $!"),
 		return 0;
-	print($fh (join "\n", @$outpings),"\n") or
+	print($fh (join "\n", @outpings), (scalar @outpings ? "\n" : '') ) or
 		cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
 		return 0;
 	$fh->flush();
@@ -586,6 +586,19 @@ sub get_types($$) {
 	return @types;
 };
 
+sub has_type($$$) {
+	my ($self, $remailer, $type) = @_;
+
+	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or
+		cluck ("$remailer does not exist in Metadata remailer list"),
+		return 0;
+
+	return 0 unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'};
+	return 0 unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type};
+	return 0 unless scalar keys %{$self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}};
+	return 1;
+};
+
 sub get_keys($$) {
 	my ($self, $remailer, $type) = @_;
 
@@ -623,6 +636,20 @@ sub get_key($$$$) {
 	);
 
 	return %result;
+};
+
+sub get_capabilities($$) {
+	my ($self, $remailer) = @_;
+	
+	return undef unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'};
+	return $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'}->{'capabilities'};
+};
+
+sub get_nick($$) {
+	my ($self, $remailer) = @_;
+	
+	return undef unless defined $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'};
+	return $self->{'METADATA'}->{'remailers'}->{$remailer}->{'conf'}->{'nick'};
 };
 
 =back
