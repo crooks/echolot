@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.9 2003/03/02 20:49:02 weasel Exp $
+# $Id: Fromlines.pm,v 1.10 2003/06/06 09:33:15 weasel Exp $
 #
 
 =pod
@@ -35,6 +35,7 @@ sub build_fromlines() {
 		next unless defined $nick;
 		my $caps = Echolot::Globals::get()->{'storage'}->get_capabilities($addr);
 		my $middleman = $caps =~ m/\bmiddle\b/;
+		next if $middleman;
 
 
 		for my $user_supplied (0, 1) {
