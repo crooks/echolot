@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.13 2002/07/06 01:31:39 weasel Exp $
+# $Id: Config.pm,v 1.14 2002/07/06 20:15:12 weasel Exp $
 #
 
 =pod
@@ -76,10 +76,19 @@ sub init($) {
 			'cpunk-clear' => 1,
 			'mix' => 1
 		},
+
+		templates => {
+			'thesaurusindexfile'    => 'templates/thesaurusindex.html',
+			'mlist'                 => 'templates/mlist.html',
+			'mlist2'                => 'templates/mlist2.html',
+			'rlist2'                => 'templates/rlist2.html',
+			'rlist'                 => 'templates/rlist.html',
+		},
 		
 		homedir                     => undef,
 		my_localpart                => undef,
 		my_domain                   => undef,
+		sitename                    => undef,
 		verbose                     => 0
 	};
 

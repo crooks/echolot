@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.2 2002/07/06 14:08:05 weasel Exp $
+# $Id: Thesaurus.pm,v 1.3 2002/07/06 20:15:12 weasel Exp $
 #
 
 =pod
@@ -20,6 +20,7 @@ use strict;
 use warnings;
 use Carp qw{cluck};
 use English;
+use HTML::Template;
 
 
 sub build_thesaurus() {
@@ -51,23 +52,37 @@ sub build_thesaurus() {
 		my $time = sprintf("%02d:%02d", $hour, $min);
 
 
-		$data->{$remailer->{'address'}}->{$what} = {
-			'href' => $filename,
-			'date' => $date,
-			'time' => $time,
-		};
+		$data->{$remailer->{'address'}}->{$what.'_href'} = $filename;
+		$data->{$remailer->{'address'}}->{$what.'_date'} = $date;
+		$data->{$remailer->{'address'}}->{$what.'_time'} = $time;
 	};
 
 
 	for my $addr (keys (%$data)) {
 		my $nick = Echolot::Globals::get()->{'storage'}->get_nick($addr);
 		$data->{$addr}->{'nick'} = defined $nick ? $nick : 'N/A';
+		$data->{$addr}->{'address'} = $addr;
 	};
+
+	my @data = map {$data->{$_}} (sort { $data->{$a}->{'nick'} cmp $data->{$b}->{'nick'} } keys (%$data));
+
+	my $template =  HTML::Template->new(
+		filename => Echolot::Config::get()->{'templates'}->{'thesaurusindexfile'},
+		global_vars => 1 );
+	$template->param ( remailers => \@data );
+	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
+	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
+	
 
 	my $file = Echolot::Config::get()->{'thesaurusindexfile'};
 	open (F, ">$file") or
 		cluck ("Cannot open '$file': $!"),
 		return 0;
+	print F $template->output();
+	close F;
+
+	return;
+
 	print F '<html><head><title>Thesaurus</title></head><body><h1>Thesaurus</h1><table border=1>'."\n";
 	print F "<tr><tr><th>nick</th><th>Address</th><th>conf</th><th>help</th><th>key</th><th>stats</th><th>adminkey</th></tr>\n";
 

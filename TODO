@@ -1,8 +1,6 @@
 for 2.0:
 
 for later:
- build html files for *list
- make html files template based
  rotate secret
  get rid of dependency on mix
  get rid of dependency on gnupg

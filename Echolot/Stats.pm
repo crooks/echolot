@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.11 2002/07/06 01:31:39 weasel Exp $
+# $Id: Stats.pm,v 1.12 2002/07/06 20:15:12 weasel Exp $
 #
 
 =pod
@@ -24,6 +24,7 @@ use Carp qw{cluck};
 use constant DAYS => 12;
 use constant SECS_PER_DAY => 24 * 60 * 60;
 use English;
+use HTML::Template;
 
 use Statistics::Distrib::Normal qw{};
 
@@ -256,52 +257,75 @@ sub calculate($$) {
 	};
 };
 
-
-
-sub build_mlist1($$) {
-	my ($rems, $filebasename) = @_;
+sub write_file($$;$) {
+	my ($filebasename, $html_template, $output) = @_;
 
 	my $filename = $filebasename.'.txt';
 	open(F, '>'.$filename) or
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
-	printf F "Last update: %s\n", makeDate();
-	printf F "mixmaster           history  latency  uptime\n";
-	printf F "--------------------------------------------\n";
+	print F $output;
+	close (F);
+
+	return 1 unless defined $html_template;
+	
+	my $template =  HTML::Template->new(
+		filename => $html_template,
+		global_vars => 1 );
+	$template->param ( list => $output );
+	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
+	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
+
+	$filename = $filebasename.'.html';
+	open(F, '>'.$filename) or
+		cluck("Cannot open $filename: $!\n"),
+		return 0;
+	print F $template->output();
+	close (F);
+
+	return 1;
+};
+
+sub build_mlist1($$;$) {
+	my ($rems, $filebasename, $html_template) = @_;
+
+	my $output = '';
+	$output .= sprintf "Last update: %s\n", makeDate();
+	$output .= sprintf "mixmaster           history  latency  uptime\n";
+	$output .= sprintf "--------------------------------------------\n";
 
 	for my $remailer (@$rems) {
-		printf F "%-14s %-12s %8s %6.2f%%\n",
+		$output .= sprintf "%-14s %-12s %8s %6.2f%%\n",
 			$remailer->{'nick'},
 			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
 			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 1),
 			$remailer->{'stats'}->{'avr_reliability'} * 100;
 	};
-	close (F);
+
+	write_file($filebasename, $html_template, $output) or
+		cluck("writefile failed"),
+		return 0;
+	return 1;
 };
 
-sub build_rlist1($$) {
-	my ($rems, $filebasename) = @_;
+sub build_rlist1($$;$) {
+	my ($rems, $filebasename, $html_template) = @_;
 
-	my $filename = $filebasename.'.txt';
-	open(F, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
-		return 0;
-	
-	
+	my $output = '';
 	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
-		print F $remailer->{'caps'},"\n"
+		$output .= $remailer->{'caps'}."\n"
 	}
 
-	#printf F "Groups of remailers sharing a machine or operator:\n\n";
-	#printf F "Broken type-I remailer chains:\n\n";
-	#printf F "Broken type-II remailer chains:\n\n";
+	#$output .= sprintf "Groups of remailers sharing a machine or operator:\n\n";
+	#$output .= sprintf "Broken type-I remailer chains:\n\n";
+	#$output .= sprintf "Broken type-II remailer chains:\n\n";
 
-	printf F "Last update: %s\n", makeDate();
-	printf F "remailer  email address                        history  latency  uptime\n";
-	printf F "-----------------------------------------------------------------------\n";
+	$output .= sprintf "Last update: %s\n", makeDate();
+	$output .= sprintf "remailer  email address                        history  latency  uptime\n";
+	$output .= sprintf "-----------------------------------------------------------------------\n";
 
 	for my $remailer (@$rems) {
-		printf F "%-11s %-28s %-12s %8s %6.2f%%\n",
+		$output .= sprintf "%-11s %-28s %-12s %8s %6.2f%%\n",
 			$remailer->{'nick'},
 			$remailer->{'address'},
 			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
@@ -309,24 +333,26 @@ sub build_rlist1($$) {
 			$remailer->{'stats'}->{'avr_reliability'} * 100;
 	};
 
-	close (F);
+
+	write_file($filebasename, $html_template, $output) or
+		cluck("writefile failed"),
+		return 0;
+	return 1;
 };
 
 
-sub build_list2($$) {
-	my ($rems, $filebasename) = @_;
+sub build_list2($$;$) {
+	my ($rems, $filebasename, $html_template) = @_;
 
-	my $filename = $filebasename.'.txt';
-	open(F, '>'.$filename) or
-		cluck("Cannot open $filename: $!\n"),
-		return 0;
-	printf F "Stats-Version: 2.0\n";
-	printf F "Generated: %s\n", makeDate();
-	printf F "Mixmaster    Latent-Hist   Latent  Uptime-Hist   Uptime  Options\n";
-	printf F "------------------------------------------------------------------------\n";
+	my $output = '';
+
+	$output .= sprintf "Stats-Version: 2.0\n";
+	$output .= sprintf "Generated: %s\n", makeDate();
+	$output .= sprintf "Mixmaster    Latent-Hist   Latent  Uptime-Hist   Uptime  Options\n";
+	$output .= sprintf "------------------------------------------------------------------------\n";
 
 	for my $remailer (@$rems) {
-		printf F "%-12s %-12s %6s   %-12s  %5.1f%%  %s\n",
+		$output .= sprintf "%-12s %-12s %6s   %-12s  %5.1f%%  %s\n",
 			$remailer->{'nick'},
 			build_list2_latencystr($remailer->{'stats'}->{'latency_day'}),
 			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 0),
@@ -335,16 +361,19 @@ sub build_list2($$) {
 			build_list2_capsstr($remailer->{'caps'});
 	};
 
-	#printf F "Groups of remailers sharing a machine or operator:\n\n";
-	#printf F "Broken type-I remailer chains:\n\n";
-	#printf F "Broken type-II remailer chains:\n\n";
+	#$output .= sprintf "Groups of remailers sharing a machine or operator:\n\n";
+	#$output .= sprintf "Broken type-I remailer chains:\n\n";
+	#$output .= sprintf "Broken type-II remailer chains:\n\n";
 
-	printf F "\n\n\nRemailer-Capabilities:\n\n";
+	$output .= sprintf "\n\n\nRemailer-Capabilities:\n\n";
 	for my $remailer (sort {$a->{'caps'} cmp $b->{'caps'}} @$rems) {
-		print F $remailer->{'caps'},"\n" if defined $remailer->{'caps'};
+		$output .= $remailer->{'caps'}."\n" if defined $remailer->{'caps'};
 	}
 
-	close (F);
+	write_file($filebasename, $html_template, $output) or
+		cluck("writefile failed"),
+		return 0;
+	return 1;
 };
 
 
@@ -386,15 +415,15 @@ sub build_lists() {
 	build_mlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist');
 	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2');
 	@$rems = grep { $_->{'showit'} } @$rems;
-	build_mlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist');
-	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2');
+	build_mlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', Echolot::Config::get()->{'templates'}->{'mlist'});
+	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
 
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
 	build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist');
 	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2');
 	@$rems = grep { $_->{'showit'} } @$rems;
-	build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist');
-	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2');
+	build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', Echolot::Config::get()->{'templates'}->{'rlist'});
+	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
 };
 
 

@@ -1,0 +1,37 @@
+<html>
+<head>
+	<title>Thesaurus [<TMPL_VAR NAME="SITE_NAME">]</title>
+</head>
+<body>
+<h1>Thesaurus [<TMPL_VAR NAME="SITE_NAME">]</h1>
+
+<p>
+<a href="../">Up</a>
+
+<p>
+<table border=1>
+
+<tr><tr><th>nick</th><th>Address</th><th>conf</th><th>help</th><th>key</th><th>stats</th><th>adminkey</th></tr>
+
+<TMPL_LOOP NAME="remailers">
+	<tr>
+		<td><TMPL_VAR NAME="nick"></td>
+		<td><TMPL_VAR NAME="address"></td>
+		<td align="center"><TMPL_IF NAME="conf_date"><a href="<TMPL_VAR NAME="conf_href">"><TMPL_VAR NAME="conf_date"><br><TMPL_VAR NAME="conf_time"></a><TMPL_ELSE>N/A</TMPL_IF></td>
+		<td align="center"><TMPL_IF NAME="help_date"><a href="<TMPL_VAR NAME="help_href">"><TMPL_VAR NAME="help_date"><br><TMPL_VAR NAME="help_time"></a><TMPL_ELSE>N/A</TMPL_IF></td>
+		<td align="center"><TMPL_IF NAME="key_date"><a href="<TMPL_VAR NAME="key_href">"><TMPL_VAR NAME="key_date"><br><TMPL_VAR NAME="key_time"></a><TMPL_ELSE>N/A</TMPL_IF></td>
+		<td align="center"><TMPL_IF NAME="stats_date"><a href="<TMPL_VAR NAME="stats_href">"><TMPL_VAR NAME="stats_date"><br><TMPL_VAR NAME="stats_time"></a><TMPL_ELSE>N/A</TMPL_IF></td>
+		<td align="center"><TMPL_IF NAME="adminkey_date"><a href="<TMPL_VAR NAME="adminkey_href">"><TMPL_VAR NAME="adminkey_date"><br><TMPL_VAR NAME="adminkey_time"></a><TMPL_ELSE>N/A</TMPL_IF></td>
+	</tr>
+</TMPL_LOOP>
+
+</table>
+
+<hr>
+Created by <a href="http://savannah.gnu.org/projects/echolot/">Echolot</a>.<br>
+Last update: <TMPL_VAR NAME="CURRENT_TIMESTAMP">.
+</body>
+
+<!-- vim:set ts=2: -->
+<!-- vim:set shiftwidth=2: -->
+</html>

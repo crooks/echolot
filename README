@@ -24,6 +24,7 @@ REQUIREMENTS
 		XML::Dumper
 		Digest::MD5
 		Mail::Internet
+		HTML::Template
 	for type1 pings
 		GnuPG (1.0.7)
 		GnuPG::Interface (0.33)
@@ -46,7 +47,7 @@ o Create a mixmaster client installation in ~pinger/Mix echolot needs to
   file, the public mixmaster keyring, and type2.list.  Don't bother
   putting current keyrings there.
 
-o Check the homedir setting pingd.conf
+o Check the homedir setting and set sitename in pingd.conf.
 
 o Set my_localpart and my_domain in pingd.conf to the appropriate values
   for your pinger. Mail to my_localpart@my_domain needs to reach
