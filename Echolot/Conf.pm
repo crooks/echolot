@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.8 2002/07/02 17:06:59 weasel Exp $
+# $Id: Conf.pm,v 1.9 2002/07/02 18:03:55 weasel Exp $
 #
 
 =pod
@@ -29,7 +29,8 @@ sub send_requests() {
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_addresses()) {
 		next unless ($remailer->{'status'} eq 'active');
 		next unless ($remailer->{'fetch'});
-		print "Sending requests to ".$remailer->{'address'}."\n";
+		print "Sending requests to ".$remailer->{'address'}."\n"
+			if Echolot::Config::get()->{'verbose'};
 		for my $type (qw{conf key help stats}) {
 			Echolot::Tools::send_message(
 				'To' => $remailer->{'address'},
@@ -68,6 +69,20 @@ sub remailer_conf($$$) {
 	} else {
 		Echolot::Globals::get()->{'storage'}->restore_ttl( $remailer->{'address'} );
 		Echolot::Globals::get()->{'storage'}->set_caps($remailer_type, $remailer_caps, $remailer_nick, $remailer_address, $time);
+
+		# if remailer is cpunk and not pgponly
+		if (($remailer_caps =~ /\bcpunk\b/) && !($remailer_caps =~ /\bpgponly\b/)) {
+			Echolot::Globals::get()->{'storage'}->set_key(
+				'cpunk-clear',
+				$remailer_nick,
+				$remailer->{'address'},
+				'N/A',
+				'none',
+				'N/A',
+				'N/A',
+				'N/A',
+				$time);
+		}
 	}
 
 
@@ -192,9 +207,9 @@ sub parse_cpunk_key($$$) {
 
 	my @pgp_keys = ($reply =~ /^-----BEGIN \s PGP \s PUBLIC \s KEY \s BLOCK-----\r?\n
 	                          (?:.+\r?\n)*
-							  \r?\n
-							  (?:[a-zA-Z0-9+\/=]*\r?\n)+
-							  -----END \s PGP \s PUBLIC \s KEY \s BLOCK-----$/xmg );
+	                          \r?\n
+	                          (?:[a-zA-Z0-9+\/=]*\r?\n)+
+	                          -----END \s PGP \s PUBLIC \s KEY \s BLOCK-----$/xmg );
 	for my $key (@pgp_keys) {
 		my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
 			= ( IO::Handle->new(),

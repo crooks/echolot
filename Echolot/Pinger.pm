@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.9 2002/07/02 17:04:51 weasel Exp $
+# $Id: Pinger.pm,v 1.10 2002/07/02 18:03:55 weasel Exp $
 #
 
 =pod
@@ -50,13 +50,18 @@ sub do_mix_ping($$$$$) {
 sub do_cpunk_ping($$$$$$) {
 	my ($address, $type, $keyid, $time, $to, $body) = @_;
 
-	my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
+	my $keyhash;
+	if ($type ne 'cpunk-clear') {
+		my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
+		$keyhash = { $keyid => \%key };
+	};
 	Echolot::Pinger::CPunk::ping(
 		$body,
 		$to,
 		[ { address => $address,
-		    keyid   => $keyid } ],
-		{ $keyid => \%key },
+		    keyid   => $keyid,
+			encrypt => ($type ne 'cpunk-clear') } ],
+		$keyhash,
 		$type eq 'cpunk-rsa' ) or
 		return 0;
 
@@ -78,7 +83,7 @@ sub do_ping($$$) {
 	my $to = Echolot::Tools::make_address('ping');
 	if ($type eq 'mix') {
 		do_mix_ping($address, $key, $now, $to, $body);
-	} elsif ($type eq 'cpunk-rsa' || $type eq 'cpunk-dsa') {
+	} elsif ($type eq 'cpunk-rsa' || $type eq 'cpunk-dsa' || $type eq 'cpunk-clear') {
 		do_cpunk_ping($address, $type, $key, $now, $to, $body);
 	} else {
 		cluck ("Don't know how to handle ping type $type");

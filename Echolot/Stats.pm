@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.7 2002/07/02 17:05:22 weasel Exp $
+# $Id: Stats.pm,v 1.8 2002/07/02 18:03:55 weasel Exp $
 #
 
 =pod
@@ -388,7 +388,7 @@ sub build_lists() {
 	build_mlist1( \@rems, 'mlist');
 	build_list2( \@rems, 'mlist2');
 
-	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa']);
+	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
 	@rems = grep { $_->{'showit'} } @$rems;
 	build_rlist1( \@rems, 'rlist');
 	build_list2( \@rems, 'rlist2');

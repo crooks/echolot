@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.3 2002/07/02 14:21:38 weasel Exp $
+# $Id: CPunk.pm,v 1.4 2002/07/02 18:03:55 weasel Exp $
 #
 
 =pod
@@ -196,14 +196,17 @@ sub ping($$$$$) {
 			"Anon-To: $to\n".
 			"\n".
 			$msg;
-		my $encrypted = encrypt_to($msg, $hop->{'keyid'}, $keys, $pgp2compat);
-		(defined $encrypted) or 
-			cluck("Encrypted is undefined"),
-			return undef;
-		$msg = "::\n".
-			"Encrypted: PGP\n".
-			"\n".
-			$encrypted;
+
+		if ($hop->{'encrypt'}) {
+			my $encrypted = encrypt_to($msg, $hop->{'keyid'}, $keys, $pgp2compat);
+			(defined $encrypted) or 
+				cluck("Encrypted is undefined"),
+				return undef;
+			$msg = "::\n".
+				"Encrypted: PGP\n".
+				"\n".
+				$encrypted;
+		};
 		$to = $hop->{'address'};
 	}
 
