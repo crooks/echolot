@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.5 2002/06/20 04:30:04 weasel Exp $
+# $Id: pingd,v 1.6 2002/07/02 13:40:57 weasel Exp $
 #
 
 =pod
@@ -123,6 +123,9 @@ sub setSigHandlers() {
 sub commit_prospective_address() {
 	Echolot::Globals::get()->{'storage'}->commit_prospective_address();
 };
+sub expire() {
+	Echolot::Globals::get()->{'storage'}->expire();
+};
 
 
 
@@ -166,19 +169,20 @@ if ($COMMAND eq 'add') {
 } elsif ($COMMAND eq 'stop') {
 	die ("stop not implemented yet");
 } elsif ($COMMAND eq 'start') {
-	setSigHandlers();
 	Echolot::Globals::initStorage();
+	setSigHandlers();
 
 	$scheduler = new Echolot::Scheduler;
-	$scheduler->add('exit'               ,      -1                                      , 0, 'exit' );
-	$scheduler->add('readcommands'        ,     -1                                      , 0, \&Echolot::Commands::processCommands );
+	$scheduler->add('exit'               ,       -1                                      , 0, 'exit' );
+	$scheduler->add('readcommands'        ,      -1                                      , 0, \&Echolot::Commands::processCommands );
 
-	$scheduler->add('processmail'         ,     60                                      , 0, \&Echolot::Mailin::process );
-	$scheduler->add('ping'                ,  Echolot::Config::get()->{'pinger_interval'}, 0, \&Echolot::Pinger::send_pings );
-	$scheduler->add('buildstats'          ,     60                                      , 0, \&Echolot::Stats::build );
+	$scheduler->add('processmail'         ,      60                                      , 0, \&Echolot::Mailin::process );
+	$scheduler->add('ping'                ,  Echolot::Config::get()->{'pinger_interval'} , 0, \&Echolot::Pinger::send_pings );
+	$scheduler->add('buildstats'          ,      60                                      , 0, \&Echolot::Stats::build );
 
-	$scheduler->add('commitprospectives'  ,   30*60                                     ,240, \&commit_prospective_address );
-	$scheduler->add('getkeyconf'          ,   60*60                                     , 0, \&Echolot::Conf::send_requests );
+	$scheduler->add('commitprospectives'  ,    30*60                                     , 0, \&commit_prospective_address );
+	$scheduler->add('expire'              ,    15*60                                     , 0, \&expire );
+	$scheduler->add('getkeyconf'          , 24*60*60                                     , 0, \&Echolot::Conf::send_requests );
 
 	$scheduler->run();
 
