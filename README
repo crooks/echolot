@@ -1,4 +1,4 @@
-$Id: README,v 1.34 2002/09/12 17:47:26 weasel Exp $
+$Id: README,v 1.35 2002/10/25 10:47:54 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -110,6 +110,10 @@ o Make sure your MTA supports user defined mailboxes to ensure that
 
   If you are using an MTA other than postfix, consult your MTA's
   documentation to determine how to enable user defined mailboxes.
+
+  If it is not possible for you to have user defined mailboxes set
+  recipient_delimiter to the empty string "" in pingd.conf. Echolot
+  will then work around it (This is _not_ recommended).
 
 o Echolot can read its incoming mail either from an mbox format mailbox
   or from a Maildir. The latter is preferred for technical reasons since

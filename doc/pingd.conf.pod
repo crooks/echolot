@@ -65,8 +65,24 @@ It is used in several templates.
 The B<recipient_delimiter> parameter specifies the separator between user names
 and address extensions (user+foo).
 
+If it is an empty string Echolot does not make use of user defined mailboxes
+but rather encodes the message type et al in a Comment/Realname part of an
+address.
+
+The use of recipient_delimiter is strongly recommended if your MTA setup
+supports it.
+
 	Default: 'recipient_delimiter' => '+',
 	Example: 'recipient_delimiter' => '-',
+	         'recipient_delimiter' => '',
+
+Example addresses:
+
+with + as a recipient delimiter:
+ pinger+conf.1=1035540778=1dd23d97@example.org
+
+without recipient delimiter:
+ pinger@example.org (conf.2=1035541597=3baa2ae5)
 
 =item B<dev_random>
 

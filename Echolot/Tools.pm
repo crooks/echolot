@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.10 2002/09/12 15:41:49 weasel Exp $
+# $Id: Tools.pm,v 1.11 2002/10/25 10:47:54 weasel Exp $
 #
 
 =pod
@@ -78,11 +78,19 @@ sub make_address($) {
 	my $hash = hash($token . Echolot::Globals::get()->{'storage'}->get_secret() );
 	my $cut_hash = substr($hash, 0, Echolot::Config::get()->{'hash_len'});
 	my $complete_token = $token.'='.$cut_hash;
-	my $address = Echolot::Config::get()->{'my_localpart'}.
-		Echolot::Config::get()->{'recipient_delimiter'}.
-		$complete_token.
-		'@'.
-		Echolot::Config::get()->{'my_domain'};
+	my $address = Echolot::Config::get()->{'recipient_delimiter'} ne ''?
+		Echolot::Config::get()->{'my_localpart'}.
+			Echolot::Config::get()->{'recipient_delimiter'}.
+			$complete_token.
+			'@'.
+			Echolot::Config::get()->{'my_domain'}
+		:
+		Echolot::Config::get()->{'my_localpart'}.
+			'@'.
+			Echolot::Config::get()->{'my_domain'}.
+			'('.
+			$complete_token.
+			')';
 	
 	return $address;
 };
@@ -90,10 +98,18 @@ sub make_address($) {
 sub verify_address_tokens($) {
 	my ($address) = @_;
 
-	my $delimiter = quotemeta( Echolot::Config::get()->{'recipient_delimiter'});
-	my ($type, $timestamp, $received_hash) = $address =~ /$delimiter (.*) = (\d+) = ([0-9a-f]+) @/x or
-		cluck("Could not parse to header '$address'"),
-		return undef;
+	my ($type, $timestamp, $received_hash);
+	if (Echolot::Config::get()->{'recipient_delimiter'} ne '') {
+		my $delimiter = quotemeta( Echolot::Config::get()->{'recipient_delimiter'});
+		($type, $timestamp, $received_hash) = $address =~ /$delimiter (.*) = (\d+) = ([0-9a-f]+) @/x or
+		($type, $timestamp, $received_hash) = $address =~ /\( (.*) = (\d+) = ([0-9a-f]+) \)/x or
+			cluck("Could not parse to header '$address'"),
+			return undef;
+	} else {
+		($type, $timestamp, $received_hash) = $address =~ /\( (.*) = (\d+) = ([0-9a-f]+) \)/x or
+			cluck("Could not parse to header '$address'"),
+			return undef;
+	};
 
 	my $token = $type.'='.$timestamp;
 	my $hash = Echolot::Tools::hash($token . Echolot::Globals::get()->{'storage'}->get_secret() );
@@ -116,19 +132,20 @@ sub send_message(%) {
 		return 0;
 	$args{'Subject'} = '' unless (defined $args{'Subject'});
 	$args{'Body'} = '' unless (defined $args{'Body'});
+	$args{'From_'} =
+		Echolot::Config::get()->{'my_localpart'}.
+		'@'.
+		Echolot::Config::get()->{'my_domain'};
 	if (defined $args{'Token'}) {
 		$args{'From'} = make_address( $args{'Token'} );
 	} else {
-		$args{'From'} =
-			Echolot::Config::get()->{'my_localpart'}.
-			'@'.
-			Echolot::Config::get()->{'my_domain'};
+		$args{'From'} = $args{'From_'};
 	};
 	$args{'Subject'} = 'none' unless (defined $args{'Subject'});
 	
 	my @lines = map { $_."\n" } split (/\r?\n/, $args{'Body'});
 
-	open(SENDMAIL, '|'.Echolot::Config::get()->{'sendmail'}.' -f '.$args{'From'}.' -t')
+	open(SENDMAIL, '|'.Echolot::Config::get()->{'sendmail'}.' -f '.$args{'From_'}.' -t')
 		or cluck("Cannot run sendmail: $!"),
 		return 0;
 	printf SENDMAIL "From: %s\n", $args{'From'};
