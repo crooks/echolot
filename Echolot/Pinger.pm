@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.3 2002/06/11 10:17:09 weasel Exp $
+# $Id: Pinger.pm,v 1.4 2002/06/11 11:05:52 weasel Exp $
 #
 
 =pod
@@ -85,9 +85,7 @@ sub send_pings() {
 		next unless ($this_call_id eq $this_remailer_id);
 
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($remailer)) {
-			print "y: $type\n";
 			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($remailer, $type)) {
-				print "k: $key\n";
 				do_ping($type, $remailer, $key);
 			}
 		};
