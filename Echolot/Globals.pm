@@ -1,7 +1,7 @@
 package Echolot::Globals;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Globals.pm,v 1.4 2002/07/16 02:48:57 weasel Exp $
+# $Id: Globals.pm,v 1.5 2003/01/02 19:02:10 weasel Exp $
 #
 
 =pod
@@ -23,7 +23,7 @@ sub init(%) {
 	my (%args) = @_;
 
 	my $hostname = `hostname`;
-	$hostname =~ /^([a-zA-Z0-9_-]*)$/;
+	$hostname =~ /^([a-zA-Z0-9_.-]*)$/;
 	$hostname = $1 || 'unknown';
 	$GLOBALS->{'hostname'} = $hostname;
 	$GLOBALS->{'internalcounter'} = 1;

@@ -1,5 +1,6 @@
 Changes in version
-	* Removed a dupped line from v2legend
+	* Removed a dupped line from v2legend.
+	* Allow periods in hostname.
 
 Changes in version 2.0.7 - 2002-12-18
 	* Added upgrade HOWTO.
