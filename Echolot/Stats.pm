@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.15 2002/07/10 23:20:40 weasel Exp $
+# $Id: Stats.pm,v 1.16 2002/07/12 00:40:56 weasel Exp $
 #
 
 =pod
@@ -299,7 +299,7 @@ sub build_mlist1($$;$) {
 
 	for my $remailer (@$rems) {
 		$output .= sprintf "%-14s %-12s %8s %6.2f%%\n",
-			$remailer->{'nick'},
+			substr($remailer->{'nick'},0,14),
 			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
 			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 1),
 			$remailer->{'stats'}->{'avr_reliability'} * 100;
@@ -329,9 +329,9 @@ sub build_rlist1($$;$) {
 	$output .= sprintf "-----------------------------------------------------------------------\n";
 
 	for my $remailer (@$rems) {
-		$output .= sprintf "%-11s %-28s %-12s %8s %6.2f%%\n",
-			$remailer->{'nick'},
-			$remailer->{'address'},
+		$output .= sprintf "%-8s %-32s %-12s %8s %6.2f%%\n",
+			substr($remailer->{'nick'},0,8),
+			substr($remailer->{'address'},0,32),
 			build_list1_latencystr($remailer->{'stats'}->{'latency_day'}),
 			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 1),
 			$remailer->{'stats'}->{'avr_reliability'} * 100;
@@ -357,7 +357,7 @@ sub build_list2($$;$) {
 
 	for my $remailer (@$rems) {
 		$output .= sprintf "%-12s %-12s %6s   %-12s  %5.1f%%  %s\n",
-			$remailer->{'nick'},
+			substr($remailer->{'nick'},0,12),
 			build_list2_latencystr($remailer->{'stats'}->{'latency_day'}),
 			makeMinHr($remailer->{'stats'}->{'avr_latency'}, 0),
 			build_list2_reliabilitystr($remailer->{'stats'}->{'reliability_day'}),
@@ -539,6 +539,7 @@ sub build_mixring() {
 		cluck("Cannot open $filename: $!\n"),
 		return 0;
 
+	my $data;
 	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
 		next unless $remailer->{'showit'};
 		my $addr = $remailer->{'address'};
@@ -553,12 +554,16 @@ sub build_mixring() {
 			};
 		};
 
-		# only if we have a conf
 		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
-			print F $key{'summary'},"\n\n";
-			print F $key{'key'},"\n\n";
-			print T2L $key{'summary'},"\n";
+			$data->{$key{'summary'}} = \%key;
 		};
+	};
+
+	for my $indx (sort {$a cmp $b} keys %$data) {
+		my $key = $data->{$indx};
+		print F $key->{'summary'}."x\n\n";
+		print F $key->{'key'},"\n\n";
+		print T2L $key->{'summary'},"\n";
 	};
 
 	close(F);
