@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.8 2002/06/13 15:30:08 weasel Exp $
+# $Id: File.pm,v 1.9 2002/06/18 17:18:20 weasel Exp $
 #
 
 =pod
@@ -231,7 +231,7 @@ sub pingdata_open_one($$$$) {
 
 	my $basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key};
 	defined($basename) or
-		$basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key} = $remailer_addr.'.'.$key.'.'.time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++,
+		$basename = $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'}->{$type}->{$key} = $remailer_addr.'.'.$type.'.'.$key.'.'.time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++,
 		$self->commit();
 
 	my $filename = $self->{'datadir'} .'/'. $basename;
@@ -358,7 +358,7 @@ sub register_pingout($$$$) {
 		cluck("Error when writing to $remailer_addr; type=$type; key=$key; out pings: $!"),
 		return 0;
 	$fh->flush();
-print "registering pingout at $sent_time for $remailer_addr\n";
+print "registering pingout at $sent_time for $remailer_addr ($type; $key)\n";
 
 	return 1;
 };
@@ -403,7 +403,7 @@ sub register_pingdone($$$$$) {
 		cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
 		return 0;
 	$fh->flush();
-print "registering pingdone from $sent_time with latency $latency for $remailer_addr\n";
+print "registering pingdone from $sent_time with latency $latency for $remailer_addr ($type; $key)\n";
 	
 	return 1;
 };
@@ -555,7 +555,8 @@ sub set_key($$$$$$$$$) {
 			$keyref->{'summary'} = $summary;
 		};
 		if ($keyref->{'key'} ne $key) {
-			warn ("$nick has a new key string '$key' old: '".$keyref->{'key'}."' - This probably should not happen\n");
+			#warn ("$nick has a new key string '$key' old: '".$keyref->{'key'}."' - This probably should not happen\n");
+			warn ("$nick has a new key string for same keyid $keyid\n");
 			$keyref->{'key'} = $key;
 		};
 	};
