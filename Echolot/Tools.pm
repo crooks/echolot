@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.12 2002/12/03 02:59:13 weasel Exp $
+# $Id: Tools.pm,v 1.13 2002/12/18 17:32:46 weasel Exp $
 #
 
 =pod
@@ -130,7 +130,7 @@ sub send_message(%) {
 	defined($args{'To'}) or
 		cluck ('No recipient address given'),
 		return 0;
-	$args{'Subject'} = '' unless (defined $args{'Subject'});
+	$args{'Subject'} = '(no subject)' unless (defined $args{'Subject'});
 	$args{'Body'} = '' unless (defined $args{'Body'});
 	$args{'From_'} =
 		Echolot::Config::get()->{'my_localpart'}.
