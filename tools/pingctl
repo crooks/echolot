@@ -19,7 +19,7 @@ CHECKULIMIT=1
 CHECKUID=1
 
 # Check for evil ulimits
-if [ "$CHECKULIMIT" -gt "0" ];
+if [ "$CHECKULIMIT" -gt "0" ]; then
 	FDs=`ulimit -n`
 	HFDs=`ulimit -H -n`
 	if [ "$FDs" -lt "512" ]; then
@@ -46,7 +46,7 @@ fi
 
 # Check for right User
 SU=""
-if [ "$CHECKUID" -gt "0" ];
+if [ "$CHECKUID" -gt "0" ]; then
 	CUID=`id -u`
 	CUIDNAME=`id -nu`
 	if [ "$CUIDNAME" = "$USER" ]; then
