@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.1 2002/06/05 04:05:40 weasel Exp $
+# $Id: Mailin.pm,v 1.2 2002/06/10 06:23:53 weasel Exp $
 #
 
 =pod
@@ -101,6 +101,7 @@ sub process() {
 		closedir(DIR) or
 			cluck("Cannot close direcotry '$mailindir/$sub': $!");
 	};
+	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $file (@files) {
 		$file =~ /^(.*)$/s or
 			croak("I really should match here. ('$file').");
@@ -113,6 +114,7 @@ sub process() {
 				cluck("Sane moving of $mailindir/$file to $targetdir/new/$name failed");
 		};
 	};
+	Echolot::Globals::get()->{'storage'}->enable_commit();
 };
 
 1;
