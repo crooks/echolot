@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.4 2002/06/11 10:01:55 weasel Exp $
+# $Id: File.pm,v 1.5 2002/06/11 11:06:07 weasel Exp $
 #
 
 =pod
@@ -203,7 +203,7 @@ sub metadata_write($) {
 	print($fh $data) or
 		cluck("Error when writing to metadata file: $!"),
 		return 0;
-
+	$fh->flush();
 
 	return 1;
 };
@@ -352,11 +352,13 @@ sub register_pingout($$$$) {
 		return 0;
 
 	seek($fh, 0, SEEK_END) or
-		cluck("Cannot seek to end of $remailer_addr out pings: $!"),
+		cluck("Cannot seek to end of $remailer_addr; type=$type; key=$key; out pings: $!"),
 		return 0;
 	print($fh $sent_time."\n") or
-		cluck("Error when writing to $remailer_addr out pings: $!"),
+		cluck("Error when writing to $remailer_addr; type=$type; key=$key; out pings: $!"),
 		return 0;
+	$fh->flush();
+print "registering pingout at $sent_time for $remailer_addr\n";
 
 	return 1;
 };
@@ -370,7 +372,7 @@ sub register_pingdone($$$$$) {
 
 	my $outpings = $self->get_pings($remailer_addr, $type, $key, 'out');
 	my $origlen = scalar (@$outpings);
-	@$outpings = grep { $_ != $sent_time } @$outpings;
+	@$outpings = grep { print "_: '$_'; st: '$sent_time'\n" ; $_ != $sent_time } @$outpings;
 	($origlen == scalar (@$outpings)) and
 		warn("No ping outstanding for $remailer_addr, $key, $sent_time\n"),
 		return 1;
@@ -385,6 +387,7 @@ sub register_pingdone($$$$$) {
 	print($fh $sent_time." ".$latency."\n") or
 		cluck("Error when writing to $remailer_addr out pings: $!"),
 		return 0;
+	$fh->flush();
 	
 	# rewrite outstanding pings
 	$fh = $self->get_ping_fh($remailer_addr, $type, $key, 'out') or
@@ -399,6 +402,8 @@ sub register_pingdone($$$$$) {
 	print($fh (join "\n", @$outpings),"\n") or
 		cluck("Error when writing to outgoing pings file for remailer $remailer_addr; key=$key file: $!"),
 		return 0;
+	$fh->flush();
+print "registering pingdone from $sent_time with latency $latency for $remailer_addr\n";
 	
 	return 1;
 };
