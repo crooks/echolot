@@ -26,6 +26,10 @@ pingd - echolot ping daemon
 
 =item B<pingd> B<delete> I<address> [I<address> ...]
 
+=item B<pingd> B<disable> I<address> [I<address> ...]
+
+=item B<pingd> B<enable> I<address> [I<address> ...]
+
 =item B<pingd> B<set> option=value [option=value..] I<address> [I<address> ...]
 
 =item B<pingd> B<setremailercaps> I<capsstring>
@@ -95,6 +99,18 @@ keys and confs.
 
 Delete I<address> from the list of remailers to query for
 keys and confs. Delete all statistics and keys for that remailer.
+
+Note that echolot will add back this remailer if it learns of it from other
+remailers again.  If you do not want that, use the disable command.
+
+=item B<disable> I<address> [I<address> ...]
+
+Shorthand for B<set showit=off> B<pingit=off> B<fetch=off>.  This makes echolot
+completely ignore that remailer, until you enable it again.
+
+=item B<enable> I<address> [I<address> ...]
+
+Shorthand for B<set showit=on> B<pingit=on> B<fetch=on>.
 
 =item B<set> option=value [option=value..] I<address> [I<address> ...]
 
@@ -423,6 +439,23 @@ sub command_setremailercaps(@) {
 	};
 };
 
+sub command_enabledisable (@) {
+	my @argv = @_;
+
+	my $command = shift @argv;
+	my $value;
+	if ($command eq 'enable') {
+		$value='on';
+	elsif ($command eq 'disable') {
+		$value='off';
+	else
+		die ("argument $command is not enable or disable.  Shouldn't even be here.\n");
+	}
+	my @cmd = ("showit=$value", "pingit=$value", "fetch=$value");
+	push @cmd, @argv;
+	command_setremailercaps(@argv);
+}
+
 sub command_deleteremailercaps(@) {
 	my @argv = @_;
 
@@ -678,6 +711,8 @@ if ($params->{'help'}) {
 	print ("  process            ... reopen outfile and process commands\n");
 	print ("  add                ... add a remailer address\n");
 	print ("  delete             ... delete a remailer address\n");
+	print ("  disable            ... disable a remailer\n");
+	print ("  enable             ... enable a remailer\n");
 	print ("  set                ... set remailer options\n");
 	print ("  setremailercaps    ... set remailer capabilities manually\n");
 	print ("  deleteremailercaps ... delete remailer capabilities manually\n");
@@ -714,6 +749,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'set') {
 	command_set(@ARGV);
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'enable' || $COMMAND eq 'disable') {
+	command_enabledisable(@ARGV);
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'deleteremailercaps') {
 	command_deleteremailercaps(@ARGV);
