@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.22 2002/07/10 11:49:41 weasel Exp $
+# $Id: pingd,v 1.23 2002/07/10 12:27:51 weasel Exp $
 #
 
 =pod
@@ -482,35 +482,35 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	if (!$params->{'nohup'} && pid_exists()) {
 		daemon_hup()
 	} else {
-		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+		print "Don't forget to run $PROGRAM_NAME process.\n";
 	};
 } elsif ($COMMAND eq 'set') {
 	command_set(@ARGV);
 	if (!$params->{'nohup'} && pid_exists()) {
 		daemon_hup()
 	} else {
-		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+		print "Don't forget to run $PROGRAM_NAME process.\n";
 	};
 } elsif ($COMMAND eq 'setremailercaps') {
 	command_setremailercaps(@ARGV);
 	if (!$params->{'nohup'} && pid_exists()) {
 		daemon_hup()
 	} else {
-		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+		print "Don't forget to run $PROGRAM_NAME process.\n";
 	};
 } elsif ($COMMAND eq 'deleteremailercaps') {
 	command_deleteremailercaps(@ARGV);
 	if (!$params->{'nohup'} && pid_exists()) {
 		daemon_hup()
 	} else {
-		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+		print "Don't forget to run $PROGRAM_NAME process.\n";
 	};
 } elsif ($COMMAND eq 'getkeyconf') {
 	Echolot::Commands::addCommand("getkeyconf");
 	if (!$params->{'nohup'} && pid_exists()) {
 		daemon_hup()
 	} else {
-		print "Don't forget to run $PROGRAM_NAME process. You may also use --hup in the future\n";
+		print "Don't forget to run $PROGRAM_NAME process.\n";
 	};
 } elsif ($COMMAND eq 'process') {
 	daemon_hup();
