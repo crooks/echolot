@@ -1,3 +1,8 @@
+Changes in version
+	* Did away with Mail::Internet. Using local sendmail binary only.
+	  This also means the smarthost config option is obsolete and there
+	  is a sendmail config option now.
+
 Changes in version 2.0beta5 - 2002-07-10
 	* Thesaurus filenames changed from nn-foo to nn.foo.
 	  Use the change-thesaurus-filenames script in the tools

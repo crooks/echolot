@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.3 2002/06/18 17:20:34 weasel Exp $
+# $Id: Tools.pm,v 1.4 2002/07/10 21:46:28 weasel Exp $
 #
 
 =pod
@@ -19,7 +19,6 @@ use strict;
 use warnings;
 use Carp qw{cluck};
 use Digest::MD5 qw{};
-use Mail::Internet;
 
 sub hash($) {
 	my ($data) = @_;
@@ -117,17 +116,19 @@ sub send_message(%) {
 	};
 	$args{'Subject'} = 'none' unless (defined $args{'Subject'});
 	
-	my $head = new Mail::Header;
-	$head->add ( 'To', $args{'To'} );
-	$head->add ( 'From', $args{'From'} );
-	$head->add ( 'Subject', $args{'Subject'} );
+	open(SENDMAIL, '|'.Echolot::Config::get()->{'sendmail'}.' -f '.$args{'From'}.' -t')
+		or cluck("Cannot run sendmail: $!"),
+		return 0;
+	printf SENDMAIL "From: %s\n", $args{'From'};
+	printf SENDMAIL "To: %s\n", $args{'To'};
+	printf SENDMAIL "Subject: %s\n", $args{'Subject'};
+	printf SENDMAIL "\n";
+	for my $line (@lines) {
+		print SENDMAIL $line;
+	};
+	close SENDMAIL;
 
-	my @lines = map { $_."\n" } split (/\r?\n/, $args{'Body'});
-	my $mail = new Mail::Internet (
-		Header => $head,
-		Body => \@lines );
-
-	$mail->smtpsend( Host => Echolot::Config::get()->{'smarthost'} );
+	return 1;
 };
 
 1;
