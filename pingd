@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.33 2002/07/11 17:40:34 weasel Exp $
+# $Id: pingd,v 1.34 2002/07/11 17:45:59 weasel Exp $
 #
 
 =pod
@@ -353,7 +353,7 @@ sub daemon_run($) {
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
 		if pid_exists();
 	open (PIDFILE, '>'.Echolot::Config::get()->{'pidfile'}) or
-		croak ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
+		confess ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
 	print PIDFILE "$PROCESS_ID ".Echolot::Globals::get()->{'hostname'}." ".time()."\n";
 	close PIDFILE;
 
@@ -394,15 +394,15 @@ sub send_sig($) {
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' does not exist\n")
 		unless pid_exists();
 	open (PIDFILE, '<'.Echolot::Config::get()->{'pidfile'}) or
-		croak ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
+		confess ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
 	my $line = <PIDFILE>;
 	close PIDFILE;
 
 	my ($pid, $host, $time) = $line =~ /^(\d+) \s+ (\S+) \s+ (\d+) \s* $/x or
-		croak ("Cannot parse pidfile '$line'\n");
+		confess ("Cannot parse pidfile '$line'\n");
 	my $sent = kill $sig, $pid;
 	($sent == 1) or
-		croak ("Did not send signal $sig to exactly one process but $sent. (pidfile reads $line)\n");
+		confess ("Did not send signal $sig to exactly one process but $sent. (pidfile reads $line)\n");
 };
 
 sub daemon_hup() {
@@ -424,7 +424,7 @@ sub make_dirs() {
 	) {
 		if ( ! -d $dir ) {
 			mkdir ($dir) or
-				croak ("Cannot create directory $dir: $!\n");
+				confess ("Cannot create directory $dir: $!\n");
 		};
 	};
 	for my $dir (
@@ -439,7 +439,7 @@ sub make_dirs() {
 	) {
 		if ( ! -d $dir ) {
 			mkdir ($dir, 0700) or
-				croak ("Cannot create directory $dir: $!\n");
+				confess ("Cannot create directory $dir: $!\n");
 		};
 	};
 };

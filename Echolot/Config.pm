@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.22 2002/07/10 21:46:28 weasel Exp $
+# $Id: Config.pm,v 1.23 2002/07/11 17:45:59 weasel Exp $
 #
 
 =pod
@@ -148,13 +148,13 @@ sub init($) {
 	{
 		local $/ = undef;
 		open(CONFIGCODE, $configfile) or
-			croak("Could not open configfile '$configfile': $!");
+			confess("Could not open configfile '$configfile': $!");
 		my $config_code = <CONFIGCODE>;
 		close (CONFIGCODE);
 		($config_code) = $config_code =~ /^(.*)$/s;
 		eval ($config_code);
 		($EVAL_ERROR) and
-			croak("Evaling config code from '$configfile' returned error: $EVAL_ERROR");
+			confess("Evaling config code from '$configfile' returned error: $EVAL_ERROR");
 	}
 	
 	for my $key (keys %$DEFAULT) {

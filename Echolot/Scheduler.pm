@@ -1,7 +1,7 @@
 package Echolot::Scheduler;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Scheduler.pm,v 1.7 2002/07/02 13:57:09 weasel Exp $
+# $Id: Scheduler.pm,v 1.8 2002/07/11 17:45:59 weasel Exp $
 #
 
 =pod
@@ -114,7 +114,7 @@ sub run($) {
 	my ($self) = @_;
 
 	(defined $self->{'schedule'}->[0]) or
-		croak("Scheduler is empty"),
+		cluck("Scheduler is empty"),
 		return 0;
 
 	while(1) {
@@ -145,7 +145,7 @@ sub run($) {
 				($self->{'tasks'}->{$name}->{'interval'} > 0);
 
 			(defined $self->{'schedule'}->[0]) or
-				croak("Scheduler is empty"),
+				cluck("Scheduler is empty"),
 				return 0;
 		} while ($now >= $self->{'schedule'}->[0]->{'start'});
 	};

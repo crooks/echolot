@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.4 2002/07/06 00:50:27 weasel Exp $
+# $Id: Mailin.pm,v 1.5 2002/07/11 17:45:59 weasel Exp $
 #
 
 =pod
@@ -99,7 +99,7 @@ sub process() {
 	Echolot::Globals::get()->{'storage'}->delay_commit();
 	for my $file (@files) {
 		$file =~ /^(.*)$/s or
-			croak("I really should match here. ('$file').");
+			confess("I really should match here. ('$file').");
 		$file = $1;
 		if (handle($mailindir.'/'.$file)) {
 			unlink($mailindir.'/'.$file);
