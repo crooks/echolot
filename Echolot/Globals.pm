@@ -1,7 +1,7 @@
 package Echolot::Globals;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Globals.pm,v 1.1 2002/06/05 04:05:40 weasel Exp $
+# $Id: Globals.pm,v 1.2 2002/06/20 04:27:37 weasel Exp $
 #
 
 =pod
@@ -25,8 +25,11 @@ sub init {
 	$hostname =~ /^([a-zA-Z0-9_-]*)$/;
 	$hostname = $1 || 'unknown';
 	$GLOBALS->{'hostname'} = $hostname;
-	$GLOBALS->{'storage'}   = new Echolot::Storage::File ( datadir => Echolot::Config::get()->{'storage'}->{'File'}->{'basedir'} );
 	$GLOBALS->{'internalcounter'} = 1;
+};
+
+sub initStorage {
+	$GLOBALS->{'storage'}   = new Echolot::Storage::File ( datadir => Echolot::Config::get()->{'storage'}->{'File'}->{'basedir'} );
 };
 
 sub get() {
