@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.9 2003/01/02 21:24:32 weasel Exp $
+# $Id: CPunk.pm,v 1.10 2003/01/13 00:33:14 weasel Exp $
 #
 
 =pod
@@ -101,32 +101,30 @@ sub encrypt_to($$$$) {
 		);
 	my $command_args = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
 	my $plaintextfile;
+
 	if ($pgp2compat) {
-		#pgp2compat requires files, cannot use stdin
-
-		$plaintextfile = Echolot::Config::get()->{'tmpdir'}.'/'.
-			Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.plaintext';
-		open (F, '>'.$plaintextfile) or
-			cluck("Cannot open $plaintextfile for writing: $!"),
-			return 0;
-		print (F $msg);
-		close (F) or
-			cluck("Cannot close $plaintextfile"),
-			return 0;
-
-
-		push @$command_args, qw{--pgp2}, $plaintextfile;
-	} else {
-		# nothing here ATM.
+		push @$command_args, qw{--pgp2};
 	};
-		
+	# Files are required for compaitibility with PGP 2.*
+	# we also use files in all other cases since there is a bug in either GnuPG or GnuPG::Interface
+	# that let Echolot die if in certain cases:
+	#  If a key is unuseable because it expired and we want to encrypt something to it
+	#  pingd dies if there is only enough time between calling encrypt() and printing the message
+	#  to GnuPG. (a sleep 1 triggered that reproduceably)
+	$plaintextfile = Echolot::Config::get()->{'tmpdir'}.'/'.
+		Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.plaintext';
+	open (F, '>'.$plaintextfile) or
+		cluck("Cannot open $plaintextfile for writing: $!"),
+		return 0;
+	print (F $msg);
+	close (F) or
+		cluck("Cannot close $plaintextfile"),
+		return 0;
+	push @$command_args, $plaintextfile;
 
 	$pid = $GnuPG->encrypt(
 		command_args => $command_args,
 		handles      => $handles );
-	unless ($pgp2compat) {
-		print $stdin_fh $msg;
-	};
 	close($stdin_fh);
 
 	$stdout = join '', <$stdout_fh>; close($stdout_fh);
@@ -156,25 +154,19 @@ sub encrypt_to($$$$) {
 
 	my $result;
 
-	if ($pgp2compat) {
-		#pgp2compat requires files, cannot use stdin
+	$plaintextfile .= '.asc';
+	open (F, '<'.$plaintextfile) or
+		cluck("Cannot open $plaintextfile for reading $!"),
+		return 0;
+	$result = join '', <F>;
+	close (F) or
+		cluck("Cannot close $plaintextfile"),
+		return 0;
 
-		$plaintextfile .= '.asc';
-		open (F, '<'.$plaintextfile) or
-			cluck("Cannot open $plaintextfile for reading $!"),
-			return 0;
-		$result = join '', <F>;
-		close (F) or
-			cluck("Cannot close $plaintextfile"),
-			return 0;
-
-		(defined $plaintextfile) and 
-			( unlink ($plaintextfile) or
-				cluck("Cannot unlink tmp keyring '$plaintextfile'"),
-				return undef);
-	} else {
-		$result = $stdout;
-	};
+	(defined $plaintextfile) and 
+		( unlink ($plaintextfile) or
+			cluck("Cannot unlink tmp keyring '$plaintextfile'"),
+			return undef);
 
 	$result =~ s,^Version: .*$,Version: N/A,m;
 	return $result;

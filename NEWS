@@ -1,4 +1,6 @@
 Changes in version
+	* Work around a bug that let pingd die in certain random cases when
+	  dealing with unuseable PGP keys (like expired keys).
 	* Removed a dupped line from v2legend.
 	* Allow periods in hostname.
 	* Don't use GnuPG::Interface's recipients when encrypting any more as
