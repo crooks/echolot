@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.13 2003/02/15 11:43:41 weasel Exp $
+# $Id: CPunk.pm,v 1.14 2003/02/15 23:35:16 weasel Exp $
 #
 
 =pod
@@ -102,9 +102,9 @@ sub encrypt_to($$$$) {
 	my $command_args = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
 	my $plaintextfile;
 
-	if ($pgp2compat) {
-		push @$command_args, qw{--pgp2};
-	};
+	#if ($pgp2compat) {
+	#	push @$command_args, qw{--pgp2};
+	#};
 	# Files are required for compaitibility with PGP 2.*
 	# we also use files in all other cases since there is a bug in either GnuPG or GnuPG::Interface
 	# that let Echolot die if in certain cases:
