@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.2 2002/07/02 14:11:49 weasel Exp $
+# $Id: Config.pm,v 1.3 2002/07/02 14:16:13 weasel Exp $
 #
 
 =pod
@@ -59,6 +59,7 @@ sub init($) {
 		homedir                     => undef,
 		my_localpart                => undef,
 		my_domain                   => undef,
+		verbose                     => 0
 	};
 
 	{
@@ -73,9 +74,8 @@ sub init($) {
 	};
 
 	for my $key (keys %$params) {
-		$CONFIG->{$key} = $DEFAULT->{$key} if defined $CONFIG->{$key};
+		$CONFIG->{$key} = $params->{$key} if defined $CONFIG->{$key};
 	};
-
 
 	for my $key (keys %$CONFIG) {
 		warn ("Config option $key is not defined\n") unless defined $CONFIG->{$key};
