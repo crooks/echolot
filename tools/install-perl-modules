@@ -1,0 +1,12 @@
+#! /usr/bin/perl -w
+
+# This script installs all perl libraries Echolot needs
+# using your CPAN module
+
+use strict;
+use CPAN;
+
+for my $mod (qw{Data::Dumper Digest::MD5 HTML::Template GnuPG::Interface}) {
+	my $obj = CPAN::Shell->expand('Module',$mod);
+	$obj->install();
+};
