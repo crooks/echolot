@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.22 2003/01/14 05:25:35 weasel Exp $
+# $Id: Pinger.pm,v 1.23 2003/02/14 04:56:16 weasel Exp $
 #
 
 =pod
@@ -22,10 +22,14 @@ use Echolot::Log;
 use Echolot::Pinger::Mix;
 use Echolot::Pinger::CPunk;
 
-sub do_mix_ping($$$$$) {
-	my ($address, $keyid, $time, $to, $body) = @_;
+sub do_mix_ping($$$$$$) {
+	my ($address, $type, $keyid, $to, $body) = @_;
 
-	my %key = Echolot::Globals::get()->{'storage'}->get_key($address, 'mix', $keyid);
+	($type eq 'mix') or
+		Echolot::Log::warn("types should really be mix ($type)."),
+		return 0;
+
+	my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
 	Echolot::Pinger::Mix::ping(
 		$body,
 		$to,
@@ -37,21 +41,21 @@ sub do_mix_ping($$$$$) {
 };
 
 sub do_cpunk_ping($$$$$$) {
-	my ($address, $type, $keyid, $time, $to, $body) = @_;
+	my ($address, $type, $keyid, $to, $body) = @_;
 
-	my $keyhash;
+	my $keyhash = {};
 	if ($type ne 'cpunk-clear') {
 		my %key = Echolot::Globals::get()->{'storage'}->get_key($address, $type, $keyid);
-		$keyhash = { $keyid => \%key };
+		$keyhash->{$keyid} => \%key;
 	};
 	Echolot::Pinger::CPunk::ping(
 		$body,
 		$to,
-		[ { address => $address,
-		    keyid   => $keyid,
-			encrypt => ($type ne 'cpunk-clear') } ],
-		$keyhash,
-		$type eq 'cpunk-rsa' ) or
+		[ { address    => $address,
+		    keyid      => $keyid,
+		    encrypt    => ($type ne 'cpunk-clear'),
+		    pgp2compat => ($type eq 'cpunk-rsa') } ],
+		$keyhash ) or
 		return 0;
 
 	return 1;
@@ -61,7 +65,7 @@ sub do_ping($$$) {
 	my ($type, $address, $key) = @_;
 	
 	my $now = time();
-	my $token = $address.':'.$type.':'.$key.':'.$now;
+	my $token = join(':', $address, $type, $key, $now);
 	my $mac = Echolot::Tools::make_mac($token);
 	my $body = "remailer: $address\n".
 		"type: $type\n".
@@ -72,9 +76,9 @@ sub do_ping($$$) {
 		
 	my $to = Echolot::Tools::make_address('ping');
 	if ($type eq 'mix') {
-		do_mix_ping($address, $key, $now, $to, $body);
+		do_mix_ping($address, $type, $key, $to, $body);
 	} elsif ($type eq 'cpunk-rsa' || $type eq 'cpunk-dsa' || $type eq 'cpunk-clear') {
-		do_cpunk_ping($address, $type, $key, $now, $to, $body);
+		do_cpunk_ping($address, $type, $key, $to, $body);
 	} else {
 		Echolot::Log::warn("Don't know how to handle ping type $type.");
 		return 0;
@@ -145,17 +149,15 @@ sub receive($$$) {
 	my ($sent) = $body =~ /^sent: (.*)$/m;
 	my ($mac) = $body =~ /^mac: (.*)$/m;
 
-	my $cleanstring = (defined $addr ? $addr : 'undef') . ':' .
-	                  (defined $type ? $type : 'undef') . ':' .
-	                  (defined $key  ? $key : 'undef') . ':' .
-	                  (defined $sent ? $sent : 'undef') . ':' .
-	                  (defined $mac  ? $mac : 'undef') . ':';
+	my @values = ($addr, $type, $key, $sent, $mac);
+	my $cleanstring = join ":", map { defined() ? $_ : "undef" } @values;
 
-	(defined $addr && defined $type && defined $key && defined $sent && defined $mac) or
+	(grep { ! defined() } @values) and
 		Echolot::Log::warn("Received ping at $timestamp has undefined values: $cleanstring."),
 		return 0;
 
-	Echolot::Tools::verify_mac($addr.':'.$type.':'.$key.':'.$sent, $mac) or
+	pop @values;
+	Echolot::Tools::verify_mac(join(':', @values), $mac) or
 		Echolot::Log::warn("Received ping at $timestamp has wrong mac; $cleanstring."),
 		return 0;
 

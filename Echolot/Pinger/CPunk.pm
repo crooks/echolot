@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.11 2003/01/14 05:25:35 weasel Exp $
+# $Id: CPunk.pm,v 1.12 2003/02/14 04:56:16 weasel Exp $
 #
 
 =pod
@@ -172,8 +172,8 @@ sub encrypt_to($$$$) {
 	return $result;
 };
 
-sub ping($$$$$) {
-	my ($body, $to, $chain, $keys, $pgp2compat) = @_;
+sub ping($$$$) {
+	my ($body, $to, $chain, $keys) = @_;
 
 	my $msg = $body;
 
@@ -184,7 +184,7 @@ sub ping($$$$$) {
 			$msg;
 
 		if ($hop->{'encrypt'}) {
-			my $encrypted = encrypt_to($msg, $hop->{'keyid'}, $keys, $pgp2compat);
+			my $encrypted = encrypt_to($msg, $hop->{'keyid'}, $keys, $hop->{'pgp2compat'});
 			(defined $encrypted) or 
 				Echolot::Log::debug("Encrypted is undefined."),
 				return undef;
