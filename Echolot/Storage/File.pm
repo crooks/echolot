@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.15 2002/07/02 14:15:55 weasel Exp $
+# $Id: File.pm,v 1.16 2002/07/02 17:03:42 weasel Exp $
 #
 
 =pod
@@ -95,11 +95,11 @@ sub delay_commit($) {
 
 	$self->{'DELAY_COMMIT'}++;
 };
-sub enable_commit($) {
-	my ($self) = @_;
+sub enable_commit($;$) {
+	my ($self, $set_pending) = @_;
 
 	$self->{'DELAY_COMMIT'}--;
-	$self->commit() if ($self->{'COMMIT_PENDING'} && ! $self->{'DELAY_COMMIT'});
+	$self->commit() if (($self->{'COMMIT_PENDING'} || (defined $set_pending && $set_pending)) && ! $self->{'DELAY_COMMIT'});
 };
 
 sub finish($) {
@@ -447,6 +447,7 @@ sub add_prospective_address($$$$) {
 sub commit_prospective_address($) {
 	my ($self) = @_;
 	
+	$self->delay_commit();
 	for my $addr (keys %{$self->{'METADATA'}->{'prospective_addresses'}}) {
 		if (defined $self->{'METADATA'}->{'addresses'}->{$addr}) {
 			delete $self->{'METADATA'}->{'prospective_addresses'}->{$addr};
@@ -495,8 +496,8 @@ sub commit_prospective_address($) {
 			};
 		};
 	};
-	
-	$self->commit();
+
+	$self->enable_commit(1);
 };
 
 sub get_addresses($) {
@@ -527,7 +528,10 @@ sub add_address($$) {
 	my $remailer = {
 		id => $maxid + 1,
 		status => 'active',
-		ttl => Echolot::Config::get()->{'addresses_default_ttl'}
+		ttl => Echolot::Config::get()->{'addresses_default_ttl'},
+		fetch  => Echolot::Config::get()->{'fetch_new'},
+		pingit => Echolot::Config::get()->{'ping_new'},
+		showit => Echolot::Config::get()->{'show_new'},
 	};
 	
 	# FIXME logging and such
@@ -535,6 +539,42 @@ sub add_address($$) {
 		if Echolot::Config::get()->{'verbose'};
 
 	$self->{'METADATA'}->{'addresses'}->{$addr} = $remailer;
+	$self->commit();
+
+	return 1;
+};
+
+sub set_stuff($@) {
+	my ($self, @args) = @_;
+
+	my ($addr, $setting) = @args;
+	my $args = join(', ', @args);
+
+	defined ($addr) or
+		cluck ("Could not get address for '$args'"),
+		return 0;
+	defined ($setting) or
+		cluck ("Could not get setting for '$args'"),
+		return 0;
+	
+	defined ($self->{'METADATA'}->{'addresses'}->{$addr}) or
+		cluck ("Address $addr does not exist"),
+		return 0;
+	
+
+	if ($setting =~ /^(pingit|fetch|showit)=(on|off)$/) {
+		my $option = $1;
+		my $value = $2;
+		print "Setting $option to $value for $addr\n"
+			if Echolot::Config::get()->{'verbose'};
+		$self->{'METADATA'}->{'addresses'}->{$addr}->{$option} = ($value eq 'on');
+	} else {
+		cluck ("Don't know what to do with '$setting' for $addr"),
+		return 0;
+	}
+
+	$self->commit();
+	return 1;
 };
 
 
@@ -585,9 +625,7 @@ sub set_caps($$$$$$) {
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 		$self->{'METADATA'}->{'remailers'}->{$address} =
 			{
-				status => 'active',
-				pingit => Echolot::Config::get()->{'ping_new'},
-				showit => Echolot::Config::get()->{'show_new'},
+				status => 'active'
 			};
 	} else {
 		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
@@ -633,9 +671,7 @@ sub set_key($$$$$$$$$) {
 	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
 		$self->{'METADATA'}->{'remailers'}->{$address} =
 			{
-				status => 'active',
-				pingit => Echolot::Config::get()->{'ping_new'},
-				showit => Echolot::Config::get()->{'show_new'},
+				status => 'active'
 			};
 	} else {
 		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
@@ -693,7 +729,17 @@ sub get_remailers($) {
 	my ($self) = @_;
 
 	my @remailers = keys %{$self->{'METADATA'}->{'remailers'}};
-	return @remailers;
+	my @return_data = map {
+		carp ("remailer $_ is defined but not in addresses ")
+			unless defined $self->{'METADATA'}->{'addresses'}->{$_};
+		my %tmp;
+		$tmp{'status'} = $self->{'METADATA'}->{'remailers'}->{$_}->{'status'};
+		$tmp{'pingit'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'pingit'};
+		$tmp{'showit'} = $self->{'METADATA'}->{'addresses'}->{$_}->{'showit'};
+		$tmp{'address'} = $_;
+		\%tmp;
+		} @remailers;
+	return @return_data;
 };
 
 sub get_types($$) {
@@ -871,6 +917,20 @@ sub expire($) {
 # 			};
 # 		};
 # 		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'stats'};
+# 	};
+# 
+# 	$self->commit();
+# };
+#
+# sub convert($) {
+# 	my ($self) = @_;
+# 
+# 	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'addresses'}} ) {
+# 		$self->{'METADATA'}->{'addresses'}->{$remailer_addr}->{'fetch'} = 1;
+# 		$self->{'METADATA'}->{'addresses'}->{$remailer_addr}->{'pingit'} = 1;
+# 		$self->{'METADATA'}->{'addresses'}->{$remailer_addr}->{'showit'} = 0;
+# 		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'pingit'};
+# 		delete $self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'showit'};
 # 	};
 # 
 # 	$self->commit();
