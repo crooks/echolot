@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.12 2002/07/02 23:54:20 weasel Exp $
+# $Id: pingd,v 1.13 2002/07/03 00:29:02 weasel Exp $
 #
 
 =pod
@@ -156,6 +156,7 @@ use XML::Parser;
 use XML::Dumper;
 use Getopt::Long;
 use English;
+use Carp;
 use lib qw{ . lib };
 use Echolot::Config;
 use Echolot::Globals;
@@ -256,7 +257,7 @@ sub daemon_run() {
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' exists\n")
 		if pid_exists();
 	open (PIDFILE, '>'.Echolot::Config::get()->{'pidfile'}) or
-		carp ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
+		croak ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
 	print PIDFILE "$PROCESS_ID ".Echolot::Globals::get()->{'hostname'}." ".time()."\n";
 	close PIDFILE;
 
@@ -290,15 +291,15 @@ sub send_sig($) {
 	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' does exist\n")
 		unless pid_exists();
 	open (PIDFILE, '<'.Echolot::Config::get()->{'pidfile'}) or
-		carp ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
+		croak ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");
 	my $line = <PIDFILE>;
 	close PIDFILE;
 
 	my ($pid, $host, $time) = $line =~ /^(\d+) \s+ (\S+) \s+ (\d+) \s* $/x or
-		carp ("Cannot parse pidfile '$line'\n");
+		croak ("Cannot parse pidfile '$line'\n");
 	my $sent = kill $sig, $pid;
 	($sent == 1) or
-		carp ("Did not send signal $sig to exactly one process but $sent. (pidfile reads $line)\n");
+		croak ("Did not send signal $sig to exactly one process but $sent. (pidfile reads $line)\n");
 };
 
 sub daemon_hup() {
@@ -308,6 +309,46 @@ sub daemon_hup() {
 sub daemon_stop() {
 	send_sig(15);
 };
+
+sub make_dirs() {
+	for my $dir (
+		Echolot::Config::get()->{'resultdir'},
+		Echolot::Config::get()->{'private_resultdir'},
+		Echolot::Config::get()->{'gnupghome'},
+		Echolot::Config::get()->{'tmpdir'},
+		Echolot::Config::get()->{'storage'}->{'File'}->{'basedir'}
+	) {
+		if ( ! -d $dir ) {
+			mkdir ($dir) or
+				croak ("Cannot create directory $dir: $!\n");
+		};
+	};
+	for my $dir (
+		Echolot::Config::get()->{'mailindir'},
+		Echolot::Config::get()->{'mailindir'}.'/cur',
+		Echolot::Config::get()->{'mailindir'}.'/tmp',
+		Echolot::Config::get()->{'mailindir'}.'/new',
+		Echolot::Config::get()->{'mailerrordir'},
+		Echolot::Config::get()->{'mailerrordir'}.'/cur',
+		Echolot::Config::get()->{'mailerrordir'}.'/tmp',
+		Echolot::Config::get()->{'mailerrordir'}.'/new'
+	) {
+		if ( ! -d $dir ) {
+			mkdir ($dir, 0700) or
+				croak ("Cannot create directory $dir: $!\n");
+		};
+	};
+};
+
+
+
+
+
+
+
+
+
+
 
 
 my $params;
@@ -353,6 +394,7 @@ if ($COMMAND eq 'add') {
 } elsif ($COMMAND eq 'stop') {
 	daemon_stop();
 } elsif ($COMMAND eq 'start') {
+	make_dirs();
 	if ($params->{'detach'}) {
 		print "Detaching.\n";
 		unless (fork()) {
