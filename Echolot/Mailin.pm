@@ -1,7 +1,7 @@
 package Echolot::Mailin;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mailin.pm,v 1.2 2002/06/10 06:23:53 weasel Exp $
+# $Id: Mailin.pm,v 1.3 2002/06/11 10:00:38 weasel Exp $
 #
 
 =pod
@@ -65,25 +65,19 @@ sub handle($) {
 		cluck("No To header found in $file"),
 		return 0;
 	
-	my $delimiter = quotemeta( Echolot::Config::get()->{'recipient_delimiter'});
-	my ($type, $timestamp, $received_hash) = $to =~ /$delimiter (.*) = (\d+) = ([0-9a-f]+) @/x or
-		cluck("Could not parse to header '$to'"),
+	my $address_result = Echolot::Tools::verify_address_tokens($to) or
+		cluck("Verifying '$to' failed"),
 		return 0;
-
-	my $token = $type.'='.$timestamp;
-	my $hash = Echolot::Tools::hash($token . Echolot::Globals::get()->{'storage'}->get_secret() );
-	my $cut_hash = substr($hash, 0, Echolot::Config::get()->{'hash_len'});
-
-	($cut_hash eq $received_hash) or
-		cluck("Hash mismatch in '$to'"),
-		return 0;
+		
+	my $type = $address_result->{'token'};
+	my $timestamp = $address_result->{'timestamp'};
 	
 	Echolot::Conf::remailer_conf($body, $type, $timestamp), return 1 if ($type =~ /^conf\./);
 	Echolot::Conf::remailer_key($body, $type, $timestamp), return 1 if ($type =~ /^key\./);
 	Echolot::Conf::remailer_help($body, $type, $timestamp), return 1 if ($type =~ /^help\./);
 	Echolot::Conf::remailer_stats($body, $type, $timestamp), return 1 if ($type =~ /^stats\./);
 
-	Echolot::Ping::receive($body, $type, $timestamp), return 1 if ($type =~ /^ping\./);
+	Echolot::Pinger::receive($body, $type, $timestamp), return 1 if ($type eq 'ping');
 
 	cluck("Didn't know what to do with '$to'"),
 	return 0;
