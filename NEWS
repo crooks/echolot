@@ -2,6 +2,8 @@ Changes in version XXXXX - 2004
 	* Fix use of an illegal filedescriptor when we know of a remailer,
 	  but do not have keys for it yet/anymore.
 	* Check if syswrite's return value is defined.
+	* Tell Mixmaster to create no dummies.  It has no remailer keys
+	  and reliability information anyway.
 
 Changes in version 2.1.4 - 2004-06-10
 	* Have new disable and enable commands which are shortcut

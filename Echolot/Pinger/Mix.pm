@@ -81,6 +81,8 @@ sub ping($$$$$) {
 	print (F "TYPE2LIST       type2.list\n");
 	print (F "SENDMAIL        $sendmail -f $address -t\n");
 	print (F "VERBOSE         0\n");
+	print (F "INDUMMYP        0\n");
+	print (F "OUTDUMMYP       0\n");
 	close (F) or
 		Echolot::Log::warn("Cannot close $mixcfg: $!."),
 		return 0;
