@@ -1,9 +1,12 @@
-$Id: TODO,v 1.26 2002/07/10 17:59:56 weasel Exp $
+$Id: TODO,v 1.27 2002/07/12 00:40:13 weasel Exp $
 
 for 2.0:
-
-for later:
  document configuration options
+ seperate keys in remailer-key reply if they share the same armore (cmeclex is
+   the only one doing this. AARG)
+
+can be done later, nice if for 2.0:
+ getkeyconf command could take option:  address [address ...]
  list broken chains
  ping nymservers
  chain preload and postload
