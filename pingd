@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.17 2002/07/06 00:50:27 weasel Exp $
+# $Id: pingd,v 1.18 2002/07/06 01:31:39 weasel Exp $
 #
 
 =pod
@@ -341,7 +341,8 @@ sub daemon_run() {
 
 	$scheduler->add('processmail'         , Echolot::Config::get()->{'processmail'}        , 0, \&Echolot::Mailin::process );
 	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}    , 0, \&Echolot::Pinger::send_pings );
-	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}         , 0, \&Echolot::Stats::build );
+	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}         , 0, \&Echolot::Stats::build_stats );
+	$scheduler->add('buildkeys'           , Echolot::Config::get()->{'buildkeys'}          , 0, \&Echolot::Stats::build_keys );
 	$scheduler->add('buildthesaurus'      , Echolot::Config::get()->{'build_thesaurus'}    , 0, \&Echolot::Thesaurus::build_thesaurus );
 
 	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'} , 0, \&commit_prospective_address );
@@ -360,7 +361,7 @@ sub daemon_run() {
 sub send_sig($) {
 	my ($sig) = @_;
 
-	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' does exist\n")
+	die ("Pidfile '".Echolot::Config::get()->{'pidfile'}."' does not exist\n")
 		unless pid_exists();
 	open (PIDFILE, '<'.Echolot::Config::get()->{'pidfile'}) or
 		croak ("Cannot open pidfile '".Echolot::Config::get()->{'pidfile'}."': $!\n");

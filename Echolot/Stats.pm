@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.10 2002/07/03 11:08:21 weasel Exp $
+# $Id: Stats.pm,v 1.11 2002/07/06 01:31:39 weasel Exp $
 #
 
 =pod
@@ -23,8 +23,7 @@ use Carp qw{cluck};
 
 use constant DAYS => 12;
 use constant SECS_PER_DAY => 24 * 60 * 60;
-#use constant DAYS => 12;
-#use constant SECS_PER_DAY => 24 * 60 * 60;
+use English;
 
 use Statistics::Distrib::Normal qw{};
 
@@ -435,9 +434,142 @@ sub build_mixring() {
 	close(T2L);
 };
 
-sub build() {
+
+
+sub build_pgpring_type($$$) {
+	my ($type, $GnuPG, $keyring) = @_;
+	
+	for my $remailer (Echolot::Globals::get()->{'storage'}->get_remailers()) {
+		next unless $remailer->{'showit'};
+		my $addr = $remailer->{'address'};
+		next unless Echolot::Globals::get()->{'storage'}->has_type($addr, $type);
+
+		my %key;
+		for my $keyid (Echolot::Globals::get()->{'storage'}->get_keys($addr, $type)) {
+			my %new_key = Echolot::Globals::get()->{'storage'}->get_key($addr, $type, $keyid);
+
+			if (!defined $key{'last_update'} || $key{'last_update'} < $new_key{'last_update'} ) {
+				%key = %new_key;
+			};
+		};
+
+		# only if we have a conf
+		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
+			my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
+				= ( IO::Handle->new(),
+				IO::Handle->new(),
+				IO::Handle->new(),
+				IO::Handle->new(),
+				);
+			my $handles = GnuPG::Handles->new (
+				stdin      => $stdin_fh,
+				stdout     => $stdout_fh,
+				stderr     => $stderr_fh,
+				status     => $status_fh
+				);
+			my $pid = $GnuPG->wrap_call(
+				commands     => [ '--import' ],
+				command_args => [qw{--no-options --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
+				handles      => $handles );
+			print $stdin_fh $key{'key'};
+			close($stdin_fh);
+
+			my $stdout = join '', <$stdout_fh>; close($stdout_fh);
+			my $stderr = join '', <$stderr_fh>; close($stderr_fh);
+			my $status = join '', <$status_fh>; close($status_fh);
+
+			waitpid $pid, 0;
+
+			($stdout eq '') or
+				cluck("GnuPG returned something in stdout '$stdout' while adding key for '$addr': So what?\n");
+			unless ($status =~ /^^\[GNUPG:\] IMPORTED /m) {
+				if ($status =~ /^^\[GNUPG:\] IMPORT_RES /m) {
+					cluck("GnuPG status '$status' indicates more than one  key for '$addr' imporeted. Ignoring.\n");
+				} else {
+					cluck("GnuPG status '$status' didn't indicate key for '$addr' was imporeted correctly. Ignoring.\n");
+				};
+			};
+		};
+	};
+	
+	return 1;
+};
+
+sub build_pgpring_export($$$) {
+	my ($GnuPG, $keyring, $file) = @_;
+
+	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh )
+		= ( IO::Handle->new(),
+		IO::Handle->new(),
+		IO::Handle->new(),
+		IO::Handle->new(),
+		);
+	my $handles = GnuPG::Handles->new (
+		stdin      => $stdin_fh,
+		stdout     => $stdout_fh,
+		stderr     => $stderr_fh,
+		status     => $status_fh
+		);
+	my $pid = $GnuPG->wrap_call(
+		commands     => [ '--export' ],
+		command_args => [qw{--no-options --no-default-keyring --keyring}, $keyring ],
+		handles      => $handles );
+	close($stdin_fh);
+
+	my $stdout = join '', <$stdout_fh>; close($stdout_fh);
+	my $stderr = join '', <$stderr_fh>; close($stderr_fh);
+	my $status = join '', <$status_fh>; close($status_fh);
+
+	waitpid $pid, 0;
+
+	open (F, ">$file") or
+		cluck ("Cannot open '$file': $!"),
+		return 0;
+	print F $stdout;
+	close F;
+	return 1;
+};
+
+sub build_pgpring() {
+	my $GnuPG = new GnuPG::Interface;
+	$GnuPG->options->hash_init( 
+		armor   => 1,
+		homedir => Echolot::Config::get()->{'gnupghome'} );
+	$GnuPG->options->meta_interactive( 0 );
+
+    my $keyring = Echolot::Config::get()->{'tmpdir'}.'/'.
+	        Echolot::Globals::get()->{'hostname'}.".".time.'.'.$PROCESS_ID.'_'.Echolot::Globals::get()->{'internalcounter'}++.'.keyring';
+	
+
+	build_pgpring_type('cpunk-rsa', $GnuPG, $keyring) or
+		cluck("build_pgpring_type failed"),
+		return undef;
+
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-rsa.asc') or
+		cluck("build_pgpring_export failed"),
+		return undef;
+	
+	build_pgpring_type('cpunk-dsa', $GnuPG, $keyring) or
+		cluck("build_pgpring_type failed"),
+		return undef;
+
+	build_pgpring_export($GnuPG, $keyring, Echolot::Config::get()->{'resultdir'}.'/pgp-all.asc') or
+		cluck("build_pgpring_export failed"),
+		return undef;
+	
+
+	unlink ($keyring) or
+		cluck("Cannot unlink tmp keyring '$keyring'"),
+		return undef;
+	unlink ($keyring.'~'); # gnupg does those evil backups
+};
+
+sub build_stats() {
 	build_lists();
+};
+sub build_keys() {
 	build_mixring();
+	build_pgpring();
 };
 
 1;
