@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.56 2003/02/21 05:52:05 weasel Exp $
+# $Id: File.pm,v 1.57 2003/02/22 21:01:06 weasel Exp $
 #
 
 =pod
@@ -490,8 +490,8 @@ sub get_pings($$$$$) {
 	my @pings;
 
 	my $fh = $self->get_ping_fh($remailer_addr, $type, $key, $direction) or
-		Echolot::Log::warn ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings."),
-		return undef;
+		Echolot::Log::info ("$remailer_addr; type=$type; key=$key has no assigned filehandle for $direction pings (key has expired)."),
+		return ();
 
 	seek($fh, 0, SEEK_SET) or
 		Echolot::Log::warn("Cannot seek to start of $remailer_addr type $type key $key direction $direction pings: $!."),

@@ -30,6 +30,8 @@ Changes in version
 	* Print status summary to log daily.
 	   - Also adds the new "summary" command.
 	* Reliable and CRLF - a neverending (sad) story.
+	* Handle situations better in which a ping receives when the
+	  key already is expired.
 
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.
