@@ -15,6 +15,9 @@ Changes in version       - 2004
 	* Changed all pointers to savannah to alioth.
 	* Removed obsolete tools to convert echolot setups during 2.0beta*
 	  releases.
+	* Handle situations better in which a ping receives when the last
+	  key already is expired, and the remailer no longer exists in
+	  the remailers part of the metadata (only in the addresses part).
 
 Changes in version 2.1.3 - 2004-04-20
 	* Improvements to pingd.conf(5) by Colin.
