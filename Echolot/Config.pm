@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.7 2002/07/02 17:13:11 weasel Exp $
+# $Id: Config.pm,v 1.8 2002/07/02 17:17:56 weasel Exp $
 #
 
 =pod
@@ -37,8 +37,15 @@ sub init($) {
 		fetch_new                   => 1,
 		ping_new                    => 1,
 		show_new                    => 1,
-		pinger_interval             => 300,
-		ping_every_nth_time         => 48,
+
+		processmail                 => 60,   # process incomng mail every minute
+		pinger_interval             => 5*60, # send out pings every 5 minutes
+		ping_every_nth_time         => 48,   # send out pings to the same remailer every 48 calls, i.e. every 4 hours
+		buildstats                  => 5*60, # build statistics every 5 minutes
+		commitprospectives          => 8*60*60, # commit prospective addresses every 8 hours
+		expire                      => 24*60*60, # daily
+		getkeyconf                  => 24*60*60, # daily
+		
 		resultdir                   => 'results',
 		gnupghome                   => 'gnupg',
 		tmpdir                      => 'tmp',
@@ -46,9 +53,9 @@ sub init($) {
 		reliable_auto_add_min       => 3, # 3 remailes need to list new address
 		commands_file               => 'commands.txt',
 		pidfile                     => 'pingd.pid',
-		expire_keys                 => 432000, # 5 days
-		expire_confs                => 432000, # 5 days
-		expire_pings                => 1123200, # 12 days
+		expire_keys                 => 5*24*60*60, # 5 days
+		expire_confs                => 5*24*60*60, # 5 days
+		expire_pings                => 12*24*60*60, # 12 days
 		storage                     => {
 			backend                 	=> 'File',
 			File                    	=> {

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.10 2002/07/02 17:12:45 weasel Exp $
+# $Id: pingd,v 1.11 2002/07/02 17:17:56 weasel Exp $
 #
 
 =pod
@@ -236,16 +236,16 @@ if ($COMMAND eq 'add') {
 	setSigHandlers();
 
 	$scheduler = new Echolot::Scheduler;
-	$scheduler->add('exit'               ,       -1                                      , 0, 'exit' );
-	$scheduler->add('readcommands'        ,      -1                                      , 0, \&Echolot::Commands::processCommands );
+	$scheduler->add('exit'                ,     -1                                         , 0, 'exit' );
+	$scheduler->add('readcommands'        ,     -1                                         , 0, \&Echolot::Commands::processCommands );
 
-	$scheduler->add('processmail'         ,      60                                      , 0, \&Echolot::Mailin::process );
-	$scheduler->add('ping'                ,  Echolot::Config::get()->{'pinger_interval'} , 0, \&Echolot::Pinger::send_pings );
-	$scheduler->add('buildstats'          ,      60                                      , 0, \&Echolot::Stats::build );
+	$scheduler->add('processmail'         , Echolot::Config::get()->{'processmail'}        , 0, \&Echolot::Mailin::process );
+	$scheduler->add('ping'                , Echolot::Config::get()->{'pinger_interval'}    , 0, \&Echolot::Pinger::send_pings );
+	$scheduler->add('buildstats'          , Echolot::Config::get()->{'buildstats'}         , 0, \&Echolot::Stats::build );
 
-	$scheduler->add('commitprospectives'  ,    30*60                                     , 0, \&commit_prospective_address );
-	$scheduler->add('expire'              ,    15*60                                     , 0, \&expire );
-	$scheduler->add('getkeyconf'          , 24*60*60                                     , 0, \&Echolot::Conf::send_requests );
+	$scheduler->add('commitprospectives'  , Echolot::Config::get()->{'commitprospectives'} , 0, \&commit_prospective_address );
+	$scheduler->add('expire'              , Echolot::Config::get()->{'expire'}             , 0, \&expire );
+	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf'}         , 0, \&Echolot::Conf::send_requests );
 
 	$scheduler->run();
 
