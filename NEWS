@@ -1,4 +1,7 @@
 Changes in version
+	* Not the current time but the scheduled start time is used when
+	  deciding which remailers to ping. This is nice if we get delayed for
+	  whatever reason.
 	* Changed URL in templates to point to www.palfrader.org/echolot
 	  instead of the savannah page.
 

@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.21 2002/07/17 19:00:22 weasel Exp $
+# $Id: Conf.pm,v 1.22 2002/07/22 01:28:21 weasel Exp $
 #
 
 =pod
@@ -37,15 +37,15 @@ sub is_not_a_remailer($) {
 	};
 };
 
-sub send_requests(;$) {
-	my ($which) = @_;
+sub send_requests($;$) {
+	my ($scheduled_for, $which) = @_;
 
 	$which = '' unless defined $which;
 
 	my $call_intervall = Echolot::Config::get()->{'getkeyconf_interval'};
 	my $send_every_n_calls = Echolot::Config::get()->{'getkeyconf_every_nth_time'};
 
-	my $timemod = (time() / $call_intervall);
+	my $timemod = ($scheduled_for / $call_intervall);
 	my $this_call_id = $timemod % $send_every_n_calls;
 
 	Echolot::Globals::get()->{'storage'}->delay_commit();
