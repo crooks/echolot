@@ -1,4 +1,4 @@
-$Id: README,v 1.19 2002/07/16 01:51:52 weasel Exp $
+$Id: README,v 1.20 2002/07/16 02:42:01 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -34,6 +34,7 @@ REQUIREMENTS
 
 Indirect requirements:
 	Class:MethodMaker (by GnuPG::Interface)
+	File::Spec (by HTML::Template, should be in more recent perl-base)
 
 SETUP
 -----
@@ -83,6 +84,9 @@ o Mail should be delivered to /home/pinger/echolot/mail which must be a Maildir
     echo "./echolot/mail/" > .qmail;
     touch .qmail-default
 
+  
+  To use procmail with postfix set »mailbox_command = /usr/bin/procmail«
+  in main.cf.
 
 o Run »./pingd --verbose start«.
 
