@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.37 2002/08/11 14:57:23 weasel Exp $
+# $Id: Config.pm,v 1.38 2002/08/12 03:06:53 weasel Exp $
 #
 
 =pod
@@ -105,7 +105,7 @@ sub init($) {
 		expire_thesaurus            => 21*24*60*60, # 21 days
 
 		# Directories and files
-		mailindir                   => 'mail',
+		mailin                      => 'mail',
 		mailerrordir                => 'mail-errors',
 		resultdir                   => 'results',
 		thesaurusdir                => 'results/thesaurus',

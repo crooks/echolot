@@ -1,4 +1,4 @@
-$Id: README,v 1.24 2002/08/10 01:36:47 weasel Exp $
+$Id: README,v 1.25 2002/08/12 03:06:53 weasel Exp $
 #####################################################################
 ##  R E A D M E   F O R   E C H O L O T   ###########################
 #####################################################################
@@ -81,27 +81,39 @@ o Make sure your MTA supports user defined mailboxes. so that
 
   postfix: add »recipient_delimiter = +« to main.cf.
 
-o Mail should be delivered to /home/pinger/echolot/mail which must be a Maildir
-  mailbox, i.e there are 3 directories: /home/pinger/echolot/mail/tmp,
-  /home/pinger/echolot/mail/cur and /home/pinger/echolot/mail/new. Qmail,
-  postfix and procmail can do this.
+o Echolot can read its incoming mail either from a mbox format mailbox or from
+  Maildir. The latter is preffered for technical reasons (Maildir is superiour
+  to mbox because it does not require any locking).
 
-  Example snipped for procmail:
+  The »mailin« config variable defines where mail is read from. It defaults to
+  »mail«. If it's a directory, Maildir is assumed, mbox format otherwise.
 
-    :0
-    $HOME/echolot/mail/
+  Mbox:
+    It's probably best to change the »mailin« config option to
+    »/var/spool/pinger« (or whatever it is on your system).
+
+  Maildir (recommended):
+    Mail should be delivered to /home/pinger/echolot/mail which is a Maildir
+    mailbox, i.e there are 3 directories: /home/pinger/echolot/mail/tmp,
+    /home/pinger/echolot/mail/cur and /home/pinger/echolot/mail/new. Qmail,
+    postfix and procmail can do this.
+
+    Example snipped for procmail:
+
+      :0
+      $HOME/echolot/mail/
   
-  (the trailing slash is important!)
+    (the trailing slash is important!)
 
 
-  Example for qmail:
+    Example for qmail:
 
-    echo "./echolot/mail/" > .qmail;
-    touch .qmail-default
+      echo "./echolot/mail/" > .qmail;
+      touch .qmail-default
 
   
-  To use procmail with postfix set »mailbox_command = /usr/bin/procmail«
-  in main.cf.
+    To use procmail with postfix set »mailbox_command = /usr/bin/procmail«
+    in main.cf.
 
 o Run »./pingd --verbose start«.
 

@@ -341,11 +341,12 @@ directory upon startup.
 	Default: The directory in which pingd is.
 	Example: 'homedir' => '/home/pinger/echolot',
 
-=item B<mailindir>
+=item B<mailin>
 
-The Maildir directory which is searched for new messages.
+The Maildir directory or Mbox which is searched for new messages.
 
-	Default: 'mailindir' => 'mail',
+	Default: 'mailin' => 'mail',
+	Example: 'mailin' => '/var/mail/echolot',
 
 =item B<mailerrordir>
 

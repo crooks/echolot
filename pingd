@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.59 2002/08/11 14:57:23 weasel Exp $
+# $Id: pingd,v 1.60 2002/08/12 03:06:53 weasel Exp $
 #
 
 =pod
@@ -496,16 +496,18 @@ sub make_dirs() {
 				confess ("Cannot create directory $dir: $!\n");
 		};
 	};
-	for my $dir (
-		Echolot::Config::get()->{'mailindir'},
-		Echolot::Config::get()->{'mailindir'}.'/cur',
-		Echolot::Config::get()->{'mailindir'}.'/tmp',
-		Echolot::Config::get()->{'mailindir'}.'/new',
+	my @dirs = (
 		Echolot::Config::get()->{'mailerrordir'},
 		Echolot::Config::get()->{'mailerrordir'}.'/cur',
 		Echolot::Config::get()->{'mailerrordir'}.'/tmp',
-		Echolot::Config::get()->{'mailerrordir'}.'/new'
-	) {
+		Echolot::Config::get()->{'mailerrordir'}.'/new');
+	push @dirs, (
+		Echolot::Config::get()->{'mailin'}.'/cur',
+		Echolot::Config::get()->{'mailin'}.'/tmp',
+		Echolot::Config::get()->{'mailin'}.'/new' )
+		if (-d Echolot::Config::get()->{'mailin'});
+		
+	for my $dir (@dirs) {
 		if ( ! -d $dir ) {
 			mkdir ($dir, 0700) or
 				confess ("Cannot create directory $dir: $!\n");
