@@ -18,6 +18,7 @@ Echolot::Tools - Tools for echolot
 use strict;
 use HTML::Template;
 use Digest::MD5 qw{};
+use IO::Select;
 use IO::Handle;
 use GnuPG::Interface;
 use Echolot::Log;
