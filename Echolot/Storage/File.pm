@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.6 2002/06/11 15:35:38 weasel Exp $
+# $Id: File.pm,v 1.7 2002/06/11 16:00:00 weasel Exp $
 #
 
 =pod
@@ -632,7 +632,8 @@ sub get_key($$$$) {
 	my %result = (
 		summary => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'summary'},
 		key => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'key'},
-		nick => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'nick'}
+		nick => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'nick'},
+		last_update => $self->{'METADATA'}->{'remailers'}->{$remailer}->{'keys'}->{$type}->{$key}->{'last_update'}
 	);
 
 	return %result;
