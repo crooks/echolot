@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.46 2003/02/12 20:38:04 weasel Exp $
+# $Id: File.pm,v 1.47 2003/02/14 04:53:57 weasel Exp $
 #
 
 =pod
@@ -664,7 +664,7 @@ sub commit_prospective_address($) {
 			my %unique;
 			@adds = grep { ! $unique{$_}++; } @adds;
 			if (scalar @adds >= Echolot::Config::get()->{'reliable_auto_add_min'} ) {
-				Echolot::Log::notice("$addr is recommended by ". join(', ', @adds),".");
+				Echolot::Log::notice("$addr is recommended by ". join(', ', @adds) . ".");
 				$self->add_address($addr);
 				delete $self->{'METADATA'}->{'prospective_addresses'}->{$addr};
 				next;
