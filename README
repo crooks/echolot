@@ -1,4 +1,4 @@
-$Id: README,v 1.11 2002/07/10 11:49:41 weasel Exp $
+$Id: README,v 1.12 2002/07/10 13:04:06 weasel Exp $
 
 Echolot is a Pinger for anonymous remailers.
 
@@ -89,7 +89,7 @@ o run »./pingd add <address> <address> <address>..« in another terminal
   look at the first terminal where you started pingd. It should print
   something about adding addresses.
 
-o run »./pingd getkeyconfs« to request new remailer-key and
+o run »./pingd getkeyconf« to request new remailer-key and
   remailer-conf immediatly.
 
 o pingd can be stopped with »./pingd stop« or with Ctrl+C on the
