@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.20 2002/07/03 00:54:40 weasel Exp $
+# $Id: File.pm,v 1.21 2002/07/03 00:56:02 weasel Exp $
 #
 
 =pod
@@ -917,6 +917,9 @@ sub expire($) {
 
 sub delete_remailer($$) {
 	my ($self, $address) = @_;
+
+	print "Deleting remailer $address\n"
+		if Echolot::Config::get()->{'verbose'};
 
 	unless (defined $self->{'METADATA'}->{'addresses'}->{$address}) {
 		delete $self->{'METADATA'}->{'addresses'}->{$address}
