@@ -2,8 +2,9 @@ echolot (2.0.3-3) unstable; urgency=low
 
   * Remove Suggests: procmail.
   * Copy new description from README to control.
+  * Updated remailer list.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 12 Oct 2002 13:45:51 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 12 Oct 2002 14:10:03 +0200
 
 echolot (2.0.3-2) unstable; urgency=low
 
