@@ -325,6 +325,9 @@ sub readwrite_gpg($$$$$) {
 		for my $wfd (@$readyw) {
 			Echolot::Log::trace("writing to $wfd.");
 			$written = $wfd->syswrite($in, length($in) - $offset, $offset);
+			defined ($written) or
+				Echolot::Log::warn("Error while writing to GnuPG: $!"),
+				next;
 			$offset += $written;
 			if ($offset == length($in)) {
 				Echolot::Log::trace("writing to $wfd done.");
