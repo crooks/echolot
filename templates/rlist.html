@@ -21,6 +21,9 @@ Available Stats:
   <th>Cypherpunk (Type I)</th>
 </TMPL_IF>
   <th>Mixmaster (Type II)</th>
+<TMPL_IF NAME="combined_list">
+	<th>Combined</th>
+</TMPL_IF>
 </tr>
 <tr>
   <td><strong>v1</strong></td>
@@ -30,6 +33,9 @@ Available Stats:
   <td><a href="rlist-clear.html">(cleartext)</a></td>
 </TMPL_IF>
   <td><a href="mlist.html">v1</a></td>
+<TMPL_IF NAME="combined_list">
+	<td rowspan=2><a href="clist.html">V2</a></td>
+</TMPL_IF>
 </tr>
 <tr>
   <td><a href="rlist2.html">v2</a></td>

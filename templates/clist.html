@@ -5,7 +5,7 @@
 <body>
 <h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
 
-<h2>Cypherpunk Remailers (v2, RSA only)</h2>
+<h2>Remailers (combined list)</h2>
 
 <p>
 This is an automatically generated list of remailer reliability
@@ -18,7 +18,7 @@ Available Stats:
 <TMPL_IF NAME="seperate_rlist">
   <th colspan=4>Cypherpunk (Type I)</th>
 <TMPL_ELSE>
-  <th>Cypherpunk (Type I)</th>
+  <th>Cypherpunk (Type I)</th> 
 </TMPL_IF>
   <th>Mixmaster (Type II)</th>
 <TMPL_IF NAME="combined_list">
@@ -34,13 +34,13 @@ Available Stats:
 </TMPL_IF>
   <td><a href="mlist.html">v1</a></td>
 <TMPL_IF NAME="combined_list">
-	<td rowspan=2><a href="clist.html">V2</a></td>
+	<td rowspan=2><strong>V2</strong></td>
 </TMPL_IF>
 </tr>
 <tr>
   <td><a href="rlist2.html">v2</a></td>
 <TMPL_IF NAME="seperate_rlist">
-  <td><strong>(rsa)</strong></td>
+  <td><a href="rlist2-rsa.html">(rsa)</a></td>
   <td><a href="rlist2-dsa.html">(dsa)</a></td>
   <td><a href="rlist2-clear.html">(cleartext)</a></td>
 </TMPL_IF>

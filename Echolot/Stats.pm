@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.13 2002/07/10 17:16:45 weasel Exp $
+# $Id: Stats.pm,v 1.14 2002/07/10 17:58:05 weasel Exp $
 #
 
 =pod
@@ -271,11 +271,13 @@ sub write_file($$;$) {
 	
 	my $template =  HTML::Template->new(
 		filename => $html_template,
+		strict => 0,
 		global_vars => 1 );
 	$template->param ( list => $output );
 	$template->param ( CURRENT_TIMESTAMP => scalar gmtime() );
 	$template->param ( SITE_NAME => Echolot::Config::get()->{'sitename'} );
 	$template->param ( seperate_rlist => Echolot::Config::get()->{'seperate_rlists'} );
+	$template->param ( combined_list => Echolot::Config::get()->{'combined_list'} );
 
 	$filename = $filebasename.'.html';
 	open(F, '>'.$filename) or
@@ -378,6 +380,53 @@ sub build_list2($$;$) {
 	return 1;
 };
 
+sub build_clist($$;$) {
+	my ($remhash, $filebasename, $html_template) = @_;
+
+	my $output = '';
+
+	$output .= sprintf "Stats-Version: 2.0.1\n";
+	$output .= sprintf "Generated: %s\n", makeDate();
+	$output .= sprintf "Mixmaster    Latent-Hist   Latent  Uptime-Hist   Uptime  Options         Type\n";
+	$output .= sprintf "------------------------------------------------------------------------------------\n";
+
+	my $all;
+	for my $type (keys %$remhash) {
+		for my $remailer (@{$remhash->{$type}}) {
+			$all->{ $remailer->{'nick'} }->{$type} = $remailer
+		};
+	};
+
+	for my $nick (sort {$a cmp $b} keys %$all) {
+		for my $type (sort {$a cmp $b} keys %{$all->{$nick}}) {
+			$output .= sprintf "%-12s %-12s %6s   %-12s  %5.1f%%  %s %s\n",
+				$nick,
+				build_list2_latencystr($all->{$nick}->{$type}->{'stats'}->{'latency_day'}),
+				makeMinHr($all->{$nick}->{$type}->{'stats'}->{'avr_latency'}, 0),
+				build_list2_reliabilitystr($all->{$nick}->{$type}->{'stats'}->{'reliability_day'}),
+				$all->{$nick}->{$type}->{'stats'}->{'avr_reliability'} * 100,
+				build_list2_capsstr($all->{$nick}->{$type}->{'caps'}),
+				$type;
+		};
+	};
+
+	#$output .= sprintf "Groups of remailers sharing a machine or operator:\n\n";
+	#$output .= sprintf "Broken type-I remailer chains:\n\n";
+	#$output .= sprintf "Broken type-II remailer chains:\n\n";
+
+	$output .= sprintf "\n\n\nRemailer-Capabilities:\n\n";
+	for my $nick (sort {$a cmp $b} keys %$all) {
+		for my $type (keys %{$all->{$nick}}) {
+			$output .= $all->{$nick}->{$type}->{'caps'}."\n", last if defined $all->{$nick}->{$type}->{'caps'};
+		};
+	}
+
+	write_file($filebasename, $html_template, $output) or
+		cluck("writefile failed"),
+		return 0;
+	return 1;
+};
+
 
 sub build_rems($) {
 	my ($types) = @_;
@@ -413,42 +462,70 @@ sub build_rems($) {
 
 sub build_lists() {
 
-	my $rems = build_rems(['mix']);
+	my $clist;
+	my $pubclist;
+	my $rems;
+	my $pubrems;
+	$rems = build_rems(['mix']);
+	@$pubrems = grep { $_->{'showit'} } @$rems;
 	build_mlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist');
 	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'mlist2');
-	@$rems = grep { $_->{'showit'} } @$rems;
-	build_mlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', Echolot::Config::get()->{'templates'}->{'mlist'});
-	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
+	build_mlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist', Echolot::Config::get()->{'templates'}->{'mlist'});
+	build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'mlist2', Echolot::Config::get()->{'templates'}->{'mlist2'});
+	if (Echolot::Config::get()->{'combined_list'}) {
+		$clist->{'mix'} = $rems;
+		$pubclist->{'mix'} = $pubrems;
+	};
 
 	$rems = build_rems(['cpunk-rsa', 'cpunk-dsa', 'cpunk-clear']);
+	@$pubrems = grep { $_->{'showit'} } @$rems;
 	build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist');
 	build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2');
-	@$rems = grep { $_->{'showit'} } @$rems;
-	build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', Echolot::Config::get()->{'templates'}->{'rlist'});
-	build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
+	build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist', Echolot::Config::get()->{'templates'}->{'rlist'});
+	build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2', Echolot::Config::get()->{'templates'}->{'rlist2'});
+	if (Echolot::Config::get()->{'combined_list'} && ! Echolot::Config::get()->{'seperate_rlists'}) {
+		$clist->{'cpunk'} = $rems;
+		$pubclist->{'cpunk'} = $pubrems;
+	};
 
 	if (Echolot::Config::get()->{'seperate_rlists'}) {
 		$rems = build_rems(['cpunk-rsa']);
+		@$pubrems = grep { $_->{'showit'} } @$rems;
 		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
 		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
-		@$rems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
-		build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
+		build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-rsa', Echolot::Config::get()->{'templates'}->{'rlist-rsa'});
+		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-rsa', Echolot::Config::get()->{'templates'}->{'rlist2-rsa'});
+		if (Echolot::Config::get()->{'combined_list'}) {
+			$clist->{'cpunk-rsa'} = $rems;
+			$pubclist->{'cpunk-rsa'} = $pubrems;
+		};
 
 		$rems = build_rems(['cpunk-dsa']);
+		@$pubrems = grep { $_->{'showit'} } @$rems;
 		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
 		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
-		@$rems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
-		build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
+		build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-dsa', Echolot::Config::get()->{'templates'}->{'rlist-dsa'});
+		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-dsa', Echolot::Config::get()->{'templates'}->{'rlist2-dsa'});
+		if (Echolot::Config::get()->{'combined_list'}) {
+			$clist->{'cpunk-dsa'} = $rems;
+			$pubclist->{'cpunk-dsa'} = $pubrems;
+		};
 
 		$rems = build_rems(['cpunk-clear']);
+		@$pubrems = grep { $_->{'showit'} } @$rems;
 		build_rlist1( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
 		build_list2( $rems, Echolot::Config::get()->{'private_resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
-		@$rems = grep { $_->{'showit'} } @$rems;
-		build_rlist1( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
-		build_list2( $rems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
-	}
+		build_rlist1( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist-clear', Echolot::Config::get()->{'templates'}->{'rlist-clear'});
+		build_list2( $pubrems, Echolot::Config::get()->{'resultdir'}.'/'.'rlist2-clear', Echolot::Config::get()->{'templates'}->{'rlist2-clear'});
+		if (Echolot::Config::get()->{'combined_list'}) {
+			$clist->{'cpunk-clear'} = $rems;
+			$pubclist->{'cpunk-clear'} = $pubrems;
+		};
+	};
+	if (Echolot::Config::get()->{'combined_list'}) {
+		build_clist( $clist, Echolot::Config::get()->{'private_resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
+		build_clist( $pubclist, Echolot::Config::get()->{'resultdir'}.'/'.'clist', Echolot::Config::get()->{'templates'}->{'clist'});
+	};
 };
 
 

@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.20 2002/07/10 17:16:45 weasel Exp $
+# $Id: Config.pm,v 1.21 2002/07/10 17:58:05 weasel Exp $
 #
 
 =pod
@@ -70,6 +70,7 @@ sub init($) {
 		show_new                    => 1,
 
 		seperate_rlists             => 0,
+		combined_list               => 0,
 		thesaurus                   => 1,
 
 		processmail                 => 60,   # process incomng mail every minute
@@ -123,6 +124,7 @@ sub init($) {
 			'rlist2-rsa'            => 'templates/rlist2-rsa.html',
 			'rlist2-dsa'            => 'templates/rlist2-dsa.html',
 			'rlist2-clear'          => 'templates/rlist2-clear.html',
+			'clist'                 => 'templates/clist.html',
 		},
 		
 		homedir                     => undef,
