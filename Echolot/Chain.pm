@@ -1,7 +1,7 @@
 package Echolot::Chain;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Chain.pm,v 1.4 2003/02/16 03:06:51 weasel Exp $
+# $Id: Chain.pm,v 1.5 2003/02/16 09:09:57 weasel Exp $
 #
 
 =pod
@@ -21,6 +21,8 @@ use English;
 use Echolot::Log;
 use Echolot::Pinger::Mix;
 use Echolot::Pinger::CPunk;
+
+my %INTENSIVE_CARE;
 
 sub do_mix_chainping($$$$$$$$) {
 	my ($addr1, $type1, $keyid1, $addr2, $type2, $keyid2, $to, $body) = @_;
@@ -135,6 +137,13 @@ sub send_pings($;$$) {
 	my $this_call_id = $timemod % $send_every_n_calls;
 	my $session_id = int ($scheduled_for / ($call_intervall * $send_every_n_calls));
 
+	# Same thing for Intensive Care -- yet unknown or already broken chains
+	my $send_every_n_calls_ic = Echolot::Config::get()->{'chainping_ic_every_nth_time'};
+
+	my $timemod_ic = int ($scheduled_for / $call_intervall);
+	my $this_call_id_ic = $timemod_ic % $send_every_n_calls_ic;
+	my $session_id_ic = int ($scheduled_for / ($call_intervall * $send_every_n_calls_ic));
+
 	my @remailers = Echolot::Globals::get()->{'storage'}->get_remailers();
 	for my $rem1 (@remailers) {
 		next unless $rem1->{'pingit'};
@@ -165,9 +174,13 @@ sub send_pings($;$$) {
 				my $key2 = get_latest_key($addr2, $type2);
 
 
+				my $call_id    = Echolot::Tools::makeShortNumHash($addr1.$addr2.$chaintype.$session_id   ) % $send_every_n_calls;
+				my $call_id_ic = Echolot::Tools::makeShortNumHash($addr1.$addr2.$chaintype.$session_id_ic) % $send_every_n_calls_ic;
 				next unless (
 					(($which1 eq $addr1 || $which1 eq 'all' ) && ($which2 eq $addr2 ||  $which2 eq 'all')) ||
-					(($which1 eq '' && $which2 eq '') && ($this_call_id eq (Echolot::Tools::makeShortNumHash($addr1.$addr2.$chaintype.$session_id) % $send_every_n_calls))));
+					(($which1 eq '' && $which2 eq '') && (
+						$this_call_id eq $call_id ||
+						(defined $INTENSIVE_CARE{$chaintype}->{$addr1.' '.$addr2} && $this_call_id_ic eq $call_id_ic))));
 
 				Echolot::Log::debug("chainping calling $chaintype, $addr1 ($type1, $key1) - $addr2 ($type2, $key2)");
 				do_chainping($chaintype, $addr1, $type1, $key1, $addr2, $type2, $key2);
@@ -177,6 +190,12 @@ sub send_pings($;$$) {
 	return 1;
 };
 
+sub set_intensive_care($@) {
+	my ($chaintype, $intensive_care) = @_;
+
+	%{$INTENSIVE_CARE{$chaintype}} = map { ($_->{'addr1'}.' '.$_->{'addr2'}) => $_->{'reason'} } @$intensive_care;
+	Echolot::Log::debug("intensive care $chaintype:\n" . join("\n", map { "\t\t$_: $INTENSIVE_CARE{$chaintype}->{$_}" } keys %{$INTENSIVE_CARE{$chaintype}} ));
+};
 
 sub receive($$$) {
 	my ($msg, $token, $timestamp) = @_;

@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.37 2003/02/16 03:38:09 weasel Exp $
+# $Id: Conf.pm,v 1.38 2003/02/16 09:09:57 weasel Exp $
 #
 
 =pod
@@ -381,7 +381,8 @@ sub parse_cpunk_key($$$) {
 		
 		my @included_keys = $stdout =~ /^pub:.*$/mg;
 		(scalar @included_keys >= 2) &&
-			Echolot::Log::info ("Cannot handle more than one key per block correctly yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'}.".");
+			# FIXME handle more than one key per block nicely
+			Echolot::Log::debug ("Cannot handle more than one key per block nicely (correctly) yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'}.".");
 		for my $included_key (@included_keys) {
 			my ($type, $keyid, $uid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):[^:]+:[^:]*:::([^:]+):/;
 			(defined $uid) or

@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.50 2003/02/16 03:06:51 weasel Exp $
+# $Id: File.pm,v 1.51 2003/02/16 09:09:57 weasel Exp $
 #
 
 =pod
@@ -735,7 +735,7 @@ sub get_chainpings($$) {
 	my ($self, $chaintype) = @_;
 
 	my $fh = $self->get_chainping_fh($chaintype, 'out') or
-		Echolot::Log::warn ("assigned filehandle for $chaintype out chainpings."),
+		Echolot::Log::warn ("have no assigned filehandle for $chaintype out chainpings."),
 		return undef;
 	seek($fh, 0, SEEK_SET) or
 		Echolot::Log::warn("Cannot seek to start of $chaintype out chainpings $!."),
@@ -1544,6 +1544,7 @@ sub expire($) {
 	my $expire_keys  = $now - Echolot::Config::get()->{'expire_keys'};
 	my $expire_conf = $now - Echolot::Config::get()->{'expire_confs'};
 	my $expire_pings = $now - Echolot::Config::get()->{'expire_pings'};
+	my $expire_chainpings = $now - Echolot::Config::get()->{'expire_chainpings'};
 
 	for my $remailer_addr ( keys %{$self->{'METADATA'}->{'remailers'}} ) {
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
@@ -1574,8 +1575,8 @@ sub expire($) {
 
 		for my $type ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}} ) {
 			for my $key ( keys %{$self->{'METADATA'}->{'remailers'}->{$remailer_addr}->{'keys'}->{$type}} ) {
-				my @out  = grep {$_      > $expire_pings} Echolot::Globals::get()->{'storage'}->get_pings($remailer_addr, $type, $key, 'out');
-				my @done = grep {$_->[0] > $expire_pings} Echolot::Globals::get()->{'storage'}->get_pings($remailer_addr, $type, $key, 'done');
+				my @out  = grep {$_      > $expire_pings} $self->get_pings($remailer_addr, $type, $key, 'out');
+				my @done = grep {$_->[0] > $expire_pings} $self->get_pings($remailer_addr, $type, $key, 'done');
 
 
 				# write ping to done
@@ -1610,6 +1611,41 @@ sub expire($) {
 					return undef;
 				$fh->flush();
 			};
+		};
+	};
+
+	for my $type ( keys %{$self->{'CHAINPING_FHS'}} ) {
+		my $pings = $self->get_chainpings($type);
+
+		@{ $pings->{'out'} } = map {
+				my $a = $_;
+				join (' ', map ({ $a->{$_} } qw{sent addr1 type1 key1 addr2 type2 key2}))
+			} grep {
+				$_->{'sent'} > $expire_chainpings
+			}
+			@{ $pings->{'out'} };
+		@{ $pings->{'done'} } = map {
+				my $a = $_;
+				join (' ', map ({ $a->{$_} } qw{sent addr1 type1 key1 addr2 type2 key2 lat}))
+			} grep {
+				$_->{'sent'} > $expire_chainpings
+			}
+			@{ $pings->{'done'} };
+
+		for my $dir (qw{out done}) {
+			my $fh = $self->get_chainping_fh($type, $dir) or
+				Echolot::Log::warn ("have no assigned filehandle for $type $dir chainpings."),
+				return undef;
+			seek($fh, 0, SEEK_SET) or
+				Echolot::Log::warn("Cannot seek to start of $dir chainpings $type $!."),
+				return undef;
+			truncate($fh, 0) or
+				Echolot::Log::warn("Cannot truncate $dir chainpings $type file to zero length: $!."),
+				return undef;
+			print($fh (join "\n", @{$pings->{$dir}}), (scalar @{$pings->{$dir}} ? "\n" : '') ) or
+				Echolot::Log::warn("Error when writing to $dir chainpings $type file: $!."),
+				return undef;
+			$fh->flush();
 		};
 	};
 

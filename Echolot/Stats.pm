@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.42 2003/02/16 03:40:48 weasel Exp $
+# $Id: Stats.pm,v 1.43 2003/02/16 09:09:57 weasel Exp $
 #
 
 =pod
@@ -486,7 +486,7 @@ sub find_broken_chains($$$) {
 		$LAST_BROKENCHAIN_RUN{$chaintype} = time();
 
 		my $pings = Echolot::Globals::get()->{'storage'}->get_chainpings($chaintype);
-
+		my @intensive_care = ();
 		my %remailers = map { $_->{'address'} => $_ } @$rems;
 
 		my $stats;
@@ -529,6 +529,9 @@ sub find_broken_chains($$$) {
 				my $theoretical_rel = $remailers{$addr1}->{'stats'}->{'avr_reliability'} *
 						      $remailers{$addr2}->{'stats'}->{'avr_reliability'};
 				my $out = $stats->{$addr1}->{$addr2}->{'out'};
+				($out < Echolot::Config::get()->{'chainping_minsample'}) and
+					push (@intensive_care, { addr1 => $addr1, addr2 => $addr2, reason => "only $out samples" }),
+					next;
 				my $done = $stats->{$addr1}->{$addr2}->{'done'};
 				$done = 0 unless defined $done;
 				($out > 0) or
@@ -539,10 +542,12 @@ sub find_broken_chains($$$) {
 				next if ($real_rel > $theoretical_rel * Echolot::Config::get()->{'chainping_fudge'});
 				my $nick1 = $remailers{$addr1}->{'nick'};
 				my $nick2 = $remailers{$addr2}->{'nick'};
-				push @broken_chains, "($nick1 $nick2)";
+				push @broken_chains, "($nick1 $nick2) $done/$out";
+				push @intensive_care, { addr1 => $addr1, addr2 => $addr2, reason => "bad: $done/$out" };
 			};
 		};
 		$BROKEN_CHAINS{$chaintype} = \@broken_chains;
+		Echolot::Chain::set_intensive_care($chaintype, \@intensive_care);
 	} else {
 		Echolot::Log::debug ("Broken Chains $chaintype are up to date."),
 	};
@@ -551,7 +556,7 @@ sub find_broken_chains($$$) {
 	push @result, @{ $BROKEN_CHAINS{$chaintype} };
 	my %unique;
 	@result = grep { ! $unique{$_}++; } @result;
-	return join "\n", @result;
+	return join "\n", sort { $a cmp $b} @result;
 };
 
 sub build_lists() {
