@@ -1,4 +1,4 @@
-$Id: TODO,v 1.47 2003/02/17 09:14:47 weasel Exp $
+$Id: TODO,v 1.48 2003/02/17 09:44:46 weasel Exp $
 
 Legend:
         - Not done
@@ -7,6 +7,8 @@ Legend:
         o Done
         D Deferred
         X Abandoned
+
+ - have different stats philosophies (pessimist, optimist..)
 
 can be done later:
  - allow capsstring overrides/additions
