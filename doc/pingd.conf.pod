@@ -29,19 +29,19 @@ A short name for your site/pinger. It is used in the statistics produced.
 
 The local part of the pinger's email address.
 
-In C<pinger@example.com> the localpart is C<pinger>.
+In C<pinger@remailer.example.com> the localpart is C<pinger>.
 
 	Default: none
 	Example: 'my_localpart' => 'pinger',
 
 =item B<my_domain>
 
-The domain part of the pinger's email address.
+The FQDN of the pinger's email address.
 
-In C<pinger@example.com> the localpart is C<example.com>.
+In C<pinger@remailer.example.com> the FQDN is C<remailer.example.com>.
 
 	Default: none
-	Example: 'my_domain' => 'example.com',
+	Example: 'my_domain' => 'remailer.example.com',
 
 =item B<operator_address>
 

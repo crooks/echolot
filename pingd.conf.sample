@@ -8,12 +8,12 @@ $CONFIG = {
  	'sitename'         => 'unconfigured',
 
   # The local part of the pinger's email address
-  # In "pinger@example.com" the localpart is "pinger".
+  # In "pinger@remailer.example.com" the localpart is "pinger".
 	'my_localpart'     => 'pinger',
 
-  # The domain part of the pinger's email address.
-  # In "pinger@example.com" the localpart is "example.com".
-	'my_domain'        => 'example.com',
+  # The FQDN of the pinger's email address.
+  # In "pinger@remailer.example.com" the FQDN is "remailer.example.com".
+	'my_domain'        => 'remailer.example.com',
 
   # The email address of the human operator that runs this pinger.
 	'operator_address' => 'remop@example.org',

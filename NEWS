@@ -1,3 +1,6 @@
+Changes in version
+	* Minor documentation fixes suggested by Ryan Lackey.
+
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.
 	* Add missing use of Carp to Echolot::Storage::File.pm.
