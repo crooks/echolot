@@ -20,7 +20,6 @@ endif
 
 build: build-stamp
 build-stamp:
-	sed -e "s/REMAILER_LIST/$(REMAILERS)/" < debian/echolot.postinst.in > debian/echolot.postinst
 	touch build-stamp
 
 clean:
@@ -28,7 +27,6 @@ clean:
 	dh_testroot
 
 	rm -f build-stamp
-	rm -f debian/echolot.postinst
 
 	dh_clean
 
