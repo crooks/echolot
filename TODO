@@ -1,10 +1,7 @@
-$Id: TODO,v 1.30 2002/07/13 23:40:16 weasel Exp $
+$Id: TODO,v 1.31 2002/07/15 20:19:40 weasel Exp $
 
 for 2.0:
  document configuration options
- the stats pages need legends for the histories, options
- it would be nice if the html pages also had links to the .txt versions of the
-  stats (in addition to the v1 v2 html links)
 
 can be done later, nice if for 2.0:
  getkeyconf command could take option:  address [address ...]
