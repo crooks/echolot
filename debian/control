@@ -3,7 +3,7 @@ Section: mail
 Priority: extra
 Maintainer: Peter Palfrader <weasel@debian.org>
 Build-Depends-Indep: debhelper (>= 4.1.16)
-Standards-Version: 3.5.7
+Standards-Version: 3.6.1
 
 Package: echolot
 Architecture: all

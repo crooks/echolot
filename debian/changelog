@@ -3,8 +3,9 @@ echolot (2.1.4-1) unstable; urgency=low
   * New upstream version.
   * Update debian/copyright to include 2004.
   * Add dutch translation for debconf templates (closes: #249406).
+  * Update Standards-Version to 3.6.1.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 10 Jun 2004 15:32:59 +0200
+ -- Peter Palfrader <weasel@debian.org>  Thu, 10 Jun 2004 15:47:52 +0200
 
 echolot (2.1.3-1) unstable; urgency=low
 
