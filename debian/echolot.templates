@@ -35,7 +35,14 @@ _Description: Recipient delimiter
  .
  In postfix this can be done by adding
   recipient_delimiter = +
- to your main.cf file. (If you know the procedure for other MTAs, please
- file a wishlist bug)
+ to your main.cf file.
+ .
+ The mailbox delimiter for exim4 can be specified by :
+  local_part_suffix = -*
+  local_part_suffix_optional
+ in the router configuration (900_exim4-config_local_user in the debian
+ package) if you want '-' to be your mailbox delimiter.
+ .
+ (If you know the procedure for other MTAs, please file a wishlist bug)
  .
  If you cannot or do not want to enable this please use an empty string.
