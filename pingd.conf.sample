@@ -1,5 +1,7 @@
 # vim:set syntax=perl:
 
+# see man pingd.conf(5) for a list of all available configuration options.
+
 $CONFIG = {
             'sitename'         => 'unconfigured',
 
