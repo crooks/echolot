@@ -8,3 +8,4 @@ for later:
  get rid of dependency on gnupg
  list broken chains
  ping nymservers
+ chain preload and postload
