@@ -1,7 +1,7 @@
 package Echolot::Tools;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Tools.pm,v 1.21 2003/02/28 17:10:57 weasel Exp $
+# $Id: Tools.pm,v 1.22 2003/06/06 09:32:37 weasel Exp $
 #
 
 =pod
@@ -348,6 +348,21 @@ sub make_garbage() {
 
 	return $random;
 };
+
+sub read_file($;$) {
+	my ($name, $fail_ok) = @_;
+
+	unless (open (F, $name)) {
+		Echolot::Log::warn("Could not open '$name': $!.") unless ($fail_ok);
+		return undef;
+	};
+	local $/ = undef;
+	my $result = <F>;
+	close (F);
+
+	return $result;
+};
+
 
 1;
 

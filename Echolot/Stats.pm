@@ -1,7 +1,7 @@
 package Echolot::Stats;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Stats.pm,v 1.55 2003/02/28 18:12:21 weasel Exp $
+# $Id: Stats.pm,v 1.56 2003/06/06 09:32:37 weasel Exp $
 #
 
 =pod
@@ -253,20 +253,6 @@ sub calculate($$) {
 		latency_day     => \@latency,
 		reliability_day => \@received
 	};
-};
-
-sub read_file($;$) {
-	my ($name, $fail_ok) = @_;
-
-	unless (open (F, $name)) {
-		Echolot::Log::warn("Could not open '$name': $!.") unless ($fail_ok);
-		return undef;
-	};
-	local $/ = undef;
-	my $result = <F>;
-	close (F);
-
-	return $result;
 };
 
 sub write_file($$$$) {
@@ -624,9 +610,9 @@ sub build_lists() {
 	my %stats;
 	my %addresses;
 
-	my $hardbroken1 = read_file( Echolot::Config::get()->{'broken1'}, 1);
-	my $hardbroken2 = read_file( Echolot::Config::get()->{'broken2'}, 1);
-	my $sameop = read_file( Echolot::Config::get()->{'sameop'}, 1);
+	my $hardbroken1 = Echolot::Tools::read_file( Echolot::Config::get()->{'broken1'}, 1);
+	my $hardbroken2 = Echolot::Tools::read_file( Echolot::Config::get()->{'broken2'}, 1);
+	my $sameop = Echolot::Tools::read_file( Echolot::Config::get()->{'sameop'}, 1);
 	my $pubbroken1;
 	my $pubbroken2;
 	my $privbroken1;
