@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.4 2003/02/21 06:37:35 weasel Exp $
+# $Id: Fromlines.pm,v 1.5 2003/02/25 19:59:01 weasel Exp $
 #
 
 =pod
@@ -48,8 +48,8 @@ sub build_fromlines() {
 				my $from = $from_info->{'from'};
 				$from = 'Not Available' unless defined $from;
 				$from = 'Middleman Remailer' if $middleman;
-				my $disclaim_top = $from_info->{'disclaim_top'} ? 1 : 0;
-				my $disclaim_bot = $from_info->{'disclaim_bot'} ? 1 : 0;
+				my $disclaim_top = $from_info->{'disclaim_top'} && ! $middleman ? 1 : 0;
+				my $disclaim_bot = $from_info->{'disclaim_bot'} && ! $middleman ? 1 : 0;
 				my $frominfo = $disclaim_top.':'.$disclaim_bot.':'.$from;
 				push @{$from_types->{$frominfo}}, $type;
 			};
