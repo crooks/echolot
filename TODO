@@ -1,4 +1,4 @@
-$Id: TODO,v 1.57 2003/06/06 09:39:42 weasel Exp $
+$Id: TODO,v 1.58 2003/06/06 10:15:02 weasel Exp $
 
 Legend:
         - Not done
@@ -18,10 +18,6 @@ Legend:
       (like the Debian package already does)
  - optimize chain pinger:
    cache callids in chainpinging - md5 is not that cheap
- - debian init script mag setremaielrcaps nicht
-	Tue 21:02:36 <mike_lap> # /etc/init.d/echolot setremailercaps '$remailer{"lcs"} = "<mix@anon.lcs.mit.edu> mix klen1000";'
-	Tue 21:02:36 <mike_lap> Running Echolot Ping Daemon: pingd setremailercaps...
-	Tue 21:02:36 <mike_lap> caps '{lcs}' is not a valid remailer caps line
  - check behaviour if we lag behind schedule
    - some events can't be missed (there's no point in scheduling 20 buildstats)
      some can't (pinging)
