@@ -1,12 +1,14 @@
 for 2.0:
  make setup easy/document setup
- only ping remailers if pingit is set
- only show remailers if showit is set
+ only fetch keys and confs remailers if fetch is set
  make a private [rm]list showing all remailers
  ping cpunk without pgponly in clear too
  configure pinging options (i.e. cpunkt-{rsa,dsa,none}, mix)
+ add showconf command
 
 for later:
  rotate secret
  get rid of dependency on mix
  get rid of dependency on gnupg
+ list broken chains
+ ping nymservers
