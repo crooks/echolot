@@ -1,4 +1,4 @@
-$Id: TODO,v 1.52 2003/02/24 16:23:10 weasel Exp $
+$Id: TODO,v 1.53 2003/03/02 20:49:02 weasel Exp $
 
 Legend:
         - Not done
@@ -7,6 +7,8 @@ Legend:
         o Done
         D Deferred
         X Abandoned
+
+ - updated information with from lines
 
 can be done later:
  - ping mail2news gates

@@ -1,7 +1,7 @@
 package Echolot::Fromlines;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Fromlines.pm,v 1.8 2003/03/02 19:50:21 weasel Exp $
+# $Id: Fromlines.pm,v 1.9 2003/03/02 20:49:02 weasel Exp $
 #
 
 =pod
@@ -50,16 +50,17 @@ sub build_fromlines() {
 				$from = 'Middleman Remailer' if $middleman;
 				my $disclaim_top = $from_info->{'disclaim_top'} && ! $middleman ? 1 : 0;
 				my $disclaim_bot = $from_info->{'disclaim_bot'} && ! $middleman ? 1 : 0;
-				my $last_update = $from_info->{'last_update'};
-				my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime($last_update);
+				#my $last_update = $from_info->{'last_update'};
+				#my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime($last_update);
 				my $frominfo = $disclaim_top.':'.$disclaim_bot.':'.$from;
-				my $date = sprintf("%04d-%02d-%02d", $year+1900, $mon+1, $mday);
-				my $value = $middleman ? $type : ($type." ($date)");
+				#my $date = sprintf("%04d-%02d-%02d", $year+1900, $mon+1, $mday);
+				#my $value = $middleman ? $type : ($type." ($date)");
+				my $value = $type;
 				push @{$from_types->{$frominfo}}, $value;
 			};
 			my $types_from;
 			for my $frominfo (sort keys %$from_types) {
-				my $types = join "<BR>", sort { $a cmp $b } @{$from_types->{$frominfo}};
+				my $types = join ", ", sort { $a cmp $b } @{$from_types->{$frominfo}};
 				$types_from->{$types} = $frominfo;
 			};
 			my @types_from = map {
