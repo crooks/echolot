@@ -1,7 +1,7 @@
 package Echolot::Pinger;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Pinger.pm,v 1.13 2002/07/17 02:34:48 weasel Exp $
+# $Id: Pinger.pm,v 1.14 2002/07/17 02:36:07 weasel Exp $
 #
 
 =pod
@@ -110,7 +110,7 @@ sub send_pings() {
 		for my $type (Echolot::Globals::get()->{'storage'}->get_types($address)) {
 			next unless Echolot::Config::get()->{'do_pings'}->{$type};
 			for my $key (Echolot::Globals::get()->{'storage'}->get_keys($address, $type)) {
-				next unless ($this_call_id eq (makeHash($addressi.$type.$key) % $send_every_n_calls));
+				next unless ($this_call_id eq (makeHash($address.$type.$key) % $send_every_n_calls));
 				print "ping calling $type, $address, $key\n" if Echolot::Config::get()->{'verbose'};
 				do_ping($type, $address, $key);
 			}
