@@ -1,7 +1,7 @@
 package Echolot::Pinger::Mix;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Mix.pm,v 1.2 2002/06/18 17:19:00 weasel Exp $
+# $Id: Mix.pm,v 1.3 2002/07/03 00:28:02 weasel Exp $
 #
 
 =pod
@@ -36,6 +36,17 @@ sub ping($$$$) {
 	};
 	close (F) or
 		cluck("Cannot close $keyring"),
+		return 0;
+
+	my $type2list = Echolot::Config::get()->{'Pinger::Mix'}->{'mixdir'}.'/type2.list';
+	open (F, '>'.$type2list) or
+		cluck("Cannot open $type2list for writing: $!"),
+		return 0;
+	for my $keyid (keys %$keys) {
+		print (F $keys->{$keyid}->{'summary'}, "\n");
+	};
+	close (F) or
+		cluck("Cannot close $type2list"),
 		return 0;
 	
 	open(MIX, "|".Echolot::Config::get()->{'Pinger::Mix'}->{'mix'}." -m -S -l $chaincomma") or
