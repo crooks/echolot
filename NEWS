@@ -9,7 +9,8 @@ Changes in
 	  backlog.
 	* If we run late we should now drop actions where it does not hurt.
 	* Remove random command invocation via pingctr/init script.  People
-	  should just call pingd directly.
+	  should just call pingd directly.  Also wait for pingd to really
+	  shut down in stop and restart.
 
 Changes in version
 	* Minor documentation fixes suggested by Ryan Lackey.
