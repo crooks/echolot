@@ -1,4 +1,4 @@
-Changes in version
+Changes in version 2.0beta17 -  2002-07-22
 	* You no longer need an extra Mixmaster installation for your pinger.
 	  Echolot can make use of any Mixmaster binary you alread have
 	  installed.
