@@ -68,15 +68,15 @@ sub init($) {
 	
 	die ("Basedir is not defined\n") unless defined $params->{'basedir'};
 
-	my @CONFIG_FILES = 
-		( $ENV{'ECHOLOT_CONF'},
-		  $params->{'basedir'}.'/pingd.conf',
-		  $ENV{'HOME'}.'/echolot/pingd.conf',
-		  $ENV{'HOME'}.'/pingd.conf',
-		  $ENV{'HOME'}.'/.pingd.conf',
-		  '/etc/echolot/pingd.conf',
-		  '/etc/pingd.conf' );
-	  
+	my @CONFIG_FILES = ();
+	push(@CONFIG_FILES, $ENV{'ECHOLOT_CONF'}) if defined $ENV{'ECHOLOT_CONF'};
+	push(@CONFIG_FILES, $params->{'basedir'}.'/pingd.conf') if defined $params->{'basedir'};
+	push(@CONFIG_FILES, $ENV{'HOME'}.'/echolot/pingd.conf') if defined $ENV{'HOME'};
+	push(@CONFIG_FILES, $ENV{'HOME'}.'/pingd.conf') if defined $ENV{'HOME'};
+	push(@CONFIG_FILES, $ENV{'HOME'}.'/.pingd.conf') if defined $ENV{'HOME'};
+	push(@CONFIG_FILES, '/etc/echolot/pingd.conf');
+	push(@CONFIG_FILES, '/etc/pingd.conf');
+
 	my $DEFAULT;
 	$DEFAULT = {
 		# System Specific Options

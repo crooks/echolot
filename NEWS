@@ -3,6 +3,8 @@ Changes in version       -
 	  script
 	* debian: Create echolot user group in proper gid space.
 	* debian: remove debconf stuff.
+	* handle empty environment better - we would whine when
+	  HOME is not set previously.
 
 Changes in version 2.1.6 - 2004-08-07
 	* Catch a possible use of undefined values in a log trace() call.
