@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.60 2002/08/12 03:06:53 weasel Exp $
+# $Id: pingd,v 1.61 2002/08/12 03:28:06 weasel Exp $
 #
 
 =pod
@@ -161,6 +161,10 @@ DIRECTORY section below.
 =item B<--verbose>
 
 Verbose mode. Causes B<pingd> to print debugging messages about its progress.
+
+=item B<--quiet>
+
+Quiet mode. Be even more quient than normally.
 
 =item B<--help>
 
@@ -545,6 +549,7 @@ if (!GetOptions (
 	'detach'   =>  \$params->{'detach'},
 	'process'  =>  \$params->{'process'},
 	'basedir'  =>  \$params->{'basedir'},
+	'quiet'    =>  \$params->{'quiet'},
 	)) {
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
 };
@@ -577,6 +582,7 @@ if ($params->{'version'}) {
     print ("http://savannah.gnu.org/projects/echolot/\n");
     exit 0;
 };
+$params->{'quiet'} = undef if ($params->{'verbose'});
 
 my $COMMAND = shift @ARGV;
 die ("command required\n") unless defined $COMMAND;
@@ -620,7 +626,7 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 		if pid_exists();
 	make_dirs();
 	if ($params->{'detach'}) {
-		print "Detaching.\n";
+		print "Detaching.\n" unless ($params->{'quiet'});
 		exit(0) if (fork());
 		POSIX::setsid();
 		exit(0) if (fork());
