@@ -4,3 +4,4 @@ var/lib/echolot
 var/run/echolot
 var/log/echolot
 etc/echolot
+etc/default

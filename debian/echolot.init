@@ -20,6 +20,10 @@ DESC="Echolot Ping Daemon"
 NAME="pingd"
 test -f $DAEMON || exit 0
 
+# Reads config file (will override defaults above)
+[ -r /etc/default/echolot ] && . /etc/default/echolot
+
+
 wait_for_deaddaemon () {
 	PID=$1
 	sleep 3
@@ -97,14 +101,18 @@ start)
 			echo "$PIDFILE."
 		fi
 	fi
-	echo -n "Starting $DESC: "
-	start-stop-daemon \
-		--start \
-		--quiet \
-		--pidfile $PIDFILE \
-		--chuid $USER:$GROUP \
-		--exec $DAEMON -- --detach $VERBOSE --quiet start
-	echo "$NAME."
+	if [ $RUN_ECHOLOT -gt 0 ]; then
+		echo -n "Starting $DESC: "
+		start-stop-daemon \
+			--start \
+			--quiet \
+			--pidfile $PIDFILE \
+			--chuid $USER:$GROUP \
+			--exec $DAEMON -- --detach $VERBOSE --process --quiet start
+		echo "$NAME."
+	else
+		echo "Not starting $DESC: disabled in configuration"
+	fi
 	;;
 
 stop)

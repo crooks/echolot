@@ -1,0 +1,12 @@
+# Defaults for echolot initscript
+# sourced by /etc/init.d/echolot
+# installed at /etc/default/echolot
+
+#
+# This is a POSIX shell fragment
+#
+
+VERBOSE=0
+
+# Only enable this after you've read /usr/share/doc/echolot/README.Debian
+RUN_ECHOLOT=0

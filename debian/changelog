@@ -1,8 +1,11 @@
 echolot (2.0.5-2) unstable; urgency=low
 
   * Add sendpings command to init script.
+  * Have Echolot disabled by default in /etc/default/echolot.
+  * Add some more comments to README.Debian.
+  * Also process pending commands upon pingd startup.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 11 Nov 2002 03:23:21 +0100
+ -- Peter Palfrader <weasel@debian.org>  Tue, 12 Nov 2002 02:06:17 +0100
 
 echolot (2.0.5-1) unstable; urgency=low
 
