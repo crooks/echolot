@@ -1,4 +1,4 @@
-$Id: TODO,v 1.59 2003/06/06 10:15:53 weasel Exp $
+$Id: TODO,v 1.60 2003/06/06 10:20:22 weasel Exp $
 
 Legend:
         - Not done
@@ -14,8 +14,6 @@ Legend:
      changed from the normal distribution caluclation
      to quantiles
  - updated information with from lines
- - fix pingtcl to wait for pingd to shut down
-      (like the Debian package already does)
  - optimize chain pinger:
    cache callids in chainpinging - md5 is not that cheap
  - clean up tmp files
