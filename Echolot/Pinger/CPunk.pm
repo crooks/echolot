@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.2 2002/06/20 04:25:57 weasel Exp $
+# $Id: CPunk.pm,v 1.3 2002/07/02 14:21:38 weasel Exp $
 #
 
 =pod
@@ -152,6 +152,7 @@ sub encrypt_to($$$$) {
 	unlink ($keyring) or
 		cluck("Cannot unlink tmp keyring '$keyring'"),
 		return undef;
+	unlink ($keyring.'~'); # gnupg does those evil backups
 
 	(defined $plaintextfile) and 
 		( unlink ($plaintextfile) or
