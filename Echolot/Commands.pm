@@ -1,7 +1,7 @@
 package Echolot::Commands;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Commands.pm,v 1.13 2003/02/18 06:38:07 weasel Exp $
+# $Id: Commands.pm,v 1.14 2003/02/20 19:39:03 weasel Exp $
 #
 
 =pod
@@ -79,6 +79,8 @@ sub processCommands($) {
 			Echolot::Globals::get()->{'scheduler'}->schedule('buildthesaurus', 0, time() );
 		} elsif ($command eq 'buildfromlines') {
 			Echolot::Globals::get()->{'scheduler'}->schedule('buildfromlines', 0, time() );
+		} elsif ($command eq 'summary') {
+			Echolot::Globals::get()->{'scheduler'}->schedule('summary', 0, time() );
 		} elsif ($command eq 'delete') {
 			Echolot::Globals::get()->{'storage'}->delete_remailer(@args);
 		} elsif ($command eq 'setremailercaps') {

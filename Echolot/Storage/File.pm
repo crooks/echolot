@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.54 2003/02/20 14:05:38 weasel Exp $
+# $Id: File.pm,v 1.55 2003/02/20 19:39:03 weasel Exp $
 #
 
 =pod
@@ -952,7 +952,11 @@ The hash has the following keys:
 
 =item fetch
 
-=item shoit
+=item showit
+
+=item pingit
+
+=item ttl
 
 =item resurrection_ttl
 
@@ -974,6 +978,8 @@ sub get_address($$) {
 		address => $_,
 		fetch   => $self->{'METADATA'}->{'addresses'}->{$addr}->{'fetch'},
 		showit  => $self->{'METADATA'}->{'addresses'}->{$addr}->{'showit'},
+		pingit  => $self->{'METADATA'}->{'addresses'}->{$addr}->{'pingit'},
+		ttl     => $self->{'METADATA'}->{'addresses'}->{$addr}->{'ttl'},
 		resurrection_ttl => $self->{'METADATA'}->{'addresses'}->{$addr}->{'resurrection_ttl'},
 	};
 
@@ -1443,7 +1449,7 @@ I<$remailer>.
 Returns undef on errors.
 
 =cut
-sub get_keys($$) {
+sub get_keys($$$) {
 	my ($self, $remailer, $type) = @_;
 
 	defined ($self->{'METADATA'}->{'remailers'}->{$remailer}) or

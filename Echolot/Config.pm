@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.60 2003/02/18 06:57:07 weasel Exp $
+# $Id: Config.pm,v 1.61 2003/02/20 19:39:03 weasel Exp $
 #
 
 =pod
@@ -95,6 +95,7 @@ sub init($) {
 		getkeyconf_interval         => 5*60, # send out requests every 5 minutes
 		getkeyconf_every_nth_time   => 24*60/5, # send out the same request to the same remailer once a day
 		check_resurrection          => 7*24*60*60, # weekly
+		summary                     => 24*60*60, # daily
 
 		metadata_backup             => 8*60*60, # make backups of metadata and rotate them every 8 hours
 		metadata_backup_count       => 32, # keep 32 rotations of metadata

@@ -3,7 +3,7 @@
 $| = 1;
 
 # (c) 2002, 2003 Peter Palfrader <peter@palfrader.org>
-# $Id: pingd,v 1.99 2003/02/18 06:57:07 weasel Exp $
+# $Id: pingd,v 1.100 2003/02/20 19:39:03 weasel Exp $
 #
 
 =pod
@@ -156,6 +156,10 @@ Send a command to immediatly rebuild the Thesaurus.
 
 Send a command to immediatly rebuild the From Header lines page.
 
+=item B<summary>
+
+Print a status summary of all known addresses to the log.
+
 =item B<dumpconf>
 
 Dumps the current configuration to standard output.
@@ -191,7 +195,7 @@ Print version number and exit sucessfully.
 
 Usefull only with the B<add>, B<set>, B<setremailercaps>,
 B<deleteremailercaps>, B<getkeyconf>, B<sendpings>, B<buildstats>,
-B<buildkeys>, B<buildthesaurus>, or B<buildfromlines> command.
+B<buildkeys>, B<buildthesaurus>, B<buildfromlines> or B<summary> command.
 
 Don't send a HUP signal to the daemon which instructs it to process the
 commands after adding the command to the task list.
@@ -297,6 +301,7 @@ use Echolot::Stats;
 use Echolot::Commands;
 use Echolot::Thesaurus;
 use Echolot::Fromlines;
+use Echolot::Report;
 use Echolot::Log;
 use POSIX qw(setsid);
 
@@ -521,6 +526,8 @@ sub daemon_run($) {
 	$scheduler->add('getkeyconf'          , Echolot::Config::get()->{'getkeyconf_interval'}  , 0, \&Echolot::Conf::send_requests );
 	$scheduler->add('check_resurrection'  , Echolot::Config::get()->{'check_resurrection'}   , 0, \&Echolot::Conf::check_resurrection );
 
+	$scheduler->add('summary'             , Echolot::Config::get()->{'summary'}              , 0, \&Echolot::Report::print_summary );
+
 	Echolot::Globals::get()->{'scheduler'}->schedule('readcommands', 0, time() )
 		if ($process);
 
@@ -648,6 +655,7 @@ if ($params->{'help'}) {
 	print ("  buildkeys          ... buid keyrings immediatly\n");
 	print ("  buildthesaurus     ... build thesaurus immediatly\n");
 	print ("  buildfromlines     ... build fromlines immediatly\n");
+	print ("  summary            ... print status summary to log\n");
 	print ("  dumpconf   dump configuration\n");
     exit 0;
 };
@@ -697,6 +705,9 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'buildfromlines') {
 	Echolot::Commands::addCommand("buildfromlines");
+	hup_if_wanted($params->{'nohup'});
+} elsif ($COMMAND eq 'summary') {
+	Echolot::Commands::addCommand("summary");
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'process') {
 	daemon_hup();

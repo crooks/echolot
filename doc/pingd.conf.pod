@@ -428,6 +428,13 @@ How many backups of metadata to keep.
 	Default: 'metadata_backup_count' => 32, # keep the last 32 backups
 	Example: 'metadata_backup_count' => 4, # keep 4 rotations
 
+=item B<summary> [seconds]
+
+How often to print a status summary to the log.
+
+	Default: 'summary' => 24*60*60, # daily
+	Default: 'summary' => 12*60*60, # twice a day
+
 =back
 
 
