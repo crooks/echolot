@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.43 2002/12/03 02:59:13 weasel Exp $
+# $Id: Config.pm,v 1.44 2002/12/13 06:50:30 weasel Exp $
 #
 
 =pod
@@ -217,6 +217,7 @@ sub init($) {
 	for my $key (keys %$CONFIG) {
 		warn("Unkown option: $key\n") unless (exists $DEFAULT->{$key});
 	};
+
 	# Work around spelling bug until 2.0rc3
 	if (exists $CONFIG->{'seperate_rlists'}) {
 		if (exists  $CONFIG->{'separate_rlists'}) {
@@ -226,6 +227,18 @@ sub init($) {
 			$CONFIG->{'separate_rlists'} = $CONFIG->{'seperate_rlists'};
 		};
 		delete $CONFIG->{'seperate_rlists'};
+	}
+
+	# In 2.0.6: thesaurusindexfile and indexfilebasename config values
+	# should not longer have the extension (.html) in them
+	# Handle this gracefully for now:
+	if (exists $CONFIG->{'thesaurusindexfile'}) {
+		$CONFIG->{'thesaurusindexfile'} =~ s/\.html?$// and
+			warn ("thesaurusindexfile no longer should have the .html extension.\n");
+	}
+	if (exists $CONFIG->{'indexfilebasename'}) {
+		$CONFIG->{'indexfilebasename'} =~ s/\.html?$// and
+			warn ("indexfilebasename no longer should have the .html extension.\n");
 	}
 
 	for my $key (keys %$DEFAULT) {

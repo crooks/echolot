@@ -4,7 +4,6 @@ Changes in
 	* Minor documentation fixes by Colin Tuckley
 	* thesaurusindexfile and indexfilebasename config values should no
 	  longer have the extension (.html) in them
-	  FIXME - handle this gracefully for now
 
 Changes in version 2.0.5 - 2002-10-25
 	* Only take default parameters if they are not set in
