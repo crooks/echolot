@@ -1,4 +1,4 @@
-Changes in version
+Changes in version 2.0beta6 -  2002-07-10
 	* Did away with Mail::Internet. Using local sendmail binary only.
 	  This also means the smarthost config option is obsolete and there
 	  is a sendmail config option now.
