@@ -1,12 +1,8 @@
 Echolot for Debian
 ------------------
 
-Make sure mail to the Echolot pinger reaches ~echolot/mail/
-
-In /usr/share/doc/mixmaster/examples you can find examples for use with
-procmail. You can of course use any other means to deliver to the Maildir
-~echolot/mail/ too.
-
+Make sure mail to the Echolot pinger reaches /var/mail/echolot (or configure
+echolot to read it from any other location).
 
 
 Make sure your MTA supports user defined mailboxes. so that
