@@ -1,0 +1,6 @@
+send pings
+receive pings
+generate stats
+expire pings
+commit prospective addresses to normal addresses
+expire prospective addresses
