@@ -24,6 +24,8 @@ Changes in version
 	* Create an index.txt file in the thesaurus directory which
 	  holds id, nick, and address for each remailer in the thesaurus.
 	  This helps additional tools to utilize Echolot's data.
+	* Compile a list of default From: lines as well as list remailers
+	  which allow user supplied From headers.
 
 Changes in version 2.0.10 - 2003-02-03
 	* Return undef rather than 0 if we cannot open a Maildir.
