@@ -1,17 +1,35 @@
 # vim:set syntax=perl:
 
 # see man pingd.conf(5) for a list of all available configuration options.
+# There are a lot more than those listed in this sample.
 
 $CONFIG = {
-            'sitename'         => 'unconfigured',
+  # A short name for your site/pinger. Is used in the statistics produced.
+ 	'sitename'         => 'unconfigured',
 
-            'my_localpart'     => 'pinger',
-            'my_domain'        => 'example.com',
-	    'operator_address' => 'remop@example.org',
+  # The local part of the pinger's email address
+  # In "pinger@example.com" the localpart is "pinger".
+	'my_localpart'     => 'pinger',
 
-            #'mixmaster'        => '/home/pinger/Mix/mix',
+  # The domain part of the pinger's email address.
+  # In "pinger@example.com" the localpart is "example.com".
+	'my_domain'        => 'example.com',
 
-            'separate_rlists'  => 0,
-            'combined_list'    => 0,
+  # The email address of the human operator that runs this pinger.
+	'operator_address' => 'remop@example.org',
+
+  # Name of the mixmaster executable. If it is not in your PATH make
+  # sure to include path information.
+
+	#'mixmaster'        => '/home/pinger/Mix/mix',
+
+  # Also build separate rlists with data from only DSA pings, only RSA
+  # pings and only unencrypted pings.
+	'separate_rlists'  => 0,
+
+  # Build a combined list of all different stats too. While this is no
+  # standard format it is nice to read for a human eye.
+	'combined_list'    => 0,
+
           };
 1;
