@@ -33,7 +33,7 @@ my $LOGLEVEL;
 my $LOGFILE;
 my $LOGFH;
 
-my @monnames = qw{Jan Feb Mar Arp May Jun Jul Aug Sep Oct Nov Dec};
+my @monnames = qw{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec};
 sub header_log($$) {
 	my ($level, $msg) = @_;
 
