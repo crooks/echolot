@@ -421,7 +421,7 @@ sub command_set(@) {
 	my @argv = @_;
 
 	my @settings;
-	while (scalar @argv && $argv[0] =~ /^(show(?:it)?|ping(?:it)?|fetch(?:it))=(on|off)$/) {
+	while (scalar @argv && $argv[0] =~ /^(show(?:it)?|ping(?:it)?|fetch(?:it)?)=(on|off)$/) {
 		my $name = $1;
 		my $value = $2;
 
@@ -446,6 +446,24 @@ sub command_set(@) {
 	};
 };
 
+sub command_enabledisable (@) {
+	my @argv = @_;
+
+	my $command = shift @argv;
+	my $value;
+	if ($command eq 'enable') {
+		$value='on';
+	} elsif ($command eq 'disable') {
+		$value='off';
+	} else {
+		die ("argument $command is not enable or disable.  Shouldn't even be here.\n");
+	};
+	my @cmd = ("showit=$value", "pingit=$value", "fetch=$value");
+	push @cmd, @argv;
+	command_set(@cmd);
+}
+
+
 sub command_setremailercaps(@) {
 	my @argv = @_;
 
@@ -461,23 +479,6 @@ sub command_setremailercaps(@) {
 		Echolot::Commands::addCommand("setremailercaps ".$caps->{'address'}." ".$caps->{'caps'});
 	};
 };
-
-sub command_enabledisable (@) {
-	my @argv = @_;
-
-	my $command = shift @argv;
-	my $value;
-	if ($command eq 'enable') {
-		$value='on';
-	} elsif ($command eq 'disable') {
-		$value='off';
-	} else {
-		die ("argument $command is not enable or disable.  Shouldn't even be here.\n");
-	};
-	my @cmd = ("showit=$value", "pingit=$value", "fetch=$value");
-	push @cmd, @argv;
-	command_setremailercaps(@argv);
-}
 
 sub command_deleteremailercaps(@) {
 	my @argv = @_;
@@ -774,7 +775,7 @@ if ($COMMAND eq 'add' || $COMMAND eq 'delete') {
 	command_set(@ARGV);
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'enable' || $COMMAND eq 'disable') {
-	command_enabledisable(@ARGV);
+	command_enabledisable($COMMAND, @ARGV);
 	hup_if_wanted($params->{'nohup'});
 } elsif ($COMMAND eq 'deleteremailercaps') {
 	command_deleteremailercaps(@ARGV);
