@@ -26,3 +26,19 @@ Description: Add known remailers?
  .
  If you choose to add them Echolot will also fetch keys and configuration
  data immediatly.
+
+Template: echolot/userdefinedmailbox
+Type: note
+Description: Make sure you allow foo+bar@example.org addresses.
+ Echolot requires user defined mailboxes to work, i.e. mail sent to
+ echolot+<somerandomstring>@yourdomain needs to reach echolot in addition
+ to mail to echolot@yourdomain (or whatever local part you specified instead of
+ echolot).
+ .
+ In postfix this can be done by adding
+  recipient_delimiter = +
+ to your main.cf file. (If you know the procedure for other MTAs, please file a
+ wishlist bug)
+ .
+ If you want to use another character instead of the plus sign (+), please set it
+ in /etc/echolot/pingd.conf.

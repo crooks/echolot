@@ -1,3 +1,10 @@
+echolot (2.0.4-3) unstable; urgency=low
+
+  * Add a debconf note about user defined mailboxes being required
+    (foo+bar@example.com).
+
+ -- Peter Palfrader <weasel@debian.org>  Thu, 24 Oct 2002 20:31:04 +0200
+
 echolot (2.0.4-2) unstable; urgency=low
 
   * Change Depends from libdigest-MD5-perl to libdigest-md5-perl
