@@ -1,7 +1,7 @@
 package Echolot::Thesaurus;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Thesaurus.pm,v 1.6 2002/07/10 16:22:49 weasel Exp $
+# $Id: Thesaurus.pm,v 1.7 2002/07/13 19:59:16 weasel Exp $
 #
 
 =pod
@@ -91,8 +91,12 @@ sub build_thesaurus() {
 
 	for my $addr (keys (%$data)) {
 		my $nick = Echolot::Globals::get()->{'storage'}->get_nick($addr);
-		$data->{$addr}->{'nick'} = defined $nick ? $nick : 'N/A';
-		$data->{$addr}->{'address'} = $addr;
+		if (defined $nick) {
+			$data->{$addr}->{'nick'} = $nick;
+			$data->{$addr}->{'address'} = $addr;
+		} else {
+			delete $data->{$addr};
+		};
 	};
 
 	my @data = map {$data->{$_}} (sort { $data->{$a}->{'nick'} cmp $data->{$b}->{'nick'} } keys (%$data));
