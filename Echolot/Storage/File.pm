@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.10 2002/06/20 04:25:10 weasel Exp $
+# $Id: File.pm,v 1.11 2002/06/22 23:35:55 weasel Exp $
 #
 
 =pod
@@ -535,7 +535,7 @@ sub decrease_ttl($$) {
 		return 0;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} --;
 	$self->{'METADATA'}->{'addresses'}->{$address}->{'status'} = 'ttl timeout',
-		warn("Remailer $address disablesd: ttl expired\n")
+		warn("Remailer $address disabled: ttl expired\n")
 		if ($self->{'METADATA'}->{'addresses'}->{$address}->{'ttl'} <= 0);
 		# FIXME have proper logging
 	$self->commit();
