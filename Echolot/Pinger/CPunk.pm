@@ -1,7 +1,7 @@
 package Echolot::Pinger::CPunk;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: CPunk.pm,v 1.6 2002/07/22 02:18:30 weasel Exp $
+# $Id: CPunk.pm,v 1.7 2002/09/05 15:12:01 weasel Exp $
 #
 
 =pod
@@ -71,7 +71,7 @@ sub encrypt_to($$$$) {
 		#cluck("GnuPG returned something in stderr: '$stderr' while adding key for '$recipient'; returning\n"),
 		#return undef;
 	($status =~ /^^\[GNUPG:\] IMPORTED $recipient /m) or
-		cluck("GnuPG status '$status' didn't indicate key for '$recipient' was imporeted correctly. Returning\n"),
+		cluck("GnuPG status '$status' didn't indicate key for '$recipient' was imported correctly. Returning\n"),
 		return undef;
 
 
