@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.42 2002/11/11 02:24:58 weasel Exp $
+# $Id: File.pm,v 1.43 2003/01/03 00:28:54 weasel Exp $
 #
 
 =pod
@@ -722,15 +722,13 @@ sub not_a_remailer($$) {
 
 sub set_caps($$$$$$;$) {
 	my ($self, $type, $caps, $nick, $address, $timestamp, $dont_expire) = @_;
-	if (! defined $self->{'METADATA'}->{'remailers'}->{$address}) {
+	if (! defined $self->{'METADATA'}->{'remailers'}->{$address} ||
+	    ! defined $self->{'METADATA'}->{'remailers'}->{$address}->{'status'} ) {
 		$self->{'METADATA'}->{'remailers'}->{$address} =
 			{
 				status => 'active'
 			};
 	} else {
-		defined ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'}) or
-			cluck ("$address does exist in Metadata remailer list but does not have status defined"),
-			return 0;
 		$self->{'METADATA'}->{'remailers'}->{$address}->{'status'} = 'active'
 			if ($self->{'METADATA'}->{'remailers'}->{$address}->{'status'} eq 'expired');
 	};
