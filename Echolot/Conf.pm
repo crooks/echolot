@@ -1,7 +1,7 @@
 package Echolot::Conf;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Conf.pm,v 1.26 2002/08/23 06:03:56 weasel Exp $
+# $Id: Conf.pm,v 1.27 2002/08/23 07:17:23 weasel Exp $
 #
 
 =pod
@@ -65,7 +65,7 @@ sub send_requests($;$) {
 			next unless (
 				$which eq $address ||
 				$which eq 'all' ||
-				($which eq '' && $this_call_id eq (Echolot::Tools::makeShortNumHash($address.$type) % $send_every_n_calls)));
+				(($which eq '') && ($this_call_id == (Echolot::Tools::makeShortNumHash($address.$type) % $send_every_n_calls))));
 
 			print "Sending $type requests to ".$address."\n"
 				if Echolot::Config::get()->{'verbose'};
