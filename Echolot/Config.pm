@@ -1,7 +1,7 @@
 package Echolot::Config;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: Config.pm,v 1.3 2002/07/02 14:16:13 weasel Exp $
+# $Id: Config.pm,v 1.4 2002/07/02 14:17:44 weasel Exp $
 #
 
 =pod
@@ -26,11 +26,10 @@ sub init($) {
 	my ($params) = @_;
 
 	my $DEFAULT;
-	$DEFAULT->{'recipient_delimiter'} = '+';
-	$DEFAULT->{'dev_random'}          = '/dev/random';
-	$DEFAULT->{'hash_len'}            = 8;
-
 	$DEFAULT = {
+		recipient_delimiter         => '+',
+		dev_random                  => '/dev/random',
+		hash_len                    => 8,
 		addresses_default_ttl       => 5, # days
 		smarthost                   => 'localhost',
 		mailindir                   => 'mail/IN',
