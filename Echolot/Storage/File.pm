@@ -1,7 +1,7 @@
 package Echolot::Storage::File;
 
 # (c) 2002 Peter Palfrader <peter@palfrader.org>
-# $Id: File.pm,v 1.17 2002/07/02 17:36:20 weasel Exp $
+# $Id: File.pm,v 1.18 2002/07/03 00:33:40 weasel Exp $
 #
 
 =pod
@@ -58,6 +58,8 @@ sub new {
 	my ($class, %params) = @_;
 	my $self = {};
 	bless $self, $class;
+
+	$self->{'METADATA_FILE_IS_NEW'} = 0;
 
 	defined($params{'datadir'}) or
 		confess ('No datadir option passed to new');
@@ -124,6 +126,7 @@ sub metadata_open($) {
 			cluck("Cannot open $filename for reading: $!"),
 			return 0;
 	} else {
+		$self->{'METADATA_FILE_IS_NEW'} = 1;
 		open($self->{'METADATA_FH'}, '+>' . $filename) or 
 			cluck("Cannot open $filename for reading: $!"),
 			return 0;
@@ -148,27 +151,35 @@ sub metadata_close($) {
 sub metadata_read($) {
 	my ($self) = @_;
 
-	$self->{'METADATA'} = ();
-	seek($self->{'METADATA_FH'}, 0, SEEK_SET) or
-		cluck("Cannot seek to start of metadata file: $!"),
-		return 0;
-	eval {
-		my $parser = new XML::Parser(Style => 'Tree');
-		my $tree = $parser->parse( $self->{'METADATA_FH'} );
-		my $dump = new XML::Dumper;
-		$self->{'METADATA'} = $dump->xml2pl($tree);
+	if ($self->{'METADATA_FILE_IS_NEW'}) { 
+		$self->{'METADATA'}->{'version'} = $METADATA_VERSION;
+		$self->{'METADATA'}->{'addresses'} = ();
+		$self->{'METADATA'}->{'remailers'} = ();
+
+		$self->{'METADATA_FILE_IS_NEW'} = 0;
+		$self->commit();
+	} else {
+		$self->{'METADATA'} = ();
+		seek($self->{'METADATA_FH'}, 0, SEEK_SET) or
+			cluck("Cannot seek to start of metadata file: $!"),
+			return 0;
+		eval {
+			my $parser = new XML::Parser(Style => 'Tree');
+			my $tree = $parser->parse( $self->{'METADATA_FH'} );
+			my $dump = new XML::Dumper;
+			$self->{'METADATA'} = $dump->xml2pl($tree);
+		};
+		$EVAL_ERROR and
+			cluck("Error when reading from metadata file: $EVAL_ERROR"),
+			return 0;
+
+		defined($self->{'METADATA'}->{'version'}) or
+			cluck("Stored data lacks version header"),
+			return 0;
+		($self->{'METADATA'}->{'version'} == ($METADATA_VERSION)) or
+			cluck("Metadata version mismatch ($self->{'METADATA'}->{'version'} vs. $METADATA_VERSION)"),
+			return 0;
 	};
-	$EVAL_ERROR and
-		cluck("Error when reading from metadata file: $EVAL_ERROR"),
-		return 0;
-
-	defined($self->{'METADATA'}->{'version'}) or
-		cluck("Stored data lacks version header"),
-		return 0;
-	($self->{'METADATA'}->{'version'} == ($METADATA_VERSION)) or
-		cluck("Metadata version mismatch ($self->{'METADATA'}->{'version'} vs. $METADATA_VERSION)"),
-		return 0;
-
 
 	defined($self->{'METADATA'}->{'secret'}) or
 		$self->{'METADATA'}->{'secret'} = Echolot::Tools::make_random ( 16, armor => 1 ),
