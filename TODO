@@ -1,4 +1,4 @@
-$Id: TODO,v 1.65 2003/10/12 09:54:43 weasel Exp $
+$Id: TODO,v 1.66 2003/11/02 05:56:24 weasel Exp $
 
 Legend:
         - Not done
@@ -8,6 +8,7 @@ Legend:
         D Deferred
         X Abandoned
 
+ - refuse to run as root.
  - updated information with from lines
  - don't send that many messages with From Headers
  - supress mixmaster output:
