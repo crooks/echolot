@@ -1,3 +1,6 @@
+Changes in version 2.1.8 - 2005-04-25
+	* debian: Redirect init script output to /dev/null in logrotate
+
 Changes in version 2.1.7 - 2004-11-15
 	* debian: Add disable and enable to allowed commands in init
 	  script

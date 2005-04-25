@@ -1,3 +1,10 @@
+echolot (2.1.8-1) unstable; urgency=low
+
+  * New upstream version:
+     - redirect init script output to /dev/null in logrotate.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 25 Apr 2005 02:13:29 +0200
+
 echolot (2.1.7-1) unstable; urgency=low
 
   * New upstream version:

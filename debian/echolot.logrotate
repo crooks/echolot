@@ -5,7 +5,7 @@
 	missingok
 	notifempty
 	postrotate
-		/etc/init.d/echolot process
+		/etc/init.d/echolot process > /dev/null
 	endscript
 	create 640 echolot adm
 }
