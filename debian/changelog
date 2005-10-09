@@ -1,8 +1,9 @@
 echolot (2.1.8-3) unstable; urgency=low
 
   * Increase Standards-Version to 3.6.2 from 3.6.1.
+  * Add dependency on adduser since we need it in postinst.
 
- -- Peter Palfrader <weasel@debian.org>  Sun,  9 Oct 2005 23:24:08 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun,  9 Oct 2005 23:24:28 +0200
 
 echolot (2.1.8-2) unstable; urgency=low
 
