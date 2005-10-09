@@ -24,7 +24,7 @@ adduser --quiet \
 
 # Give the echolot user write permissions to /var/log/echolot/echolot.log
 touch /var/log/echolot/echolot.log
-chown echolot.adm /var/log/echolot/echolot.log
+chown echolot:adm /var/log/echolot/echolot.log
 chmod 640 /var/log/echolot/echolot.log
 # and /var/lib/echolot
 if ( ! dpkg-statoverride --list /var/lib/echolot > /dev/null ); then
