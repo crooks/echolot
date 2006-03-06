@@ -1,9 +1,10 @@
 echolot (2.1.8-4) unstable; urgency=low
 
   * Properly quote arguments to su -c, since its behaviour has changed.
-  * Update to debhelper compatibility level 4, no other changes required.
+  * Update to debhelper compatibility level 4, no other changes required
+    (we were already build depending on debhelper >= 4.1.16).
 
- -- Peter Palfrader <weasel@debian.org>  Mon,  6 Mar 2006 15:53:22 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon,  6 Mar 2006 15:54:57 +0100
 
 echolot (2.1.8-3) unstable; urgency=low
 
