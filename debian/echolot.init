@@ -139,14 +139,13 @@ reload|force-reload|restart)
 	;;
 process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|sendchainpings|buildstats|buildkeys|buildthesaurus|buildfromlines|dumpconf|summary|enable|disable)
 	# Check for right User
-	SU=""
 	if [ "$CHECKUID" -gt "0" ]; then
 		CUID=`id -u`
 		CUIDNAME=`id -nu`
 		if [ "$CUIDNAME" = "$USER" ]; then
-			SU=""
+			$DAEMON "$@"
 		elif [ "$CUID" = "0" ]; then
-			SU="su $USER -c"
+			su $USER -c "$DAEMON $@"
 		else
 			echo "You are neither $USER nor root. Aborting." >&2
 			exit 1;
@@ -154,7 +153,6 @@ process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|s
 	fi
 
 	echo "Running $DESC: $NAME $1..."
-	$SU $DAEMON "$@"
 	echo "done."
 	;;
 *)
