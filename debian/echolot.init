@@ -145,7 +145,12 @@ process|add|delete|set|setremailercaps|deleteremailercaps|getkeyconf|sendpings|s
 		if [ "$CUIDNAME" = "$USER" ]; then
 			"$DAEMON" "$@"
 		elif [ "$CUID" = "0" ]; then
-			su "$USER" -c "$DAEMON $@"
+			command="$DAEMON"
+			while [ "$#" -gt 0 ]; do
+				command="$command \"$1\""
+				shift
+			done
+			su "$USER" -c "$command"
 		else
 			echo "You are neither $USER nor root. Aborting." >&2
 			exit 1;
