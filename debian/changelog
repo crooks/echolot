@@ -2,8 +2,10 @@ echolot (2.1.8-5) unstable; urgency=low
 
   * Increase Standards-Version from 3.6.2 to 3.7.2 without any
     additional changes.
+  * Change the build time dependency on debhelper from a
+    Build-Depends-Indep to Build-Depends.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 17 Jun 2006 20:49:41 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 17 Jun 2006 20:51:59 +0200
 
 echolot (2.1.8-4) unstable; urgency=low
 

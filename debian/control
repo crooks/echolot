@@ -2,7 +2,7 @@ Source: echolot
 Section: mail
 Priority: extra
 Maintainer: Peter Palfrader <weasel@debian.org>
-Build-Depends-Indep: debhelper (>= 4.1.16)
+Build-Depends: debhelper (>= 4.1.16)
 Standards-Version: 3.7.2
 
 Package: echolot
