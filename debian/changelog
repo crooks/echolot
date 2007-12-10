@@ -8,8 +8,9 @@ echolot (2.1.8-6) unstable; urgency=low
     directory.)
   * Also rm -rf /var/log/echolot in postrm purge (closes: #455105).
   * Move DH_COMPAT from the rules file into debian/compat.
+  * Add LSB tags to init script.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 10 Dec 2007 10:34:11 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 10 Dec 2007 10:39:41 +0100
 
 echolot (2.1.8-5) unstable; urgency=low
 

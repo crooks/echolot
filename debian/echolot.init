@@ -2,6 +2,21 @@
 #
 # pingcntl: echolot control + wrapper
 # Written by admin@arancio.net, peter@palfrader.org
+#
+### BEGIN INIT INFO
+# Provides:          echolot
+# Required-Start:    $local_fs $remote_fs $time
+# Required-Stop:     $local_fs $remote_fs
+# Should-Start:      mail-transport-agent $syslog
+# Should-Stop:       mail-transport-agent $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Pinger for anonymous remailers
+# Description:       Echolot is a pinger for anonymous remailers
+#                    such as Mixmaster.  As the name implies it
+#                    regularly sends pings to remailers to
+#                    collect performance statistics on each node.
+### END INIT INFO
 
 set -e
 
