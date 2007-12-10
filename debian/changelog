@@ -6,8 +6,9 @@ echolot (2.1.8-6) unstable; urgency=low
     the package.  Since it is the home directory of the echolot user it quite
     possible that some admin action caused dot files to appear in that
     directory.)
+  * Also rm -rf /var/log/echolot in postrm purge (closes: #455105).
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 10 Dec 2007 10:22:09 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 10 Dec 2007 10:32:55 +0100
 
 echolot (2.1.8-5) unstable; urgency=low
 
