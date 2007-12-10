@@ -1,3 +1,14 @@
+echolot (2.1.8-6) unstable; urgency=low
+
+  * In postrm during purge remove (rm -rf) /var/lib/echolot instead of
+    /var/lib/echolot/*.  (This seems cleaner, even tho /var/lib/echolot, the
+    directory, should be removed a bit later by dpkg anyway since it's part of
+    the package.  Since it is the home directory of the echolot user it quite
+    possible that some admin action caused dot files to appear in that
+    directory.)
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 10 Dec 2007 10:22:09 +0100
+
 echolot (2.1.8-5) unstable; urgency=low
 
   * Increase Standards-Version from 3.6.2 to 3.7.2 without any
