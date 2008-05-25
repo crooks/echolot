@@ -21,6 +21,6 @@ To actually enable it please modify /etc/default/echolot.
 
 If you want to run a pinger, please configure /etc/echolot/pingd.conf and
 /etc/default/echolot.  Then start echolot using /etc/init.d/echolot start
-and add some addresses to it: /etc/default/echolot add remailer@example.com.
+and add some addresses to it: /etc/init.d/echolot add remailer@example.com.
 
  -- Peter Palfrader <weasel@debian.org>, Sun, 14 Nov 2004 23:31:24 +0100
