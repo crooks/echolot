@@ -1,3 +1,9 @@
+echolot (2.1.8-X) XXstable; urgency=low
+
+  * unreleased
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 15 Oct 2012 16:32:26 +0200
+
 echolot (2.1.8-7) unstable; urgency=low
 
   * No longer ship /var/run/echolot in the package.  Based upon
