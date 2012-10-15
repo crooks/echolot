@@ -34,7 +34,7 @@ pod2man --section=5 --release="$version" --center=Echolot doc/pingd.conf.pod doc
 if [ "$dirname" != "echolot-$version" ] ; then
 	echo "WARN: Version $version might be wrong"
 	echo "Enter to continue"
-	read
+	read dummy
 fi
 
 cd ..

@@ -3,6 +3,7 @@ Changes in
 	* Update FSF address in all files.
 	* Fix the name of an option in an example in pingd.conf(5).
 	  closes: DebianBug#459938.
+	* Fix a bashishm in tools/create-distribution.
 
 Changes in version 2.1.8 - 2005-04-25
 	* debian: Redirect init script output to /dev/null in logrotate
