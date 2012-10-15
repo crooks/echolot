@@ -8,6 +8,8 @@ echolot (2.1.8-X) XXstable; urgency=low
   * Fix a spelling mistake in README.Debian (closes: #459926).
   * Fix the name of an option in an example in pingd.conf(5)
     (closes: #459938).
+  * Update the address for the remops mailinglist in README.Debian
+    (closes: #563810).
 
  -- Peter Palfrader <weasel@debian.org>  Mon, 15 Oct 2012 16:22:34 +0200
 
