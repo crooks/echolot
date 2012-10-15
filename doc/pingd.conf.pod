@@ -905,6 +905,6 @@ Peter Palfrader E<lt>peter@palfrader.orgE<gt>
 
 =head1 BUGS
 
-Please report them at E<lt>URL:http://alioth.debian.org/projects/echolot/<gt>
+Please report them at E<lt>URL:http://alioth.debian.org/projects/echolot/E<gt>
 
 =cut

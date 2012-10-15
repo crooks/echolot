@@ -4,6 +4,7 @@ Changes in
 	* Fix the name of an option in an example in pingd.conf(5).
 	  closes: DebianBug#459938.
 	* Fix a bashishm in tools/create-distribution.
+	* Fix a markup typo in the pingd manpage.
 
 Changes in version 2.1.8 - 2005-04-25
 	* debian: Redirect init script output to /dev/null in logrotate
