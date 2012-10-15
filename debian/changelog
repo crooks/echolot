@@ -5,8 +5,9 @@ echolot (2.1.8-X) XXstable; urgency=low
     when we mean /etc/init.d/echolot.
   * No longer ship /var/run/echolot in the package.  Based upon
     work by Thomas Goirand (closes: #689889).
+  * Fix a spelling mistake in README.Debian (closes: #459926).
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 15 Oct 2012 16:16:04 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 15 Oct 2012 16:19:27 +0200
 
 echolot (2.1.8-6) unstable; urgency=low
 
