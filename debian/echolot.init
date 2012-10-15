@@ -25,7 +25,8 @@ VERBOSE=0
 # You probably don't want to mess with stuff below this line
 ################################################################
 
-PIDFILE=/var/run/echolot/pingd.pid
+RUNDIR=/var/run/echolot
+PIDFILE="$RUNDIR/pingd.pid"
 CHECKULIMIT=1
 CHECKUID=1
 USER=echolot
@@ -41,6 +42,11 @@ export PATH
 # Reads config file (will override defaults above)
 [ -r /etc/default/echolot ] && . /etc/default/echolot
 
+if [ ! -d ${RUNDIR} ]; then
+	mkdir "$RUNDIR"
+	chown root:"$GROUP" "$RUNDIR"
+	chmod 02770 "$RUNDIR"
+fi
 
 wait_for_deaddaemon () {
 	PID=$1

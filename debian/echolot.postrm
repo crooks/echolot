@@ -6,6 +6,7 @@ case "$1" in
 	purge)
 		rm -rf /var/lib/echolot
 		rm -rf /var/log/echolot
+		rm -rf /var/run/echolot
 		rmdir /etc/echolot/templates 2>/dev/null || true
 		rmdir /etc/echolot 2>/dev/null || true
 		dpkg-statoverride --remove /var/run/echolot >/dev/null 2>&1 || true

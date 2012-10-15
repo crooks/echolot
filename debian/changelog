@@ -3,8 +3,10 @@ echolot (2.1.8-X) XXstable; urgency=low
   * Fix a typo in the pingd manpage.
   * Fix an error in README.Debian where we say /etc/default/echolot
     when we mean /etc/init.d/echolot.
+  * No longer ship /var/run/echolot in the package.  Based upon
+    work by Thomas Goirand (closes: #689889).
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 25 May 2008 19:22:29 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 15 Oct 2012 16:16:04 +0200
 
 echolot (2.1.8-6) unstable; urgency=low
 
