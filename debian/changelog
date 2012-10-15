@@ -6,8 +6,10 @@ echolot (2.1.8-X) XXstable; urgency=low
   * No longer ship /var/run/echolot in the package.  Based upon
     work by Thomas Goirand (closes: #689889).
   * Fix a spelling mistake in README.Debian (closes: #459926).
+  * Fix the name of an option in an example in pingd.conf(5)
+    (closes: #459938).
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 15 Oct 2012 16:19:27 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 15 Oct 2012 16:22:34 +0200
 
 echolot (2.1.8-6) unstable; urgency=low
 

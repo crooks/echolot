@@ -206,7 +206,7 @@ Show new remailers in public stats by default.
 Also build separate rlists with data from only DSA pings, only RSA pings and
 only unencrypted pings.
 
-	Default: 'separate_realists' => 0,
+	Default: 'separate_rlists' => 0,
 	Example: 'separate_rlists' => 1,
 
 =item B<combined_list> [bool]
