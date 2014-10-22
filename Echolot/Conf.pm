@@ -1,7 +1,6 @@
 package Echolot::Conf;
 
 #
-# $Id$
 #
 # This file is part of Echolot - a Pinger for anonymous remailers.
 #

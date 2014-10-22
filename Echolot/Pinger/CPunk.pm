@@ -1,7 +1,6 @@
 package Echolot::Pinger::CPunk;
 
 #
-# $Id$
 #
 # This file is part of Echolot - a Pinger for anonymous remailers.
 #
