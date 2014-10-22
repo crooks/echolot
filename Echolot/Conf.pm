@@ -387,8 +387,7 @@ sub parse_cpunk_key($$$) {
 	for my $key (@pgp_keys) {
 		my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 		my $pid = $GnuPG->wrap_call(
-			commands     => [qw{--with-colons}],
-			command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode}],
+			commands     => [qw{--with-colons --no-options --no-secmem-warning --no-default-keyring --fast-list-mode}],
 			handles      => $handles );
 		my ($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg($key, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 		waitpid $pid, 0;

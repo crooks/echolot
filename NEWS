@@ -6,6 +6,12 @@ Changes in
 	* Fix a bashishm in tools/create-distribution.
 	* Fix a markup typo in the pingd manpage.
 	* Fix "defined(@array) is deprecated" in Echolot/Tools.pm
+	* Newer GnuPG::Interface versions are more picky when it comes
+	  to command and command_args.  Previously, they would accept things
+	  in any order and would not care which of the two arrays had which.
+	  Now, command_args is really limited to have arguments for the
+	  command listed in command.  Any options go with, and in front of,
+	  the command.
 
 Changes in version 2.1.8 - 2005-04-25
 	* debian: Redirect init script output to /dev/null in logrotate

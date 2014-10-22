@@ -876,8 +876,8 @@ sub build_pgpring_type($$$$) {
 		if ( defined Echolot::Globals::get()->{'storage'}->get_nick($addr) ) {
 			my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 			my $pid = $GnuPG->wrap_call(
-				commands     => [ '--import' ],
-				command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
+				commands     => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--import'],
+				command_args => ['--', '-'],
 				handles      => $handles );
 			my ($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg($key{'key'}, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 			waitpid $pid, 0;
@@ -904,8 +904,8 @@ sub build_pgpring_export($$$$) {
 
 	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 	my $pid = $GnuPG->wrap_call(
-		commands     => [ '--export' ],
-		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --keyring}, $keyring, @$keyids ],
+		commands     => [qw{--no-options --no-secmem-warning --no-default-keyring --keyring}, $keyring, '--export'],
+		command_args => ['--', @$keyids ],
 		handles      => $handles );
 	my ($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;

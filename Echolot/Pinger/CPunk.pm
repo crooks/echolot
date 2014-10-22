@@ -59,8 +59,8 @@ sub encrypt_to($$$$) {
 
 	my ( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
 	my $pid = $GnuPG->wrap_call(
-		commands     => [ '--import' ],
-		command_args => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--', '-' ],
+		commands     => [qw{--no-options --no-secmem-warning --no-default-keyring --fast-list-mode --keyring}, $keyring, '--import'],
+		command_args => ['--', '-' ],
 		handles      => $handles );
 	my ($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg($keys->{$recipient}->{'key'}, $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
 	waitpid $pid, 0;
@@ -88,12 +88,8 @@ sub encrypt_to($$$$) {
 		armor   => 1 );
 
 	( $stdin_fh, $stdout_fh, $stderr_fh, $status_fh, $handles ) = Echolot::Tools::make_gpg_fds();
-	my $command_args = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --textmode --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient];
 	my $plaintextfile;
 
-	#if ($pgp2compat) {
-	#	push @$command_args, qw{--pgp2};
-	#};
 	# Files are required for compaitibility with PGP 2.*
 	# we also use files in all other cases since there is a bug in either GnuPG or GnuPG::Interface
 	# that let Echolot die if in certain cases:
@@ -109,9 +105,12 @@ sub encrypt_to($$$$) {
 	close (F) or
 		Echolot::Log::warn("Cannot close $plaintextfile."),
 		return 0;
-	push @$command_args, $plaintextfile;
 
-	$pid = $GnuPG->encrypt(
+	my $commands = [qw{--no-options --no-secmem-warning --always-trust --no-default-keyring --textmode --cipher-algo 3DES --keyring}, $keyring, '--recipient', $recipient, '--encrypt'];
+	my $command_args = ['--', $plaintextfile];
+
+	$pid = $GnuPG->wrap_call(
+		commands     => $commands,
 		command_args => $command_args,
 		handles      => $handles );
 	($stdout, $stderr, $status) = Echolot::Tools::readwrite_gpg('', $stdin_fh, $stdout_fh, $stderr_fh, $status_fh);
@@ -125,7 +124,7 @@ sub encrypt_to($$$$) {
 		return undef;
 	(($status =~ /^\[GNUPG:\] BEGIN_ENCRYPTION\s/m) &&
 	 ($status =~ /^\[GNUPG:\] END_ENCRYPTION\s/m)) or
-		Echolot::Log::info("GnuPG status '$status' didn't indicate message to '$recipient' was encrypted correctly (stderr: $stderr; args: ".join(' ', @$command_args).")."),
+		Echolot::Log::info("GnuPG status '$status' didn't indicate message to '$recipient' was encrypted correctly (stderr: $stderr; args: ".join(' ', @$commands, @$command_args).")."),
 		return undef;
 
 	unlink ($keyring) or
