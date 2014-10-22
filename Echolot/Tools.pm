@@ -344,7 +344,7 @@ sub readwrite_gpg($$$$$) {
 			}
 		}
 
-		next unless (defined(@$readyr)); # Wait some more.
+		next unless (defined($readyr)); # Wait some more.
 
 		for my $rfd (@$readyr) {
 			if ($rfd->eof) {
