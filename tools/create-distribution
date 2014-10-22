@@ -26,16 +26,20 @@
 set -e
 
 version=`grep 'VERSION =' pingd | sed -e "s/.* '//" -e "s/'.*//"`
-dirname=`basename \`pwd\``
-pod2man --section=1 --release="$version" --center=Echolot pingd doc/pingd.1
-pod2man --section=5 --release="$version" --center=Echolot doc/pingd.conf.pod doc/pingd.conf.5
 
-if [ "$dirname" != "echolot-$version" ] ; then
-	echo "WARN: Version $version might be wrong"
-	echo "Enter to continue"
-	read dummy
+dirname="echolot-$version"
+tagname="echolot-$version"
+
+if ! git show "$tagname" -- > /dev/null; then
+  echo >&2 "Seems this release is not tagged yet."
+  exit 1
 fi
 
-cd ..
-tar czf $dirname.tar.gz $dirname
-gpg --detach-sign $dirname.tar.gz
+mkdir "$dirname"
+git archive "$tagname" | (cd "$dirname" && tar xvf -)
+
+(cd "$dirname" && pod2man --section=1 --release="$version" --center=Echolot pingd doc/pingd.1 )
+(cd "$dirname" && pod2man --section=5 --release="$version" --center=Echolot doc/pingd.conf.pod doc/pingd.conf.5 )
+
+tar czf "$dirname.tar.gz" "$dirname"
+echo "Maybe run gpg --detach-sign $dirname.tar.gz"
