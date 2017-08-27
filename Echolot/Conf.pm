@@ -137,9 +137,9 @@ sub remailer_caps($$$;$) {
 	Echolot::Log::info("Could not find id in token '$token'."), return 0 unless defined $id;
 	my ($remailer_type) = ($conf =~ /^\s*Remailer-Type:\s* (.*?) \s*$/imx);
 	Echolot::Log::info("No remailer type found in remailer_caps from '$token'."), return 0 unless defined $remailer_type;
-	my ($remailer_caps) = ($conf =~ /^\s*(  \$remailer{".*"}  \s*=\s*  "<.*@.*>.*";   )\s*$/imx);
+	my ($remailer_caps) = ($conf =~ /^\s*(  \$remailer\{".*"}  \s*=\s*  "<.*@.*>.*";   )\s*$/imx);
 	Echolot::Log::info("No remailer caps found in remailer_caps from '$token'."), return 0 unless defined $remailer_caps;
-	my ($remailer_nick, $remailer_address) = ($remailer_caps =~ /^\s*  \$remailer{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
+	my ($remailer_nick, $remailer_address) = ($remailer_caps =~ /^\s*  \$remailer\{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
 	Echolot::Log::info("No remailer nick found in remailer_caps from '$token': '$remailer_caps'."), return 0 unless defined $remailer_nick;
 	Echolot::Log::info("No remailer address found in remailer_caps from '$token': '$remailer_caps'."), return 0 unless defined $remailer_address;
 	
@@ -396,21 +396,23 @@ sub parse_cpunk_key($$$) {
 		($status eq '') or 
 			Echolot::Log::info("GnuPG returned something in status '$status' when checking key '$key': So what?");
 		
-		my @included_keys = $stdout =~ /^pub:.*$/mg;
-		(scalar @included_keys >= 2) &&
-			# FIXME handle more than one key per block nicely
-			Echolot::Log::debug ("Cannot handle more than one key per block nicely (correctly) yet. Found ".(scalar @included_keys)." in one block from ".$remailer->{'address'}.".");
-		for my $included_key (@included_keys) {
-			my ($type, $keyid, $uid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):[^:]+:[^:]*:::([^:]+):/;
-			(defined $uid) or
-				Echolot::Log::info ("Unexpected format of '$included_key' by ".$remailer->{'address'}."; Skipping."),
+		my ($included_key) = $stdout =~ /(^pub:.*$)/m;
+		my ($uid) = $stdout =~ /(^uid:.*$)/m;
+		(defined $uid) or
+			Echolot::Log::info ("Unexpected format of '$stdout'.  Unable to match uid"),
 				next;
-			my ($address) = $uid =~ /<(.*?)>/;
-			$cypherpunk{$keyid} = {
-				address => $address,
-				type => $type,
-				key => $key       # FIXME handle more than one key per block correctly
-			};
+		my ($address) = $uid =~ /^uid:::::::::[^:]+<(.*?)>:/m;
+		(defined $address) or
+			Echolot::Log::info ("Unexpected format of '$uid'.  Unable to extract remailer address."),
+				next;
+		my ($type, $keyid) = $included_key =~ /pub::\d+:(\d+):([0-9A-F]+):/;
+		(defined $type and defined $keyid) or
+			Echolot::Log::info ("Unexpected format of '$included_key' by ".$remailer->{'address'}."; Skipping."),
+				next;
+		$cypherpunk{$keyid} = {
+			address => $address,
+			type => $type,
+			key => $key       # FIXME handle more than one key per block correctly
 		};
 	};
 
