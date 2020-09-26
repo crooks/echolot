@@ -468,7 +468,7 @@ sub command_setremailercaps(@) {
 
 	my @caps;
 	for my $caps (@argv) {
-		my ($remailer_nick, $remailer_address) = ($caps =~ /^\s*  \$remailer{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
+		my ($remailer_nick, $remailer_address) = ($caps =~ /^\s*  \$remailer\{"(.*)"}  \s*=\s*  "<(.*@.*)>.*";   \s*$/ix);
 		die ("caps '$caps' is not a valid remailer caps line\n") unless (defined $remailer_nick && defined $remailer_address);
 		push @caps, {
 			address => $remailer_address,
