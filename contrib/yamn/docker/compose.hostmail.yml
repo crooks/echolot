@@ -1,0 +1,33 @@
+# Echolot yamn pinger on a host that already runs a mail server.  See
+# README.md.  The host's MTA delivers mail for pinger+<token>@PINGER_DOMAIN
+# into ./echolot/mail/ (a Maildir), and the container sends through it.
+#
+#   docker compose -f compose.hostmail.yml up -d --build
+services:
+  echolot:
+    build:
+      context: ../../..
+      dockerfile: contrib/yamn/docker/Dockerfile
+      target: hostmail
+    image: echolot-yamn:hostmail
+    restart: unless-stopped
+    environment:
+      PINGER_DOMAIN: pinger.example.org
+      PINGER_SITENAME: example
+      PINGER_OPERATOR: admin@example.net
+      # Owner of ./echolot on the host, the account the MTA delivers as
+      PINGER_UID: "1001"
+      PINGER_GID: "1001"
+      # The host's MTA, reached through the Docker gateway.  It must allow
+      # relaying from the container network (e.g. add 172.17.0.0/16 to
+      # Postfix's mynetworks) or require SMTP_USER/SMTP_PASSWORD.
+      SMTP_HOST: host.docker.internal
+      SMTP_PORT: "25"
+      SMTP_TLS: "off"          # local hop; use starttls for a remote relay
+      PINGER_REMAILERS: >-
+        yamn@mixmin.net yamn2@mixmin.net yamn3@mixmin.net yamn4@mixmin.net
+        nyam@remailer.frell.eu.org yamn@virebent.art
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./echolot:/var/lib/echolot

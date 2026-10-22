@@ -1,0 +1,29 @@
+#!/bin/sh
+# yamn-ping: run yamn the way Echolot runs Mixmaster.
+#
+# Echolot sends a ping by running its 'mixmaster' program as
+#     $mixmaster -m -S -l <nick>
+# with the message on stdin and MIXPATH set to its 'mixhome' directory,
+# where it has just written a pubring.mix holding that remailer's key.
+# yamn doesn't use MIXPATH, so tell it where mixhome and its yamn.yml are.
+#
+# Written for yamn as published at https://github.com/crooks/yamn; it also
+# works with forks such as go-while/yamn.  Options added for every ping:
+#   -c 1        one copy (yamn's -c defaults to 2 and overrides
+#               stats.num_copies in yamn.yml)
+#   --nodummy   a ping must not cause extra dummy traffic
+#   --keep-headers  only if this yamn has the option (go-while/yamn strips
+#               identifying headers by default).  Echolot sends some pings
+#               with a From: header on purpose, to record whether remailers
+#               honour it.  crooks/yamn never strips it.
+#
+# Set 'mixmaster' => '/path/to/yamn-ping' in pingd.conf.  If the yamn
+# binary isn't in PATH, set YAMN, e.g. in the systemd unit:
+#     Environment=YAMN=/usr/local/bin/yamn
+: "${MIXPATH:?MIXPATH is not set (yamn-ping is meant to be run by Echolot)}"
+yamn=${YAMN:-yamn}
+if "$yamn" --help 2>&1 | grep -q -- '-keep-headers'; then
+	set -- --keep-headers "$@"
+fi
+exec "$yamn" --dir "$MIXPATH" --config "$MIXPATH/yamn.yml" \
+	-c 1 --nodummy "$@"

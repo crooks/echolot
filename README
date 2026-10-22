@@ -19,6 +19,12 @@ remailers and offers the collected information in a format readable by
 remailer clients.  This helps reduce the administration effort required
 to use or host remailers.
 
+YAMN
+----
+This branch can ping yamn remailers.  See contrib/yamn/README.md for
+how to run a yamn pinger, including example configuration and a
+self-test.
+
 This is Echolot2. Besides the name, author, and purpose, this software
 has nothing to do with Echolot1.  Echolot2 has been written from
 scratch.

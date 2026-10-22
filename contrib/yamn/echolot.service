@@ -1,0 +1,26 @@
+# systemd unit for an Echolot yamn pinger.
+# Install as /etc/systemd/system/echolot.service, then:
+#     systemctl daemon-reload && systemctl enable --now echolot
+[Unit]
+Description=Echolot pinger for yamn remailers
+After=network-online.target postfix.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pinger
+Group=pinger
+WorkingDirectory=/home/pinger/echolot
+# The yamn binary used by contrib/yamn/yamn-ping
+Environment=YAMN=/usr/local/bin/yamn
+# /run/echolot for the pid file (pingd.conf: 'pidfile'); emptied on
+# every stop and boot, so a stale pid file can't block the start.
+RuntimeDirectory=echolot
+ExecStart=/home/pinger/echolot/pingd start
+# pingd re-reads commands.txt on SIGHUP and exits cleanly on SIGTERM.
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

@@ -260,17 +260,8 @@ sub parse_mix_key($$$) {
 	my ($reply, $time, $remailer) = @_;
 
 # -----Begin Mix Key-----
-# 7f6d997678b19ccac110f6e669143126
-# 258
-# AASyedeKiP1/UKyfrBz2K6gIhv4jfXIaHo8dGmwD
-# KqkG3DwytgSySSY3wYm0foT7KvEnkG2aTi/uJva/
-# gymE+tsuM8l8iY1FOiXwHWLDdyUBPbrLjRkgm7GD
-# Y7ogSjPhVLeMpzkSyO/ryeUfLZskBUBL0LxjLInB
-# YBR3o6p/RiT0EQAAAAAAAAAAAAAAAAAAAAAAAAAA
-# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-# AAAAAAAAAAAAAAAAAAAAAQAB
+# 13a2a0142b9830d08fbc86422d6bf705
+# b18d9e8cd08a392bd516d0bef0bf1e9c473386172384b050557502e626595464
 # -----End Mix Key-----
 
 	my %mixmasters;
@@ -284,8 +275,7 @@ sub parse_mix_key($$$) {
 		.*?$/xmg);
 	my @mix_keys = ($reply =~ /^-----Begin \s Mix \s Key-----\r?\n
 	                          [0-9a-f]{32}\r?\n
-							  \d+\r?\n
-							  (?:[a-zA-Z0-9+\/]*\r?\n)+
+							  [0-9a-f]{64}\r?\n
 							  -----End \s Mix \s Key-----$/xmg );
 	for (@mix_confs) {
 		my ($nick, $address, $keyid, $version, $caps, $created, $expires) = /^
@@ -319,8 +309,7 @@ sub parse_mix_key($$$) {
 	for (@mix_keys) {
 		my ($keyid) =  /^-----Begin \s Mix \s Key-----\r?\n
 	                          ([0-9a-f]{32})\r?\n
-							  \d+\r?\n
-							  (?:[a-zA-Z0-9+\/]*\r?\n)+
+							  [0-9a-f]{64}\r?\n
 							  -----End \s Mix \s Key-----$/xmg;
 		$mixmasters{$keyid}->{'key'} = $_;
 	};

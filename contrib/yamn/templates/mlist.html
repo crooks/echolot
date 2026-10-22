@@ -1,0 +1,77 @@
+<html>
+<head>
+	<title>Mixmaster Remailers [<TMPL_VAR NAME="SITE_NAME">]</title>
+	<META HTTP-EQUIV="Expires" CONTENT="<TMPL_VAR NAME="EXPIRES">">
+	<link href="echolot.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h1>Remailer Reliability Stats [<TMPL_VAR NAME="SITE_NAME">]</h1>
+
+<p>
+<a HREF="./">Up</a> <a href="mlist.txt">Plaintext version</a>
+
+<p>
+Available Stats:
+<table border=1>
+<tr>
+<!-- 
+<TMPL_IF NAME="separate_rlist">
+  <th colspan=4>Cypherpunk (Type I)</th>
+<TMPL_ELSE>
+  <th>Cypherpunk (Type I)</th> 
+</TMPL_IF>
+-->
+  <th>Mixmaster (Type II)</th>
+<TMPL_IF NAME="combined_list">
+	<th>Combined</th>
+</TMPL_IF>
+</tr>
+<tr>
+<!-- 
+  <td><a href="rlist.html">v1</a></td>
+<TMPL_IF NAME="separate_rlist">
+  <td><a href="rlist-rsa.html">(rsa)</a></td>
+  <td><a href="rlist-dsa.html">(dsa)</a></td>
+  <td><a href="rlist-clear.html">(cleartext)</a></td>
+</TMPL_IF>
+-->
+  <td><strong>v1</strong></td>
+<TMPL_IF NAME="combined_list">
+	<td rowspan=2><a href="clist.html">V2</a></td>
+</TMPL_IF>
+</tr>
+<tr>
+<!-- 
+  <td><a href="rlist2.html">v2</a></td>
+<TMPL_IF NAME="separate_rlist">
+  <td><a href="rlist2-rsa.html">(rsa)</a></td>
+  <td><a href="rlist2-dsa.html">(dsa)</a></td>
+  <td><a href="rlist2-clear.html">(cleartext)</a></td>
+</TMPL_IF>
+-->
+  <td><a href="mlist2.html">v2</a></td>
+</tr>
+</table>
+
+<h2>Mixmaster Remailers</h2>
+
+<p>
+This is an automatically generated list of remailer reliability
+statistics.
+Please see the <a href="#legend">Legend</a> below for interpretative data.
+
+<p>
+<pre>
+<TMPL_VAR NAME="list">
+</pre>
+
+<TMPL_INCLUDE NAME="templates/v1legend.html">
+
+<hr>
+Created by <a href="http://www.palfrader.org/echolot/">Echolot <TMPL_VAR NAME="version"></a>.<br>
+Last update: <TMPL_VAR NAME="CURRENT_TIMESTAMP">.
+</body>
+
+<!-- vim:set ts=2: -->
+<!-- vim:set shiftwidth=2: -->
+</html>

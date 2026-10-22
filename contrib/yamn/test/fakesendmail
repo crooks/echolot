@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+# Test stand-in for "sendmail -t": deliver a mail into the Maildir that
+# FAKESENDMAIL_ROUTES assigns to each recipient's domain, e.g.
+#   FAKESENDMAIL_ROUTES="remailer.test=/tmp/x/rem/Maildir pinger.test=/tmp/x/mail"
+# Every delivery is logged to FAKESENDMAIL_LOG.  Options such as -f and -t
+# are ignored; recipients are taken from the To and Cc headers.
+use strict;
+use warnings;
+use POSIX qw(strftime);
+use Time::HiRes qw(time);
+
+my %routes = map { split /=/, $_, 2 } split ' ', ($ENV{FAKESENDMAIL_ROUTES} // '');
+my $data = do { local $/; <STDIN> } // '';
+
+# Unfold the header and collect the To, Cc and Subject fields.
+my ($header) = split /\r?\n\r?\n/, $data, 2;
+$header =~ s/\r?\n[ \t]+/ /g;
+my (@rcpts, $subject);
+for my $line (split /\r?\n/, $header) {
+	if ($line =~ /^(?:To|Cc):\s*(.*)$/i) {
+		push @rcpts, $1 =~ /([^\s<>,"]+@[^\s<>,"]+)/g;
+	} elsif ($line =~ /^Subject:\s*(.*)$/i) {
+		$subject = $1;
+	}
+}
+
+open(my $log, '>>', $ENV{FAKESENDMAIL_LOG} // '/dev/null') or die "log: $!";
+my $i = 0;
+for my $r (@rcpts) {
+	my ($domain) = lc($r) =~ /@(.+)$/;
+	my $md = $routes{$domain};
+	if (!$md) {
+		print $log "DROP $r\n";
+		next;
+	}
+	my $name = sprintf("%.6f.%d_%d.fake", time, $$, $i++);
+	open(my $f, '>', "$md/tmp/$name") or die "$md/tmp/$name: $!";
+	print $f $data;
+	close($f) or die "close: $!";
+	rename("$md/tmp/$name", "$md/new/$name") or die "rename: $!";
+	printf $log "%s %s '%s' %dB\n", strftime("%H:%M:%S", localtime), $r,
+		$subject // '', length($data);
+}

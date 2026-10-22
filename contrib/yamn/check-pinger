@@ -1,0 +1,53 @@
+#!/bin/sh
+# check-pinger: report an Echolot pinger that has stopped working.
+#
+# Usage: check-pinger [ECHOLOT_DIR]      (default: ~/echolot)
+#
+# Prints a line and exits 1 for every problem found:
+#   - results/mlist2.txt not rebuilt for 30 minutes (buildstats runs every
+#     5 minutes, so pingd isn't running or is stuck)
+#   - results/pubring.mix not rebuilt for 3 hours (buildkeys, hourly with
+#     the example pingd.conf)
+#   - no ping came back for 6 hours (mail delivery to or from the pinger
+#     is broken, or yamn can't send)
+# Run it from cron, which mails any output to the operator:
+#   */30 * * * * /home/pinger/echolot/contrib/yamn/check-pinger
+# Limits can be changed with MAX_STATS_MIN, MAX_KEYS_MIN, MAX_PING_HOURS.
+
+dir=${1:-$HOME/echolot}
+max_stats=${MAX_STATS_MIN:-30}
+max_keys=${MAX_KEYS_MIN:-180}
+max_ping=${MAX_PING_HOURS:-6}
+now=$(date +%s)
+rc=0
+
+age_minutes() {
+	echo $(( (now - $(stat -c %Y "$1")) / 60 ))
+}
+
+check_file() {
+	if [ ! -e "$1" ]; then
+		echo "$1 is missing"
+		rc=1
+		return
+	fi
+	age=$(age_minutes "$1")
+	if [ "$age" -gt "$2" ]; then
+		echo "$1 was last rebuilt $age minutes ago (limit $2)"
+		rc=1
+	fi
+}
+
+check_file "$dir/results/mlist2.txt" "$max_stats"
+check_file "$dir/results/pubring.mix" "$max_keys"
+
+# Echolot appends every returned ping to data/<address>.<type>.<key>...done
+newest=$(ls -t "$dir"/data/*.done 2>/dev/null | grep -v '/chainpings\.' | head -1)
+if [ -z "$newest" ]; then
+	echo "no ping has come back yet ($dir/data/*.done)"
+	rc=1
+elif [ "$(age_minutes "$newest")" -gt $((max_ping * 60)) ]; then
+	echo "no ping has come back for $(( $(age_minutes "$newest") / 60 )) hours (limit $max_ping)"
+	rc=1
+fi
+exit $rc

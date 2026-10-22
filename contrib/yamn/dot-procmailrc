@@ -1,0 +1,8 @@
+# ~/.procmailrc for the pinger account: every mail, including all
+# pinger+<token>@ replies, goes into Echolot's Maildir.
+SHELL=/bin/sh
+LOGFILE=$HOME/procmail.log
+VERBOSE=off
+
+:0
+$HOME/echolot/mail/

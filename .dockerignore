@@ -1,0 +1,12 @@
+.git
+data
+results
+results.private
+mail
+mail-errors
+tmp
+gnupghome
+mixhome
+pingd.conf
+pingd.log
+commands.txt

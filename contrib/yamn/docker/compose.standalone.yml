@@ -1,0 +1,59 @@
+# Echolot yamn pinger with Postfix inside: needs only Docker or Podman.
+# See README.md.  Before starting, change the environment below, and set
+# up DNS for PINGER_DOMAIN: A (and MX) to this host, PTR, and SPF, e.g.
+# "v=spf1 mx a -all".  Port 25 must be reachable from the internet.
+#
+#   docker compose -f compose.standalone.yml up -d --build
+#   docker compose -f compose.standalone.yml logs -f
+services:
+  echolot:
+    build:
+      context: ../../..
+      dockerfile: contrib/yamn/docker/Dockerfile
+      target: standalone
+    image: echolot-yamn:standalone
+    restart: unless-stopped
+    ports:
+      - "25:25"
+    environment:
+      PINGER_DOMAIN: pinger.example.org            # receives pinger+<token>@ mail
+      PINGER_SITENAME: example                     # shown on the stats pages
+      PINGER_OPERATOR: admin@example.net           # a human, outside PINGER_DOMAIN
+      INET_PROTOCOLS: ipv4                         # if IPv6 has no reverse DNS
+      # A real certificate, e.g. from certbot on the host (mounted below).
+      # Without these, a self-signed one is created.
+      TLS_CERT: /etc/letsencrypt/live/pinger.example.org/fullchain.pem
+      TLS_KEY: /etc/letsencrypt/live/pinger.example.org/privkey.pem
+      # Remailers added on the first start
+      PINGER_REMAILERS: >-
+        yamn@mixmin.net yamn2@mixmin.net yamn3@mixmin.net yamn4@mixmin.net
+        nyam@remailer.frell.eu.org yamn@virebent.art
+      # If the host can't send on port 25, either use a relay ...
+      # RELAYHOST: "[smtp.example.net]:587"
+      # RELAY_USER: pinger
+      # RELAY_PASSWORD: secret
+      # ... or route the remailers' domains to ports they accept (checked
+      # 2026-10; see README.md):
+      # TRANSPORT_MAPS: >-
+      #   mixmin.net smtp:[fleegle.mixmin.net]:2525;
+      #   remailer.frell.eu.org smtp:[mail2.frell.eu.org]:2525;
+      #   virebent.art smtps:[mail.virebent.art]:465
+    volumes:
+      - echolot:/var/lib/echolot
+      - postfix-spool:/var/spool/postfix
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+
+  # Publishes the stats and keyring read-only at http://<host>:8080/yamn/.
+  # Remove it if a web server on the host serves the volume instead.
+  web:
+    image: nginx:1.29-alpine
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - echolot:/srv/echolot:ro
+      - ./nginx-yamn.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  echolot:
+  postfix-spool:

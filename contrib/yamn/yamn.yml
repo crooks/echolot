@@ -1,0 +1,26 @@
+# yamn.yml for the yamn client Echolot uses to send pings.
+# Put it into Echolot's mixhome (e.g. /home/pinger/yamn/yamn.yml).
+# There is no files section on purpose: yamn-ping runs yamn with
+# --dir <mixhome>, so pubring.mix (written by Echolot before every ping)
+# and the pool are kept there.
+
+urls:
+    # Never replace Echolot's one-key pubring.mix with a downloaded one
+    fetch: false
+
+mail:
+    # Hand the encrypted ping to the local MTA, with the pinger as the
+    # envelope sender.  (Or use smtp_relay etc., see yamn.yml.defaults.)
+    pipe: "/usr/sbin/sendmail -f pinger@pinger.example.org -t"
+
+remailer:
+    # The From address of the ping mails sent to the first remailer
+    address: pinger@pinger.example.org
+
+stats:
+    # One copy per ping.  yamn-ping also passes -c 1, because the -c
+    # option overrides this setting.
+    num_copies: 1
+    # Echolot keeps pinging a key until it expires it itself (5 days after
+    # it was last seen), so allow keys past their expiry date.
+    use_expired: true
